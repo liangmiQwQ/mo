@@ -33,3 +33,7 @@ Never use emoji in docs.
 Write simple code and make function reusable if possible. Use Unix philosophy to design your code (Every function should only do one thing and should not be too long or complex.)
 
 The project is designed for opensource developers on GitHub using MacOS or Linux, consider about it if you need to make any decision. Do not import features out of its scope.
+
+You can use some format for output, like red / red background for errors. But don't use too much color or format. Keep it simple and clean.
+
+Dependencies addition is not banned. Dependencies are always better than do it by yourself. But don't add dependencies without any reason. Try to use existing tools instead of adding new dependencies.
