@@ -30,16 +30,21 @@
   },
   "scripts": {
     "build": "vp pack",
-    "dev": "vp pack --watch",
+    "dev": "tsx src/cli.ts",
     "test": "vp test",
     "check": "vp check",
     "prepublishOnly": "vp run build",
     "prepare": "vp config"
   },
+  "dependencies": {
+    "@posva/prompts": "^2.4.4",
+    "cac": "^7.0.0"
+  },
   "devDependencies": {
     "@types/node": "^25.5.0",
     "@typescript/native-preview": "7.0.0-dev.20260316.1",
     "bumpp": "^11.0.1",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vite-plus": "^0.1.13"
   },

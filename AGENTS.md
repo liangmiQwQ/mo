@@ -37,3 +37,5 @@ The project is designed for opensource developers on GitHub using MacOS or Linux
 You can use some format for output, like red / red background for errors. But don't use too much color or format. Keep it simple and clean.
 
 Dependencies addition is not banned. Dependencies are always better than do it by yourself. But don't add dependencies without any reason. Try to use existing tools instead of adding new dependencies.
+
+I hate classes, never use classes. Keep code functional. We don't need too complex logic and care everything and every single edge case, just keep code simple.

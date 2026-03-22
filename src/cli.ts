@@ -1,94 +1,111 @@
 #!/usr/bin/env node
-import { cloneRepo } from "./lib/clone.js";
-import { GhmError } from "./lib/error.js";
-import { listRepos } from "./lib/list.js";
-import { readConfig } from "./lib/config.js";
-
-type Command =
-  | { name: "help" }
-  | { name: "version" }
-  | { name: "clone"; spec?: string }
-  | { name: "list" };
-
-function parseCommand(argv: string[]): Command {
-  const [command, ...rest] = argv;
-
-  if (!command || command === "-h" || command === "--help") return { name: "help" };
-  if (command === "-v" || command === "--version") return { name: "version" };
-
-  if (command === "clone" || command === "c") return { name: "clone", spec: rest[0] };
-  if (command === "list" || command === "ls") return { name: "list" };
-
-  return { name: "help" };
-}
-
-function printHelp(): void {
-  process.stdout.write(
-    [
-      "ghm - GitHub Project Manager",
-      "",
-      "Usage:",
-      "  ghm clone <owner>/<repo>",
-      "  ghm c <owner>/<repo>",
-      "  ghm list",
-      "  ghm ls",
-      "",
-      "Config:",
-      "  ~/.config/ghm.json",
-      '  { "root": "~/code" }',
-      "",
-    ].join("\n"),
-  );
-}
+import prompts from '@posva/prompts'
+import { cac } from 'cac'
+import { cloneRepo } from './lib/clone.js'
+import { readConfig } from './lib/config.js'
+import { GhmError } from './lib/error.js'
+import { listRepos } from './lib/list.js'
 
 export async function main(argv = process.argv.slice(2)): Promise<number> {
   try {
-    const command = parseCommand(argv);
+    // Handle help/version manually to ensure output goes through process.stdout
+    // (which is mocked in tests) instead of cac's internal output method
+    if (argv.includes('--help') || argv.includes('-h')) {
+      process.stdout.write(`ghm/ghm
 
-    if (command.name === "help") {
-      printHelp();
-      return 0;
+Usage:
+  $ ghm <command> [options]
+
+Commands:
+  list          List repos under <root>
+  clone [spec]  Clone repo into <root>/<owner>/<repo>
+
+For more info, run any command with the \`--help\` flag:
+  $ ghm list --help
+  $ ghm clone --help
+
+Options:
+  --config <path>  Config file path (default: ~/.config/ghm.json)
+  -v, --version    Display version number
+  -h, --help       Display this message
+`)
+      return 0
     }
 
-    if (command.name === "version") {
-      // best-effort: package.json is not bundled in dist in all setups
-      process.stdout.write("ghm\n");
-      return 0;
+    if (argv.includes('--version') || argv.includes('-v')) {
+      process.stdout.write('ghm\n')
+      return 0
     }
 
-    const { root } = await readConfig();
+    const cli = cac('ghm')
 
-    if (command.name === "list") {
-      const repos = await listRepos(root);
-      for (const repo of repos) process.stdout.write(`${repo}\n`);
-      return 0;
+    cli.option('--config <path>', 'Config file path (default: ~/.config/ghm.json)')
+
+    cli
+      .command('list', 'List repos under <root>')
+      .alias('ls')
+      .action(async (options: { config?: string }) => {
+        const { root } = await readConfig({ configPath: options.config })
+        const repos = await listRepos(root)
+        for (const repo of repos) process.stdout.write(`${repo}\n`)
+      })
+
+    cli
+      .command('clone [spec]', 'Clone repo into <root>/<owner>/<repo>')
+      .alias('c')
+      .action(async (spec: string | undefined, options: { config?: string }) => {
+        let resolvedSpec = spec
+        if (!resolvedSpec) {
+          if (!process.stdin.isTTY) throw new GhmError('Usage: ghm clone <owner>/<repo>', 2)
+
+          const answers = await prompts(
+            {
+              type: 'text',
+              name: 'spec',
+              message: 'Repository (owner/repo):',
+              initial: 'vitejs/vite',
+            },
+            {
+              onCancel: () => {
+                throw new GhmError('Cancelled', 130)
+              },
+            },
+          )
+
+          resolvedSpec = answers.spec as string | undefined
+          if (!resolvedSpec) throw new GhmError('Usage: ghm clone <owner>/<repo>', 2)
+        }
+
+        const { root } = await readConfig({ configPath: options.config })
+        await cloneRepo(resolvedSpec, { root })
+      })
+
+    cli.parse(['node', 'ghm', ...argv], { run: false })
+
+    if (cli.args.length > 0) {
+      process.stderr.write(`Unknown command: ${cli.args.join(' ')}\n`)
+      return 2
     }
 
-    if (command.name === "clone") {
-      if (!command.spec) throw new GhmError("Usage: ghm clone <owner>/<repo>", 2);
-      await cloneRepo(command.spec, { root });
-      return 0;
-    }
+    await cli.runMatchedCommand()
 
-    printHelp();
-    return 0;
+    return 0
   } catch (error) {
     if (error instanceof GhmError) {
-      process.stderr.write(`${error.message}\n`);
-      return error.exitCode;
+      process.stderr.write(`${error.message}\n`)
+      return error.exitCode
     }
 
-    process.stderr.write(`${(error as Error).message}\n`);
-    return 1;
+    process.stderr.write(`${(error as Error).message}\n`)
+    return 1
   }
 }
 
-// eslint-disable-next-line unicorn/prefer-top-level-await
 main()
   .then((code) => {
-    process.exitCode = code;
+    process.exitCode = code
   })
   .catch((error: unknown) => {
-    process.stderr.write(`${(error as Error).message}\n`);
-    process.exitCode = 1;
-  });
+    process.stderr.write(`${(error as Error).message}\n`)
+    process.exitCode = 1
+  })

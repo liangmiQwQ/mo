@@ -25,11 +25,21 @@ ghm clone vitejs/devtools
 ghm c vitejs/devtools
 ```
 
+If `<owner>/<repo>` is omitted and the terminal is interactive, `ghm` will prompt for it.
+
 List repos under `<root>`:
 
 ```bash
 ghm list
 ghm ls
+```
+
+### Options
+
+Use a custom config path:
+
+```bash
+ghm --config /path/to/ghm.json list
 ```
 
 ## License
