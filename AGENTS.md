@@ -32,6 +32,6 @@ Never use emoji no matter where.
 
 Keep code functional. Never use classes. Write simple code and make function reusable if possible. Use Unix philosophy to design your code (Every function should only do one thing and should not be too long or complex). Don't make too complex tests.
 
-The project is designed for opensource developers on GitHub using MacOS or Linux, consider about it if you need to make any decision. Do not import features out of its scope.
+The project is designed for opensource developers on GitHub, consider about it if you need to make any decision. Do not import features out of its scope.
 
 Use existing dependencies and tools. Feel free to add dependencies. Don't reinvent the wheel. Should always use `cac` for cli command parsing and `picocolors` for output formatting.

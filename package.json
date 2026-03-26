@@ -47,6 +47,7 @@
     "tinyexec": "^1.0.4",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2",
+    "untildify": "^6.0.0",
     "vite-plus": "^0.1.13",
     "vitest": "npm:@voidzero-dev/vite-plus-test@^0.1.14"
   },
