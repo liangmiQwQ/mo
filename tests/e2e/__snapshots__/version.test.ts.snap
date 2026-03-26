@@ -1,0 +1,6 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ghm cli > --version 1`] = `
+"ghm/0.0.0 darwin-arm64 node-v24.14.0
+"
+`;

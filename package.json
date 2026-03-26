@@ -29,8 +29,9 @@
   },
   "scripts": {
     "build": "vp pack",
-    "dev": "tsx src/cli.ts",
-    "test": "vp test",
+    "dev": "tsx src/index.ts",
+    "preview": "node bin/cli.mjs",
+    "test": "vp run build && vp test run",
     "check": "vp check",
     "prepublishOnly": "vp run build",
     "prepare": "vp config"
@@ -43,9 +44,11 @@
     "cac": "^7.0.0",
     "jsonc-parser": "^3.3.1",
     "picocolors": "^1.1.1",
+    "tinyexec": "^1.0.4",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2",
-    "vite-plus": "^0.1.13"
+    "vite-plus": "^0.1.13",
+    "vitest": "npm:@voidzero-dev/vite-plus-test@^0.1.14"
   },
   "packageManager": "pnpm@10.32.1",
   "pnpm": {
@@ -53,5 +56,8 @@
       "vite": "npm:@voidzero-dev/vite-plus-core@latest",
       "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
     }
+  },
+  "inlinedDependencies": {
+    "cac": "7.0.0"
   }
 }

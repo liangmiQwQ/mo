@@ -1,0 +1,13 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ghm cli > --help 1`] = `
+"ghm/0.0.0
+
+Usage:
+  $ ghm <command> [options]
+
+Options:
+  -h, --help     Display this message 
+  -v, --version  Display version number 
+"
+`;
