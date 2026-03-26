@@ -17,7 +17,8 @@
   },
   "files": [
     "dist",
-    "bin"
+    "bin",
+    "config_schema.json"
   ],
   "type": "module",
   "exports": {
@@ -59,6 +60,9 @@
     }
   },
   "inlinedDependencies": {
-    "cac": "7.0.0"
+    "cac": "7.0.0",
+    "jsonc-parser": "3.3.1",
+    "picocolors": "1.1.1",
+    "untildify": "6.0.0"
   }
 }

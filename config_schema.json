@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ghm configuration",
+  "description": "Configuration file for ghm - Project manager for opensource developers on Github.",
+  "type": "object",
+  "required": ["root"],
+  "properties": {
+    "root": {
+      "type": "string",
+      "description": "The root directory where all your GitHub repositories are stored. Supports tilde (~) expansion for home directory.",
+      "examples": ["~/code", "/Users/username/code", "C:\\Users\\username\\code"]
+    },
+    "editor": {
+      "type": "string",
+      "description": "The default editor command to open repositories (reserved for future use)",
+      "examples": ["code", "cursor", "zed"]
+    }
+  },
+  "additionalProperties": false,
+  "allowComments": true,
+  "allowTrailingCommas": true
+}
