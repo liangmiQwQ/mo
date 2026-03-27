@@ -10,10 +10,8 @@ export default defineConfig({
     entry: {
       index: 'src/index.ts',
     },
-    dts: {
-      tsgo: true,
-    },
-    exports: true,
+    dts: false,
+    exports: false,
   },
   lint: {
     options: {
