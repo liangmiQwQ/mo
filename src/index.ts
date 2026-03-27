@@ -1,10 +1,28 @@
 import { cac } from 'cac'
 import packageJson from '../package.json'
 import { loadConfig } from './config/config'
+import { runCloneCommand } from './commands/clone'
+import { runListCommand } from './commands/list'
 
 const cli = cac('ghm')
 
-loadConfig()
+cli.option('-c, --config <path>', 'Use a custom config file path')
+
+cli
+  .command('clone <repo>', 'Clone a repository to <root>/<owner>/<repo>')
+  .alias('c')
+  .action((repo: string, options: { config?: string }) => {
+    const config = loadConfig(options.config)
+    runCloneCommand(repo, config)
+  })
+
+cli
+  .command('list', 'List repositories under configured root')
+  .alias('ls')
+  .action((options: { config?: string }) => {
+    const config = loadConfig(options.config)
+    runListCommand(config)
+  })
 
 cli.help()
 cli.version(packageJson.version || '0.0.0')

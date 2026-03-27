@@ -6,8 +6,17 @@ exports[`ghm cli > --help 1`] = `
 Usage:
   $ ghm <command> [options]
 
+Commands:
+  clone <repo>  Clone a repository to <root>/<owner>/<repo>
+  list          List repositories under configured root
+
+For more info, run any command with the \`--help\` flag:
+  $ ghm clone --help
+  $ ghm list --help
+
 Options:
-  -h, --help     Display this message 
-  -v, --version  Display version number 
+  -c, --config <path>  Use a custom config file path 
+  -h, --help           Display this message 
+  -v, --version        Display version number 
 "
 `;
