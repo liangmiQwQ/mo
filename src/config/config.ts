@@ -2,7 +2,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 import untildify from 'untildify'
 
-import { parse } from 'jsonc-parser/lib/esm/main.js'
+import { parse } from 'jsonc-parser'
 
 import { error } from '../output/error'
 import { homedir } from 'node:os'
