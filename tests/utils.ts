@@ -49,5 +49,7 @@ export function execWithConfig(
 export function execFixture(name: string, args: string[]) {
   const cwd = path.join(import.meta.dirname, 'fixtures', name)
   const configPath = path.join(cwd, 'ghmrc.json')
-  return execWithConfig(args, configPath, { cwd })
+  // Prepend fixture dir to PATH to allow mock binaries (e.g., git)
+  const env = { ...process.env, PATH: `${cwd}${path.delimiter}${process.env.PATH}` }
+  return execWithConfig(args, configPath, { cwd, env })
 }
