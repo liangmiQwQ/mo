@@ -57,6 +57,6 @@ async function syncShellrcForRun(config: ReturnType<typeof loadConfig>): Promise
     await syncManagedShellrc(config.shells)
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
-    console.warn(`Failed to sync shellrc: ${message}`)
+    error(`Failed to sync shellrc: ${message}`)
   }
 }
