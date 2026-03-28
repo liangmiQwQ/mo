@@ -1,11 +1,11 @@
 import { existsSync, readdirSync } from 'node:fs'
 import path from 'node:path'
-import { execSync } from 'node:child_process'
+import { x } from 'tinyexec'
 import pc from 'picocolors'
 import type { GlobalUserConfig } from '../config/config'
 import { icons, highlight, muted, toTildePath, bold, gray } from '../output/format'
 
-export function runListCommand(config: GlobalUserConfig): void {
+export async function runListCommand(config: GlobalUserConfig): Promise<void> {
   const owners = readDirectoryNames(config.root)
 
   if (!owners.length) {
@@ -23,7 +23,7 @@ export function runListCommand(config: GlobalUserConfig): void {
 
     for (const repo of potentialRepos) {
       const repoPath = path.join(ownerPath, repo)
-      if (isGitRepo(repoPath) && hasGitHubRemote(repoPath)) {
+      if (isGitRepo(repoPath) && (await hasGitHubRemote(repoPath))) {
         validRepos.push(repo)
       }
     }
@@ -88,15 +88,14 @@ function isGitRepo(dir: string): boolean {
   return existsSync(gitDir)
 }
 
-function hasGitHubRemote(dir: string): boolean {
+async function hasGitHubRemote(dir: string): Promise<boolean> {
   try {
-    const output = execSync('git remote -v', {
-      cwd: dir,
-      encoding: 'utf8',
-      timeout: 5000,
+    const result = await x('git', ['remote', '-v'], {
+      throwOnError: false,
+      nodeOptions: { cwd: dir },
     })
     // Check if any remote URL contains github.com
-    return output.includes('github.com')
+    return result.stdout.includes('github.com')
   } catch {
     return false
   }

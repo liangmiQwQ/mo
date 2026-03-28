@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync } from 'node:fs'
 import path from 'node:path'
-import { spawn } from 'node:child_process'
+import { x } from 'tinyexec'
 import pc from 'picocolors'
 import type { GlobalUserConfig } from '../config/config'
 import { error } from '../output/error'
@@ -32,32 +32,14 @@ export async function runCloneCommand(repo: string, config: GlobalUserConfig): P
   }
 }
 
-function runGitClone(url: string, targetDir: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const child = spawn('git', ['clone', '--progress', url, targetDir], {
-      env: process.env,
-      shell: true,
-    })
-
-    let stderr = ''
-
-    child.stderr?.on('data', (data) => {
-      stderr += data.toString()
-    })
-
-    child.on('close', (code) => {
-      if (code === 0) {
-        resolve()
-      } else {
-        const error = new Error(stderr || `Git clone exited with code ${code}`)
-        reject(error)
-      }
-    })
-
-    child.on('error', (err) => {
-      reject(err)
-    })
+async function runGitClone(url: string, targetDir: string): Promise<void> {
+  const result = await x('git', ['clone', '--progress', url, targetDir], {
+    throwOnError: false,
   })
+
+  if (result.exitCode !== 0) {
+    throw new Error(result.stderr || `Git clone exited with code ${result.exitCode}`)
+  }
 }
 
 function parseRepo(repo: string): { owner: string; name: string } {

@@ -20,9 +20,9 @@ cli
 cli
   .command('list', 'List repositories under configured root')
   .alias('ls')
-  .action((options: { config?: string }) => {
+  .action(async (options: { config?: string }) => {
     const config = loadConfig(options.config)
-    runListCommand(config)
+    await runListCommand(config)
   })
 
 cli.help()
