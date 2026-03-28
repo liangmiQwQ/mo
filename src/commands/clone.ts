@@ -21,6 +21,7 @@ export function runCloneCommand(repo: string, config: GlobalUserConfig): void {
   const result = spawnSync('git', ['clone', cloneUrl, targetDir], {
     encoding: 'utf8',
     env: process.env,
+    shell: true,
   })
 
   if (result.error) {
