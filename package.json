@@ -39,8 +39,7 @@
     "prepare": "vp config"
   },
   "dependencies": {
-    "jsonc-parser": "^3.3.1",
-    "tinyexec": "^1.0.4"
+    "jsonc-parser": "^3.3.1"
   },
   "devDependencies": {
     "@posva/prompts": "^2.4.4",
@@ -49,6 +48,7 @@
     "bumpp": "^11.0.1",
     "cac": "^7.0.0",
     "picocolors": "^1.1.1",
+    "tinyexec": "^1.0.4",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2",
     "untildify": "^6.0.0",
