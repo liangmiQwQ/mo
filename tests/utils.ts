@@ -34,7 +34,9 @@ export async function exec(
 
   const cli = path.resolve(import.meta.dirname, '../bin/cli.mjs')
 
-  const output = await x('node', [cli, ...args], {
+  // Use process.execPath to get the actual Node.js executable path.
+  // This avoids issues with vite-plus's node wrapper which hangs when HOME is overridden.
+  const output = await x(process.execPath, [cli, ...args], {
     throwOnError: false,
     nodeOptions: {
       cwd,
