@@ -48,7 +48,7 @@ function parseConfig(jsonc: string, configFilePath: string): GlobalUserConfig {
     invalidConfigError('"root" must be a non-empty string')
   }
 
-  const rootPath = path.resolve(untildify(root))
+  const rootPath = path.resolve(path.dirname(configFilePath), untildify(root))
 
   if (!existsSync(rootPath)) {
     invalidConfigError(`"root" directory does not exist`)

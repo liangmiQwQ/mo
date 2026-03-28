@@ -7,7 +7,7 @@
   "properties": {
     "root": {
       "type": "string",
-      "description": "The root directory where all your GitHub repositories are stored. Supports tilde (~) expansion for home directory.",
+      "description": "The root directory where all your GitHub repositories are stored. Relative to the config file location.",
       "examples": ["~/code", "/Users/username/code", "C:\\Users\\username\\code"]
     },
     "editor": {
