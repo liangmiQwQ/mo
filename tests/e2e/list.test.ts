@@ -37,4 +37,20 @@ describe('ghm list', () => {
     expect(result.stdout).toContain('3 repositories')
     expect(result.stdout).toContain('2 organizations')
   })
+
+  test('filters out non-git directories', async () => {
+    const result = await execFixture('list-command', ['list'])
+
+    expect(result.exitCode).toBe(0)
+    // Should not show directories that are not git repos
+    expect(result.stdout).not.toContain('not-a-repo')
+  })
+
+  test('filters out repos without GitHub remotes', async () => {
+    const result = await execFixture('list-command', ['list'])
+
+    expect(result.exitCode).toBe(0)
+    // Should not show repos that don't have GitHub remotes
+    expect(result.stdout).not.toContain('no-github-remote')
+  })
 })
