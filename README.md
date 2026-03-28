@@ -14,11 +14,13 @@ Create `~/.config/ghmrc.json`:
 
 ```json
 {
-  "root": "~/code"
+  "root": "~/code",
+  "shells": ["zsh"]
 }
 ```
 
 `root` must exist and be a directory.
+`shells` is required and must include at least one of `zsh`, `bash`, and `fish`.
 
 ### Commands
 

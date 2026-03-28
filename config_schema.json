@@ -3,7 +3,7 @@
   "title": "Ghmrc",
   "description": "Configuration file for ghm - Project manager for opensource developers on Github.",
   "type": "object",
-  "required": ["root"],
+  "required": ["root", "shells"],
   "properties": {
     "root": {
       "type": "string",
@@ -14,6 +14,17 @@
       "type": "string",
       "description": "The default editor command to open repositories",
       "examples": ["code", "cursor", "agy", "zed"]
+    },
+    "shells": {
+      "type": "array",
+      "description": "Shells whose shellrc files should be managed by ghm. At least one shell is required.",
+      "items": {
+        "type": "string",
+        "enum": ["zsh", "bash", "fish"]
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "examples": [["zsh"], ["zsh", "fish"]]
     },
     "$schema": {
       "type": "string",

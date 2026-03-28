@@ -18,6 +18,8 @@ Like `~/code/vitejs/vite`, `~/code/vuejs/vue`, `~/code/vuejs/core`.
 
 Read [ROADMAP](/ROADMAP.md) to learn more about project architecture and the road map.
 
+Shell integration is managed through `ghmrc.json` `shells` (`zsh`/`bash`/`fish`) and ghm-controlled shellrc blocks.
+
 ## Rule
 
 Vite+ is used as the project manager. Use `vp install` to install dependencies, use `vp install -D` if the adden dependency can be bundled. Use `vp run` command to run commands in `package.json`. Do not use `pnpm` or `npm` directly.

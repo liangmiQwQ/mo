@@ -14,14 +14,23 @@ export async function exec(
   args: string[],
   options: { cwd?: string; env?: NodeJS.ProcessEnv; skipCleanup?: boolean } = {},
 ) {
+  const homeDir = path.join(tempDir, 'home')
+
   // Clean temp dir unless skipCleanup is true
   if (!options.skipCleanup) {
     await fs.rm(tempDir, { recursive: true, force: true })
     await fs.mkdir(tempDir, { recursive: true })
+  } else {
+    await fs.mkdir(tempDir, { recursive: true })
   }
+  await fs.mkdir(homeDir, { recursive: true })
 
   const cwd = options.cwd ?? process.cwd()
-  const env = options.env ? { ...process.env, ...options.env } : process.env
+  const env = {
+    ...process.env,
+    HOME: homeDir,
+    ...options.env,
+  }
 
   const cli = path.resolve(import.meta.dirname, '../bin/cli.mjs')
 
@@ -48,10 +57,18 @@ export function execWithConfig(
   return exec(['--config', configPath, ...args], options)
 }
 
-export function execFixture(name: string, args: string[], options: { skipCleanup?: boolean } = {}) {
+export function execFixture(
+  name: string,
+  args: string[],
+  options: { env?: NodeJS.ProcessEnv; skipCleanup?: boolean } = {},
+) {
   const cwd = path.join(import.meta.dirname, 'fixtures', name)
   const configPath = path.join(cwd, 'ghmrc.json')
-  return execWithConfig(args, configPath, { cwd, ...options })
+  return execWithConfig(args, configPath, {
+    cwd,
+    env: options.env,
+    skipCleanup: options.skipCleanup,
+  })
 }
 
 // Helper functions for setting up test repositories

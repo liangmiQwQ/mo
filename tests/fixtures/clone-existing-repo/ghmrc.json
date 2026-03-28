@@ -1,4 +1,5 @@
 {
   "$schema": "../../../config_schema.json",
-  "root": "../.temp/existing-root"
+  "root": "../.temp/existing-root",
+  "shells": ["zsh"]
 }
