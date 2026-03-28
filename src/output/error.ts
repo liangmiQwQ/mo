@@ -1,4 +1,5 @@
 import pc from 'picocolors'
+import { icons } from './format'
 
 /**
  * Prints a warning message to stderr.
@@ -6,7 +7,7 @@ import pc from 'picocolors'
  * This helper never exits the process.
  */
 export function warn(message: string): void {
-  console.warn(`${pc.bgYellow(pc.black(' WARN '))} ${pc.yellow(message)}`)
+  console.warn(pc.yellow(`${icons.warning} ${message}`))
 }
 
 /**
@@ -16,10 +17,6 @@ export function warn(message: string): void {
  * - Returns `never` because it calls `process.exit()`.
  */
 export function error(message: string, exitCode: number = 1): never {
-  console.error(`${pc.red('✗')} ${pc.white(pc.bgRed(' ERROR '))} ${pc.red(message)}`)
+  console.error(pc.red(`${icons.error} ${message}`))
   process.exit(exitCode)
-}
-
-export function formatError(message: string): string {
-  return `${pc.red('✗')} ${pc.red(message)}`
 }

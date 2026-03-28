@@ -3,6 +3,7 @@ import { version } from '../package.json'
 import { loadConfig } from './config/config'
 import { runCloneCommand } from './commands/clone'
 import { runListCommand } from './commands/list'
+import { error } from './output/error'
 
 const cli = cac('ghm')
 
@@ -27,4 +28,9 @@ cli
 cli.help()
 cli.version(version || '0.0.0')
 
-cli.parse()
+try {
+  cli.parse()
+} catch (err) {
+  const message = err instanceof Error ? err.message : String(err)
+  error(message.charAt(0).toUpperCase() + message.slice(1))
+}

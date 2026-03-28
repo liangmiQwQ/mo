@@ -16,11 +16,6 @@ export const icons = {
   info: pc.cyan('ℹ'),
   arrow: pc.dim('→'),
   bullet: pc.dim('•'),
-  tree: {
-    branch: pc.dim('├─'),
-    corner: pc.dim('└─'),
-    vertical: pc.dim('│ '),
-  },
 }
 
 const spinnerFrames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
