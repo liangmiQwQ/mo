@@ -1,7 +1,13 @@
 import { describe, expect, test, beforeEach, afterEach } from 'vitest'
 import path from 'node:path'
 import fs from 'node:fs/promises'
-import { execFixture, setupTestRepo, setupNotAGitDir, setupNonGitHubRepo } from '../utils'
+import {
+  execFixture,
+  setupTestRepo,
+  setupNotAGitDir,
+  setupNonGitHubRepo,
+  stripAnsi,
+} from '../utils'
 
 const fixtureDir = path.join(import.meta.dirname, '../fixtures/list-command')
 const rootDir = path.join(fixtureDir, 'root')
@@ -65,8 +71,8 @@ describe('ghm list', () => {
     const result = await execFixture('list-command', ['list'])
 
     expect(result.exitCode).toBe(0)
-    expect(result.stdout).toContain('3 repositories')
-    expect(result.stdout).toContain('2 organizations')
+    expect(stripAnsi(result.stdout)).toContain('3 repositories')
+    expect(stripAnsi(result.stdout)).toContain('2 organizations')
   })
 
   test('filters out non-git directories', async () => {

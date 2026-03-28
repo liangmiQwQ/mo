@@ -1,7 +1,7 @@
 import { describe, expect, test, beforeEach, afterEach } from 'vitest'
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { execFixture, setupTestRepo } from '../utils'
+import { execFixture, setupTestRepo, stripAnsi } from '../utils'
 
 const fixtureDir = path.join(import.meta.dirname, '../fixtures/clone-command')
 const tempDir = path.join(fixtureDir, '../.temp')
@@ -51,7 +51,7 @@ describe('ghm clone', () => {
     const result = await execFixture('clone-command', ['clone', 'octocat/Hello-World'])
 
     expect(result.exitCode).toBe(0)
-    expect(result.stdout).toContain('Cloned octocat/Hello-World')
+    expect(stripAnsi(result.stdout)).toContain('Cloned octocat/Hello-World')
 
     // Verify the repository was actually cloned to disk
     const stats = await fs.stat(path.join(tempDir, 'octocat/Hello-World'))

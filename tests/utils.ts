@@ -97,3 +97,9 @@ async function execGit(args: string[], cwd: string): Promise<void> {
     throw new Error(`git ${args.join(' ')} failed: ${result.stderr}`)
   }
 }
+
+// Helper to strip ANSI codes for testing
+export function stripAnsi(str: string): string {
+  // eslint-disable-next-line no-control-regex
+  return str.replace(/\u001b\[[0-9;]*m/g, '')
+}
