@@ -9,7 +9,7 @@ const cli = cac('ghm')
 cli.option('-c, --config <path>', 'Use a custom config file path')
 
 cli
-  .command('clone <owner>/<repo>', 'Clone a repository to <root>/<owner>/<repo>')
+  .command('clone <repo>', 'Clone a repository to <root>/<owner>/<repo>')
   .alias('c')
   .action((repo: string, options: { config?: string }) => {
     const config = loadConfig(options.config)

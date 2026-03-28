@@ -16,6 +16,6 @@ describe('ghm list', () => {
 
     expect(result.exitCode).toBe(0)
     const lines = result.stdout.trim().split('\n').filter(Boolean)
-    expect(lines).toContain(['vitejs/vite', 'vuejs/core', 'vuejs/router'])
+    expect(lines).toEqual(['vitejs/vite', 'vuejs/core', 'vuejs/router'])
   })
 })
