@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { exec } from '../exec'
+import { exec } from '../utils'
 
 describe('ghm cli', () => {
   test('--help', async () => {

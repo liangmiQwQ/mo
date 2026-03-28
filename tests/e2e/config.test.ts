@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { exec } from '../exec'
+import { exec } from '../utils'
 
 describe('ghm config', () => {
   test('--config loads custom config path', async () => {
@@ -8,11 +8,11 @@ describe('ghm config', () => {
     const result = await exec(['--config', configPath, 'list'])
 
     expect(result.exitCode).toBe(0)
-    expect(result.stdout.trim()).toBe('vitejs/vite')
+    expect(result.stdout.trim().split('\n')).toEqual(['vitejs/vite', 'vuejs/core', 'vuejs/router'])
   })
 
   test('--config reports missing file', async () => {
-    const result = await exec(['--config', '/path/not-found/ghm.json', 'list'])
+    const result = await exec(['--config', '/path/not-found/ghmrc.json', 'list'])
 
     expect(result.exitCode).toBe(1)
     expect(result.stderr).toContain(`Couldn't find config file`)

@@ -20,6 +20,7 @@ export function runCloneCommand(repo: string, config: GlobalUserConfig): void {
   const cloneUrl = `https://github.com/${parsedRepo.owner}/${parsedRepo.name}.git`
   const result = spawnSync('git', ['clone', cloneUrl, targetDir], {
     encoding: 'utf8',
+    env: process.env,
   })
 
   if (result.error) {

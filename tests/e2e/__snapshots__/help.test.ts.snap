@@ -1,0 +1,22 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ghm cli > --help 1`] = `
+"ghm/0.0.0
+
+Usage:
+  $ ghm <command> [options]
+
+Commands:
+  clone <repo>  Clone a repository to <root>/<owner>/<repo>
+  list          List repositories under configured root
+
+For more info, run any command with the \`--help\` flag:
+  $ ghm clone --help
+  $ ghm list --help
+
+Options:
+  -c, --config <path>  Use a custom config file path 
+  -h, --help           Display this message 
+  -v, --version        Display version number 
+"
+`;

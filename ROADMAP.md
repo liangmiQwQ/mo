@@ -4,7 +4,7 @@
 
 ### - [x] Basic Config System
 
-Require `~/.config/ghm.json` as the config file like below.
+Require `~/.config/ghmrc.json` as the config file like below.
 
 ```json
 {
@@ -65,7 +65,7 @@ It's a big feature, need `gh` and `git` commands work together, leave a blank fo
 
 ### - [ ] `editor` option
 
-Add `editor` option in `~/.config/ghm.json`, modify `setup` command as well.
+Add `editor` option in `~/.config/ghmrc.json`, modify `setup` command as well.
 
 ```json
 {

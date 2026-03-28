@@ -1,0 +1,4 @@
+{
+  "$schema": "../../../config_schema.json",
+  "root": "./root"
+}

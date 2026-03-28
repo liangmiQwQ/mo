@@ -1,17 +1,22 @@
-import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
-import os from 'node:os'
+import { chmodSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { afterEach, describe, expect, test } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 
-import { exec } from '../exec'
+import { exec } from '../utils'
 
-const tempDirs: string[] = []
+const TEMP_DIR = path.resolve(__dirname, '../.temp/clone')
+
+beforeEach(() => {
+  if (existsSync(TEMP_DIR)) {
+    rmSync(TEMP_DIR, { recursive: true, force: true })
+  }
+  mkdirSync(TEMP_DIR, { recursive: true })
+})
 
 afterEach(() => {
-  for (const dir of tempDirs) {
-    rmSync(dir, { recursive: true, force: true })
+  if (existsSync(TEMP_DIR)) {
+    rmSync(TEMP_DIR, { recursive: true, force: true })
   }
-  tempDirs.length = 0
 })
 
 describe('ghm clone', () => {
@@ -60,14 +65,17 @@ describe('ghm clone', () => {
   })
 })
 
+let testCounter = 0
+
 function createTempDir(): string {
-  const tempDir = mkdtempSync(path.join(os.tmpdir(), 'ghm-e2e-'))
-  tempDirs.push(tempDir)
+  const testName = expect.getState().currentTestName?.replace(/[^a-zA-Z0-9]/g, '_') || 'test'
+  const tempDir = path.join(TEMP_DIR, `${Date.now()}_${testCounter++}_${testName}`)
+  mkdirSync(tempDir, { recursive: true })
   return tempDir
 }
 
 function createConfig(tempDir: string, rootDir: string): string {
-  const configPath = path.join(tempDir, 'ghm.json')
+  const configPath = path.join(tempDir, 'ghmrc.json')
   writeFileSync(configPath, JSON.stringify({ root: rootDir }, null, 2), 'utf8')
   return configPath
 }

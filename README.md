@@ -10,7 +10,7 @@ npm i -g @liangmi/ghm
 
 ### Config
 
-Create `~/.config/ghm.json`:
+Create `~/.config/ghmrc.json`:
 
 ```json
 {
@@ -41,7 +41,7 @@ ghm ls
 Use a custom config path:
 
 ```bash
-ghm --config /path/to/ghm.json list
+ghm --config /path/to/ghmrc.json list
 ```
 
 ## License

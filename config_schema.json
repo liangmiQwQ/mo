@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "ghm configuration",
+  "title": "Ghmrc",
   "description": "Configuration file for ghm - Project manager for opensource developers on Github.",
   "type": "object",
   "required": ["root"],
@@ -12,8 +12,12 @@
     },
     "editor": {
       "type": "string",
-      "description": "The default editor command to open repositories (reserved for future use)",
-      "examples": ["code", "cursor", "zed"]
+      "description": "The default editor command to open repositories",
+      "examples": ["code", "cursor", "agy", "zed"]
+    },
+    "$schema": {
+      "type": "string",
+      "description": "The schema URL for this config file."
     }
   },
   "additionalProperties": false,
