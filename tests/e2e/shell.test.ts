@@ -35,6 +35,14 @@ describe('ghm shell command', () => {
     expect(stripAnsi(result.stderr)).toContain('fish')
   })
 
+  test('errors when shell is not enabled in config', async () => {
+    const result = await execFixture('shell-disabled', ['shell', 'bash'])
+    expect(result.exitCode).toBe(1)
+    expect(stripAnsi(result.stderr)).toContain(
+      'Shell "bash" is not enabled in config "shells". Enabled: zsh',
+    )
+  })
+
   test('exits with code 2 when GHM_SHELL_LOADED is set', async () => {
     const result = await execFixture('shell-cmd', ['shell', 'bash'], {
       env: { GHM_SHELL_LOADED: '1' },

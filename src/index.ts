@@ -1,6 +1,6 @@
 import { cac } from 'cac'
 import { version, bin } from '../package.json'
-import { loadConfig } from './config/config'
+import { loadConfig, supportedShells } from './config/config'
 import { runCloneCommand } from './commands/clone'
 import { runListCommand } from './commands/list'
 import { generateShellIntegration, isValidShell } from './commands/shell'
@@ -50,8 +50,13 @@ cli.command('shell <shell>', 'Generate shell integration code').action(
     if (process.env.GHM_SHELL_LOADED) {
       process.exit(2)
     }
-    if (!isValidShell(shell) || !config.shells.includes(shell)) {
-      error(`Invalid shell "${shell}". Supported: ${config.shells.join(', ')}`)
+    if (!isValidShell(shell)) {
+      error(`Invalid shell "${shell}". Supported: ${supportedShells.join(', ')}`)
+    }
+    if (!config.shells.includes(shell)) {
+      error(
+        `Shell "${shell}" is not enabled in config "shells". Enabled: ${config.shells.join(', ')}`,
+      )
     }
     console.log(generateShellIntegration(shell, binName))
   }),
