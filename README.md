@@ -1,6 +1,9 @@
 # `ghm`
 
-`ghm`, the *G*it*H*ub Project *M*anager for opensource.
+`ghm`, the *G*it*H*ub Project *M*anager for opensource developers.
+
+> [!WARNING]
+> This project is Unix-like (Mac / Linux) only for now.
 
 ```
 npm i -g @liangmi/ghm
