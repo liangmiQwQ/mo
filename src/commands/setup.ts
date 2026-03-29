@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import { mkdir, stat, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import prompts from '@posva/prompts'
@@ -52,6 +53,10 @@ export async function runSetupCommand(
 ): Promise<void> {
   const allDeps = { ...defaultDeps, ...deps }
   const configPath = resolveConfigPath(options.configPath)
+
+  if (existsSync(configPath)) {
+    error(`Config file already exists at ${toTildePath(configPath)}.`, 78)
+  }
 
   await ensureToolReady('git', ['--version'], allDeps.runCommand)
   await ensureGhAuthenticated(allDeps.runCommand)

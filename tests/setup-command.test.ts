@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, test, vi } from 'vitest'
@@ -94,6 +94,25 @@ describe('setup command', () => {
 
     expect(exitSpy).toHaveBeenCalledWith(69)
     expect(prompt).not.toHaveBeenCalled()
+  })
+
+  test('exits with code 78 when config file already exists', async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'ghm-setup-'))
+    tempDirs.push(dir)
+
+    const configPath = path.join(dir, '.config', 'ghmrc.json')
+    await mkdir(path.dirname(configPath), { recursive: true })
+    await writeFile(configPath, '{"root":"/tmp","shells":["zsh"]}', 'utf8')
+
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {
+      throw new Error('process.exit called')
+    }) as (code?: string | number | null) => never)
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    await expect(runSetupCommand({ configPath, binName: 'ghm' })).rejects.toThrow(
+      'process.exit called',
+    )
+    expect(exitSpy).toHaveBeenCalledWith(78)
   })
 
   test('runs setup flow when missing config prompt is confirmed', async () => {
