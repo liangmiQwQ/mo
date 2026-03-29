@@ -12,15 +12,24 @@ const shellRcRelativePaths: Record<SupportedShell, string> = {
   fish: '.config/fish/config.fish',
 }
 
+function getShellSourceCommands(binName: string): Record<SupportedShell, string> {
+  return {
+    bash: `source <(${binName} shell bash)`,
+    zsh: `source <(${binName} shell zsh)`,
+    fish: `${binName} shell fish | source`,
+  }
+}
+
 export function resolveShellRcPath(shell: SupportedShell, homePath: string = homedir()): string {
   return path.join(homePath, shellRcRelativePaths[shell])
 }
 
-export function buildManagedShellrcBlock(): string {
+export function buildManagedShellrcBlock(shell: SupportedShell, binName: string): string {
+  const shellSourceCommands = getShellSourceCommands(binName)
   return [
     GHM_START_MARKER,
     '# Please do not edit the comments `#_GHM_START_` or `#_GHM_END_`, which probably makes ghm feature broken.',
-    'echo "hello world from ghm"',
+    shellSourceCommands[shell],
     GHM_END_MARKER,
   ].join('\n')
 }
@@ -40,10 +49,13 @@ export function upsertManagedShellrcBlock(content: string, managedBlock: string)
   return trimmed ? `${trimmed}\n\n${managedBlock}\n` : `${managedBlock}\n`
 }
 
-export async function syncManagedShellrc(shells: SupportedShell[], homePath: string = homedir()) {
-  const managedBlock = buildManagedShellrcBlock()
-
+export async function syncManagedShellrc(
+  shells: SupportedShell[],
+  binName: string,
+  homePath: string = homedir(),
+) {
   for (const shell of shells) {
+    const managedBlock = buildManagedShellrcBlock(shell, binName)
     const shellRcPath = resolveShellRcPath(shell, homePath)
     const existing = await readFileIfExists(shellRcPath)
     const updated = upsertManagedShellrcBlock(existing, managedBlock)

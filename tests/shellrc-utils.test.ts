@@ -17,17 +17,17 @@ describe('shellrc utils', () => {
   })
 
   test('inserts managed block into content without block', () => {
-    const block = buildManagedShellrcBlock()
+    const block = buildManagedShellrcBlock('bash', 'ghm')
     const output = upsertManagedShellrcBlock('export PATH="$PATH:/custom/bin"\n', block)
 
     expect(output).toContain('export PATH="$PATH:/custom/bin"')
     expect(output).toContain(GHM_START_MARKER)
-    expect(output).toContain('echo "hello world from ghm"')
+    expect(output).toContain('source <(ghm shell bash)')
     expect(output).toContain(GHM_END_MARKER)
   })
 
   test('replaces existing managed block', () => {
-    const block = buildManagedShellrcBlock()
+    const block = buildManagedShellrcBlock('zsh', 'ghm')
     const initial = [
       'export TEST=1',
       GHM_START_MARKER,
@@ -40,13 +40,13 @@ describe('shellrc utils', () => {
 
     expect(output).toContain('export TEST=1')
     expect(output).toContain('alias ll="ls -la"')
-    expect(output).toContain('echo "hello world from ghm"')
+    expect(output).toContain('source <(ghm shell zsh)')
     expect(output).not.toContain('echo "old value"')
     expect(output.match(new RegExp(`^${escapeRegex(GHM_START_MARKER)}$`, 'gm'))).toHaveLength(1)
   })
 
   test('is idempotent on repeated upsert', () => {
-    const block = buildManagedShellrcBlock()
+    const block = buildManagedShellrcBlock('fish', 'ghm')
     const first = upsertManagedShellrcBlock('alias g="git"\n', block)
     const second = upsertManagedShellrcBlock(first, block)
 

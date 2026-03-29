@@ -36,4 +36,6 @@ Keep code functional. Never use classes. Write simple code and make function reu
 
 The project is designed for opensource developers on GitHub, consider about it if you need to make any decision. Do not import features out of its scope.
 
-Use existing dependencies and tools. Feel free to add dependencies. Don't reinvent the wheel. Should always use `cac` for cli command parsing and `picocolors` for output formatting.
+Use existing dependencies and tools. Feel free to add dependencies. Don't reinvent the wheel. Should always use `cac` for cli command parsing and `picocolors` for output formatting
+
+Add `.gitkeep` file when creating new empty directory

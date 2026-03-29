@@ -29,7 +29,7 @@ describe('shellrc runtime sync', () => {
     const zshrc = path.join(homeDir, '.zshrc')
     const firstContent = await fs.readFile(zshrc, 'utf8')
     expect(firstContent).toContain(GHM_START_MARKER)
-    expect(firstContent).toContain('echo "hello world from ghm"')
+    expect(firstContent).toContain('source <(ghm shell zsh)')
     expect(firstContent).toContain(GHM_END_MARKER)
 
     const second = await execFixture('shellrc-sync', ['list'], {
