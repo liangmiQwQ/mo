@@ -10,7 +10,7 @@
 
 [Action] User chooses at least one shell
 [Eval] Ensure whether these shell exist, or exit with code 69
-[Eval] Generate the config file.
+[Eval] Generate the config file, and write shellrc. Load `ghm shell` with `source` cmd as well.
 
 ## ghm setup command integration
 
