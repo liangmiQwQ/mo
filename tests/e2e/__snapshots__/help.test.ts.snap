@@ -7,11 +7,13 @@ Usage:
   $ ghm <command> [options]
 
 Commands:
+  setup          Setup config and shell integration for ghm
   clone <repo>   Clone a repository to <root>/<owner>/<repo>
   list           List repositories under configured root
   shell <shell>  Generate shell integration code
 
 For more info, run any command with the \`--help\` flag:
+  $ ghm setup --help
   $ ghm clone --help
   $ ghm list --help
   $ ghm shell --help

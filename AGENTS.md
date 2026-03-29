@@ -19,6 +19,8 @@ Like `~/code/vitejs/vite`, `~/code/vuejs/vue`, `~/code/vuejs/core`.
 Read [ROADMAP](/ROADMAP.md) to learn more about project architecture and the road map.
 
 Shell integration is managed through `ghmrc.json` `shells` (`zsh`/`bash`/`fish`) and ghm-controlled shellrc blocks.
+`ghm setup` initializes config by checking `git`/`gh` availability, collecting root directory and shells, then writing config and syncing shellrc.
+If users run config-required commands without default config and without `--config`, ghm should prompt to run `ghm setup` first.
 
 ## Rule
 
