@@ -9,9 +9,12 @@ import { generateShellIntegration, isValidShell } from './commands/shell'
 import { error } from './utils/error'
 import { syncManagedShellrc } from './utils/shellrc'
 import type { GlobalUserConfig } from './utils/config'
+import { preventRunning } from './utils/hooks'
 
 const binName = Object.keys(bin)[0]
 const cli = cac(binName)
+
+await preventRunning()
 
 type GlobalOptions = { config?: string }
 type CommandActionArgs = unknown[]

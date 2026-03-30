@@ -1,12 +1,13 @@
-export const isRoot = !process.env.npm_config_save && process.cwd() === process.env.INIT_CWD
-export const isTest = process.env.VITEST === 'true'
+import { error } from './error'
+import which from 'which'
+import { bin } from '../../package.json'
 
-export function shouldRunHooks() {
-  return !isTest && isRoot
-}
+export async function preventRunning() {
+  if (process.platform === 'win32') {
+    error('Windows is not supported. ghm currently supports macOS and Linux only.', 69)
+  }
 
-export const isWindows = process.platform === 'win32'
-
-export function isGlobalRun(): boolean {
-  return process.env.npm_config_global === 'true' || process.env.npm_config_location === 'global'
+  if ((await which(Object.keys(bin)[0], { nothrow: true })) === null) {
+    error('Local installation is not supported. Please install ghm globally.', 78)
+  }
 }
