@@ -37,7 +37,6 @@
     "clean": "rm -rf .root/*",
     "prepublishOnly": "vp run build",
     "prepare": "vp config",
-    "preinstall": "node scripts/preinstall.mjs",
     "release": "bumpp"
   },
   "dependencies": {

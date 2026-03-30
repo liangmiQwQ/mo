@@ -9,7 +9,6 @@ export default defineConfig({
     platform: 'node',
     entry: {
       cli: 'src/cli.ts',
-      preinstall: 'src/preinstall.ts',
     },
     dts: false,
     exports: false,
