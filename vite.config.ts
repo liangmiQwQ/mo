@@ -8,7 +8,8 @@ export default defineConfig({
     fixedExtension: true,
     platform: 'node',
     entry: {
-      index: 'src/index.ts',
+      cli: 'src/cli.ts',
+      preinstall: 'src/preinstall.ts',
     },
     dts: false,
     exports: false,

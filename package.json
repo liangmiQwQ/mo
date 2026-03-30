@@ -18,11 +18,11 @@
   "files": [
     "dist",
     "bin",
+    "scripts",
     "config_schema.json"
   ],
   "type": "module",
   "exports": {
-    ".": "./dist/index.mjs",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -30,13 +30,14 @@
   },
   "scripts": {
     "build": "vp pack",
-    "dev": "tsx src/index.ts --config ghmrc.json",
+    "dev": "tsx src/cli.ts --config ghmrc.json",
     "preview": "node bin/cli.mjs",
     "test": "vp run build && vp test run",
     "check": "vp check",
     "clean": "rm -rf .root/*",
     "prepublishOnly": "vp run build",
-    "prepare": "vp config"
+    "prepare": "vp config",
+    "preinstall": "node scripts/preinstall.mjs"
   },
   "dependencies": {
     "jsonc-parser": "^3.3.1"
