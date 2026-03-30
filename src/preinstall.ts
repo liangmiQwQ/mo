@@ -1,5 +1,6 @@
 import path from 'node:path'
 import { error } from './output/error'
+import { shouldRunHooks } from './utils/hooks'
 
 type ErrorFn = (message: string, exitCode?: number) => never
 
@@ -50,6 +51,6 @@ function isInstallingFromSourceRepo(env: NodeJS.ProcessEnv, cwd: string): boolea
   return path.resolve(initCwd) === path.resolve(cwd)
 }
 
-if (process.env.VITEST !== 'true') {
+if (shouldRunHooks()) {
   runPreinstallChecks()
 }
