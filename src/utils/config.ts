@@ -5,7 +5,7 @@ import untildify from 'untildify'
 
 import { parse } from 'jsonc-parser'
 
-import { error } from '../output/error'
+import { error } from './error'
 
 export const supportedShells = ['zsh', 'bash', 'fish'] as const
 export type SupportedShell = (typeof supportedShells)[number]

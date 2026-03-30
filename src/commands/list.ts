@@ -2,8 +2,8 @@ import { existsSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 import { x } from 'tinyexec'
 import pc from 'picocolors'
-import type { GlobalUserConfig } from '../config/config'
-import { icons, highlight, muted, toTildePath, bold, gray } from '../output/format'
+import type { GlobalUserConfig } from '../utils/config'
+import { icons, highlight, muted, toTildePath, bold, gray } from '../utils/format'
 
 export async function runListCommand(config: GlobalUserConfig): Promise<void> {
   const owners = readDirectoryNames(config.root)

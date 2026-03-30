@@ -4,11 +4,11 @@ import path from 'node:path'
 import prompts from '@posva/prompts'
 import { x } from 'tinyexec'
 import untildify from 'untildify'
-import type { SupportedShell } from '../config/config'
-import { getDefaultConfigPath, supportedShells } from '../config/config'
-import { error } from '../output/error'
-import { highlight, success, toTildePath } from '../output/format'
-import { syncManagedShellrc } from '../shell/shellrc'
+import type { SupportedShell } from '../utils/config'
+import { getDefaultConfigPath, supportedShells } from '../utils/config'
+import { error } from '../utils/error'
+import { highlight, success, toTildePath } from '../utils/format'
+import { syncManagedShellrc } from '../utils/shellrc'
 
 type PromptQuestion = {
   type: string

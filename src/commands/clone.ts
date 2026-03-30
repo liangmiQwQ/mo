@@ -2,9 +2,9 @@ import { existsSync, mkdirSync } from 'node:fs'
 import path from 'node:path'
 import { x } from 'tinyexec'
 import pc from 'picocolors'
-import type { GlobalUserConfig } from '../config/config'
-import { error } from '../output/error'
-import { success, muted, highlight, startSpinner, stopSpinner, toTildePath } from '../output/format'
+import type { GlobalUserConfig } from '../utils/config'
+import { error } from '../utils/error'
+import { success, muted, highlight, startSpinner, stopSpinner, toTildePath } from '../utils/format'
 
 export async function runCloneCommand(repo: string, config: GlobalUserConfig): Promise<void> {
   const parsedRepo = parseRepo(repo)

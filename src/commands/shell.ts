@@ -1,5 +1,5 @@
-import type { SupportedShell } from '../config/config'
-import { supportedShells } from '../config/config'
+import type { SupportedShell } from '../utils/config'
+import { supportedShells } from '../utils/config'
 
 export function generateShellIntegration(shell: SupportedShell, binName: string): string {
   switch (shell) {

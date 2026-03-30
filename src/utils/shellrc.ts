@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import path from 'node:path'
-import type { SupportedShell } from '../config/config'
+import type { SupportedShell } from './config'
 
 export const GHM_START_MARKER = '#_GHM_START_'
 export const GHM_END_MARKER = '#_GHM_END_'

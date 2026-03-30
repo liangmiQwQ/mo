@@ -1,14 +1,14 @@
 import { existsSync } from 'node:fs'
 import { cac } from 'cac'
 import { version, bin } from '../package.json'
-import { getDefaultConfigPath, loadConfig, supportedShells } from './config/config'
+import { getDefaultConfigPath, loadConfig, supportedShells } from './utils/config'
 import { runCloneCommand } from './commands/clone'
 import { runListCommand } from './commands/list'
 import { promptRunSetupOnMissingConfig, runSetupCommand } from './commands/setup'
 import { generateShellIntegration, isValidShell } from './commands/shell'
-import { error } from './output/error'
-import { syncManagedShellrc } from './shell/shellrc'
-import type { GlobalUserConfig } from './config/config'
+import { error } from './utils/error'
+import { syncManagedShellrc } from './utils/shellrc'
+import type { GlobalUserConfig } from './utils/config'
 
 const binName = Object.keys(bin)[0]
 const cli = cac(binName)
