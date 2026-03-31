@@ -57,7 +57,7 @@ export async function runListCommand(config: GlobalUserConfig): Promise<void> {
 
   const totalOwners = ownerRepos.size
   console.log(
-    `${pc.dim('Found')} ${pc.cyan(totalRepos.toString())} ${pc.dim(`repositor${totalRepos === 1 ? 'y' : 'ies'} in`)} ${pc.cyan(totalOwners.toString())} ${pc.dim(`organization${totalOwners === 1 ? '' : 's'}`)}`,
+    `${pc.dim('Found')} ${pc.cyan(totalRepos.toString())} ${pc.dim(`reposiItor${totalRepos === 1 ? 'y' : 'ies'} in`)} ${pc.cyan(totalOwners.toString())} ${pc.dim(`organization${totalOwners === 1 ? '' : 's'}`)}`,
   )
 }
 

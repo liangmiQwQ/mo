@@ -11,8 +11,6 @@ import pc from 'picocolors'
 import { success, toTildePath } from '../utils/format'
 import { runCommand } from '../utils/commands'
 
-type PromptRunner = typeof prompts
-
 const CONFIG_SCHEMA_URL = 'https://raw.githubusercontent.com/liangmiQwQ/ghm/main/config_schema.json'
 
 export async function runSetupCommand(): Promise<void> {
@@ -25,13 +23,12 @@ export async function runSetupCommand(): Promise<void> {
   await ensureGhAuthenticated()
 
   const rootInput = await promptText(
-    prompts,
     'What directory would you like to store all your projects?',
     'root',
   )
   const rootPath = await resolveAndValidateRootPath(rootInput)
 
-  const selectedShells = await promptShellSelection(prompts)
+  const selectedShells = await promptShellSelection()
   await ensureShellCommandsAvailable(selectedShells)
 
   await writeConfigFile(configPath, rootPath, selectedShells)
@@ -42,7 +39,6 @@ export async function runSetupCommand(): Promise<void> {
 
 export async function promptRunSetupOnMissingConfig(runSetup: () => Promise<void>): Promise<void> {
   const confirmed = await promptConfirm(
-    prompts,
     'No config found, would you like to run `ghm setup` first?',
     'runSetup',
   )
@@ -105,8 +101,8 @@ async function resolveAndValidateRootPath(input: string): Promise<string> {
   return rootPath
 }
 
-async function promptShellSelection(prompt: PromptRunner): Promise<SupportedShell[]> {
-  const answer = await prompt(
+async function promptShellSelection(): Promise<SupportedShell[]> {
+  const answer = await prompts(
     {
       type: 'multiselect',
       name: 'shells',
@@ -163,8 +159,8 @@ async function writeConfigFile(
   await writeFile(configPath, content, 'utf8')
 }
 
-async function promptText(prompt: PromptRunner, message: string, name: string): Promise<string> {
-  const answer = await prompt(
+async function promptText(message: string, name: string): Promise<string> {
+  const answer = await prompts(
     {
       type: 'text',
       name,
@@ -181,12 +177,8 @@ async function promptText(prompt: PromptRunner, message: string, name: string): 
   return typeof value === 'string' ? value : ''
 }
 
-async function promptConfirm(
-  prompt: PromptRunner,
-  message: string,
-  name: string,
-): Promise<boolean> {
-  const answer = await prompt(
+async function promptConfirm(message: string, name: string): Promise<boolean> {
+  const answer = await prompts(
     {
       type: 'confirm',
       name,
