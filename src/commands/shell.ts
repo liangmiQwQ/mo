@@ -1,15 +1,10 @@
-import type { GlobalUserConfig, SupportedShell } from '../utils/config'
+import type { SupportedShell } from '../utils/config'
 import { supportedShells } from '../utils/config'
 import { error } from '../utils/error'
 
-export function generateShellIntegration(shell: string, config: GlobalUserConfig): string {
+export function generateShellIntegration(shell: string): string {
   if (!isValidShell(shell)) {
     error(`Invalid shell "${shell}". Supported: ${supportedShells.join(', ')}`)
-  }
-  if (!config.shells.includes(shell)) {
-    error(
-      `Shell "${shell}" is not enabled in config "shells". Enabled: ${config.shells.join(', ')}`,
-    )
   }
 
   if (shell === 'bash' || shell === 'zsh') {

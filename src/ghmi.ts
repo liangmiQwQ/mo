@@ -1,1 +1,13 @@
-import './cli'
+import { cac } from 'cac'
+import { generateShellIntegration } from './commands/shell'
+import { innerBinName, preventRunning } from './utils/runner'
+
+const cli = cac(innerBinName)
+
+await preventRunning()
+
+cli
+  .command('shell <shell>', 'Generate shell integration code')
+  .action((shell: string) => console.log(generateShellIntegration(shell)))
+
+cli.parse()
