@@ -8,7 +8,8 @@ export default defineConfig({
     fixedExtension: true,
     platform: 'node',
     entry: {
-      cli: 'src/cli.ts',
+      ghm: 'src/ghm.ts',
+      ghmi: 'src/ghmi.ts',
     },
     dts: false,
     exports: false,
