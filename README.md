@@ -2,18 +2,24 @@
 
 `ghm` is a GitHub project manager for open source developers.
 
+```bash
+vp install -g @liangmi/ghm
+```
+
 It keeps your local repositories organized under one predictable layout:
 
 ```text
-<root>/<owner>/<repo>
+~/code
+├── vitejs
+│   ├── vite
+│   └── devtools
+└── vuejs
+    ├── core
+    └── vue
 ```
 
-For example:
-
 ```text
-~/code/vitejs/vite
-~/code/vuejs/core
-~/code/vuejs/vue
+<root>/<owner>/<repo>
 ```
 
 ## Requirements
@@ -22,12 +28,6 @@ For example:
 - global install (local install is not supported for runtime usage)
 - `git`
 - GitHub CLI `gh` authenticated (`gh auth status`)
-
-## Install
-
-```bash
-vp install -g @liangmi/ghm
-```
 
 ## Quick Start
 
@@ -121,23 +121,14 @@ Alias names must match:
 - `~/.bashrc`
 - `~/.config/fish/config.fish`
 
-Managed markers:
-
-```text
-#_GHM_START_
-#_GHM_END_
-```
-
-Do not edit or remove those marker lines manually.
-
 ## Notes
 
 - If you run config-required commands without config, `ghm` prompts you to run `ghm setup`.
 - `ghm list` only shows repositories that are Git repos with a GitHub remote.
 
-## Roadmap
+## Contribution
 
-See [ROADMAP.md](./ROADMAP.md).
+We're really excited to receive your contributions! Please see [ROADMAP.md](./ROADMAP.md) for details!
 
 ## License
 
