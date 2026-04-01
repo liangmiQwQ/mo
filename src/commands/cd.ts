@@ -1,8 +1,8 @@
 import { readdirSync } from 'node:fs'
 import path from 'node:path'
-import prompts from 'prompts'
 import type { GlobalUserConfig } from '../utils/config'
 import { error } from '../utils/error'
+import { promptAutocomplete } from '../utils/prompt'
 
 type LocationOption = {
   label: string
@@ -41,32 +41,16 @@ function resolvePathFromTarget(target: string, root: string): string {
 async function promptLocationPath(root: string): Promise<string> {
   const options = collectLocationOptions(root)
 
-  const answer = await prompts(
-    {
-      type: 'autocomplete',
-      name: 'path',
-      message: 'Where would you like to go?',
-      choices: options.map((option) => ({
-        title: option.label,
-        value: option.path,
-      })),
-      suggest: async (input: string, choices) => {
-        const query = input.trim().toLowerCase()
-        if (!query) {
-          return choices
-        }
-
-        return choices.filter((choice) => choice.title.toLowerCase().includes(query))
-      },
-    },
-    {
-      onCancel: () => {
-        error('cd canceled.', 78)
-      },
-    },
+  const selected = await promptAutocomplete(
+    'Where would you like to go?',
+    'path',
+    options.map((option) => ({
+      title: option.label,
+      value: option.path,
+    })),
+    'cd canceled.',
   )
 
-  const selected = answer.path
   if (typeof selected !== 'string' || !selected) {
     error('No target selected.', 78)
   }

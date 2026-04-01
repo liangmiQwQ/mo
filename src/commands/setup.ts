@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs'
 import { mkdir, stat, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import prompts from 'prompts'
 import untildify from 'untildify'
 import type { SupportedShell } from '../utils/config'
 import type { CommandAliasConfig } from '../utils/alias'
@@ -12,8 +11,17 @@ import { error } from '../utils/error'
 import pc from 'picocolors'
 import { success, toTildePath } from '../utils/format'
 import { ensureToolReady, runCommand } from '../utils/commands'
+import {
+  promptConfirm,
+  promptMultiselect,
+  promptText,
+  useSquareMultiselectIndicator,
+} from '../utils/prompt'
 
 const CONFIG_SCHEMA_URL = 'https://raw.githubusercontent.com/liangmiQwQ/ghm/main/config_schema.json'
+const ALIAS_NAME_PATTERN = '[A-Za-z_][A-Za-z0-9_-]*'
+
+useSquareMultiselectIndicator()
 
 export async function runSetupCommand(): Promise<void> {
   const configPath = getDefaultConfigPath()
@@ -92,28 +100,11 @@ async function resolveAndValidateRootPath(input: string): Promise<string> {
 }
 
 async function promptShellSelection(): Promise<SupportedShell[]> {
-  const answer = await prompts(
-    {
-      type: 'multiselect',
-      name: 'shells',
-      message: 'What kind of shell would you use?',
-      choices: [
-        { title: 'zsh (~/.zshrc)', value: 'zsh' },
-        { title: 'fish (~/.config/fish/config.fish)', value: 'fish' },
-        { title: 'bash (~/.bashrc)', value: 'bash' },
-      ],
-    },
-    {
-      onCancel: () => {
-        error('Setup canceled.', 78)
-      },
-    },
-  )
-
-  const value = answer.shells
-  if (!Array.isArray(value)) {
-    error('At least one shell must be selected.', 78)
-  }
+  const value = await promptMultiselect('What kind of shell would you use?', 'shells', [
+    { title: 'zsh (~/.zshrc)', value: 'zsh' },
+    { title: 'fish (~/.config/fish/config.fish)', value: 'fish' },
+    { title: 'bash (~/.bashrc)', value: 'bash' },
+  ])
 
   const selected = [
     ...new Set(value.filter((shell): shell is SupportedShell => isSupportedShell(shell))),
@@ -161,12 +152,19 @@ async function promptAliasConfig(): Promise<CommandAliasConfig | undefined> {
   for (const command of aliasCommands) {
     const suggested = defaultAliases[command]
     const commandLabel = getAliasPromptLabel(command)
-    const input = await promptText(
-      `Which alias would you like to use for "${commandLabel}"? Suggested: ${suggested}. Use "," to separate multiple aliases, leave blank for none. Alias must match [A-Za-z_][A-Za-z0-9_-]*.`,
-      `alias_${command}`,
-    )
+    const input = await promptText(`Aliases for "${commandLabel}" (optional)`, `alias_${command}`, {
+      initial: suggested,
+      validate: (value) => {
+        try {
+          parseAliasInput(value)
+          return true
+        } catch {
+          return `Alias must match ${ALIAS_NAME_PATTERN}. Use commas for multiple aliases.`
+        }
+      },
+    })
     const parsed = parseAliasInput(input, (aliasName) => {
-      error(`Invalid alias "${aliasName}". Alias must match [A-Za-z_][A-Za-z0-9_-]*.`, 78)
+      error(`Invalid alias "${aliasName}". Alias must match ${ALIAS_NAME_PATTERN}.`, 78)
     })
     if (parsed.length > 0) {
       aliases[command] = parsed
@@ -174,42 +172,6 @@ async function promptAliasConfig(): Promise<CommandAliasConfig | undefined> {
   }
 
   return Object.keys(aliases).length > 0 ? aliases : undefined
-}
-
-async function promptText(message: string, name: string): Promise<string> {
-  const answer = await prompts(
-    {
-      type: 'text',
-      name,
-      message,
-    },
-    {
-      onCancel: () => {
-        error('Setup canceled.', 78)
-      },
-    },
-  )
-
-  const value = answer[name]
-  return typeof value === 'string' ? value : ''
-}
-
-async function promptConfirm(message: string, name: string): Promise<boolean> {
-  const answer = await prompts(
-    {
-      type: 'confirm',
-      name,
-      message,
-      initial: true,
-    },
-    {
-      onCancel: () => {
-        error('Setup canceled.', 78)
-      },
-    },
-  )
-
-  return Boolean(answer[name])
 }
 
 function isSupportedShell(value: unknown): value is SupportedShell {
