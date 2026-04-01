@@ -1,5 +1,5 @@
 import { cac } from 'cac'
-import { generateShellIntegration } from './commands/shell'
+import { generateShellIntegration } from './inner/shell'
 import { innerBinName, preventRunning } from './utils/runner'
 
 const cli = cac(innerBinName)
