@@ -115,7 +115,7 @@ Example:
   "alias": {
     "clone": ["k"],
     "list": ["li"],
-    "cd": ["j"]
+    "cd": ["i"]
   }
 }
 ```

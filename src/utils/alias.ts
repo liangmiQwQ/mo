@@ -7,7 +7,7 @@ export type LegacyAliasCommand = (typeof legacyAliasCommands)[number]
 export const defaultAliases: Record<AliasCommand, string> = {
   clone: 'k',
   list: 'li',
-  cd: 'j',
+  cd: 'i',
 }
 
 const aliasNameRegex = /^[A-Za-z_][A-Za-z0-9_-]*$/
