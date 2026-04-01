@@ -43,9 +43,10 @@ ghm setup
 2. check `gh` authentication
 3. ask for your projects root directory
 4. ask which shell(s) you use (`zsh`, `bash`, `fish`)
-5. optionally collect command aliases
-6. write `~/.config/ghmrc.json`
-7. sync managed shellrc blocks
+5. optionally collect aliases for `ghm clone` and `ghm list`
+6. ask whether to add an alias for `ghm cd`
+7. write `~/.config/ghmrc.json`
+8. sync managed shellrc blocks
 
 After setup:
 
@@ -113,7 +114,6 @@ Example:
   "root": "~/code",
   "shells": ["zsh"],
   "alias": {
-    "ghm": ["i"],
     "clone": ["k"],
     "list": ["li"],
     "cd": ["j"]
@@ -125,7 +125,7 @@ Example:
 
 - `root` (required): absolute path or `~` path for your projects directory
 - `shells` (required): one or more of `zsh`, `bash`, `fish`
-- `alias` (optional): alias arrays for `ghm`, `clone`, `list`, `cd`
+- `alias` (optional): alias arrays for `clone`, `list`, `cd`
 
 Alias names must match:
 

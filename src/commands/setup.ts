@@ -143,35 +143,59 @@ async function writeConfigFile(
 }
 
 async function promptAliasConfig(): Promise<CommandAliasConfig | undefined> {
-  const withAlias = await promptConfirm('Would you like to add alias for ghm use?', 'withAlias')
+  const withAlias = await promptConfirm(
+    'Would you like to add aliases for `ghm clone` and `ghm list`?',
+    'withAlias',
+  )
+  const withCdAlias = await promptConfirm(
+    'Would you like to add alias for `ghm cd` command?',
+    'withCdAlias',
+  )
+
   if (!withAlias) {
-    return undefined
+    if (!withCdAlias) {
+      return undefined
+    }
+
+    const cdAliases = await promptCommandAlias('cd')
+    return cdAliases.length > 0 ? { cd: cdAliases } : undefined
   }
 
   const aliases: CommandAliasConfig = {}
-  for (const command of aliasCommands) {
-    const suggested = defaultAliases[command]
-    const commandLabel = getAliasPromptLabel(command)
-    const input = await promptText(`Aliases for "${commandLabel}" (optional)`, `alias_${command}`, {
-      initial: suggested,
-      validate: (value) => {
-        try {
-          parseAliasInput(value)
-          return true
-        } catch {
-          return `Alias must match ${ALIAS_NAME_PATTERN}. Use commas for multiple aliases.`
-        }
-      },
-    })
-    const parsed = parseAliasInput(input, (aliasName) => {
-      error(`Invalid alias "${aliasName}". Alias must match ${ALIAS_NAME_PATTERN}.`, 78)
-    })
+  for (const command of aliasCommands.filter((command) => command !== 'cd')) {
+    const parsed = await promptCommandAlias(command)
     if (parsed.length > 0) {
       aliases[command] = parsed
     }
   }
 
+  if (withCdAlias) {
+    const parsedCd = await promptCommandAlias('cd')
+    if (parsedCd.length > 0) {
+      aliases.cd = parsedCd
+    }
+  }
+
   return Object.keys(aliases).length > 0 ? aliases : undefined
+}
+
+async function promptCommandAlias(command: (typeof aliasCommands)[number]): Promise<string[]> {
+  const suggested = defaultAliases[command]
+  const commandLabel = getAliasPromptLabel(command)
+  const input = await promptText(`Aliases for "${commandLabel}" (optional)`, `alias_${command}`, {
+    initial: suggested,
+    validate: (value) => {
+      try {
+        parseAliasInput(value)
+        return true
+      } catch {
+        return `Alias must match ${ALIAS_NAME_PATTERN}. Use commas for multiple aliases.`
+      }
+    },
+  })
+  return parseAliasInput(input, (aliasName) => {
+    error(`Invalid alias "${aliasName}". Alias must match ${ALIAS_NAME_PATTERN}.`, 78)
+  })
 }
 
 function isSupportedShell(value: unknown): value is SupportedShell {

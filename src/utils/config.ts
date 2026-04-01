@@ -5,7 +5,7 @@ import untildify from 'untildify'
 
 import { parse } from 'jsonc-parser'
 import type { CommandAliasConfig } from './alias'
-import { aliasCommands, isAliasCommand, isValidAliasName } from './alias'
+import { aliasCommands, isAliasCommand, isLegacyAliasCommand, isValidAliasName } from './alias'
 
 import { error } from './error'
 
@@ -132,7 +132,7 @@ function parseAliasConfig(
   const parsed: CommandAliasConfig = {}
 
   for (const [command, aliases] of Object.entries(alias)) {
-    if (!isAliasCommand(command)) {
+    if (!isLegacyAliasCommand(command)) {
       invalidConfigError(
         `"alias" contains unsupported command "${command}". Supported: ${aliasCommands.join(', ')}`,
       )
@@ -151,7 +151,11 @@ function parseAliasConfig(
 
     const normalized = normalizeAliasValues(aliasValues, command, invalidConfigError)
 
-    if (normalized.length > 0) {
+    if (command === 'ghm') {
+      continue
+    }
+
+    if (normalized.length > 0 && isAliasCommand(command)) {
       parsed[command] = normalized
     }
   }
