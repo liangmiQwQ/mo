@@ -52,6 +52,7 @@ After setup:
 ```bash
 ghm clone vitejs/vite
 ghm list
+ghm cd
 ```
 
 ## Commands
@@ -78,6 +79,24 @@ List repositories under your configured root.
 
 Alias: `ghm ls`
 
+### `ghm cd [target]`
+
+Resolve and jump to a managed path in your shell integration function.
+
+Without `target`, it opens an interactive selector for:
+
+- root
+- owner directory
+- repository directory
+
+With `target`, supported forms are:
+
+- `root` or `.`
+- `<owner>`
+- `<owner>/<repo>`
+
+Alias: `ghm d`
+
 ## Config
 
 Default config path:
@@ -96,7 +115,8 @@ Example:
   "alias": {
     "ghm": ["i"],
     "clone": ["k"],
-    "list": ["li"]
+    "list": ["li"],
+    "cd": ["j"]
   }
 }
 ```
@@ -105,7 +125,7 @@ Example:
 
 - `root` (required): absolute path or `~` path for your projects directory
 - `shells` (required): one or more of `zsh`, `bash`, `fish`
-- `alias` (optional): alias arrays for `ghm`, `clone`, `list`
+- `alias` (optional): alias arrays for `ghm`, `clone`, `list`, `cd`
 
 Alias names must match:
 

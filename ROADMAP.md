@@ -71,7 +71,7 @@ The config file should be like:
 }
 ```
 
-### - [ ] `ghm cd` command
+### - [x] `ghm cd` command
 
 `ghm cd`
 

@@ -53,6 +53,14 @@
             "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
           },
           "uniqueItems": true
+        },
+        "cd": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+          },
+          "uniqueItems": true
         }
       },
       "additionalProperties": false

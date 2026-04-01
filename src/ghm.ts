@@ -3,6 +3,7 @@ import { cac } from 'cac'
 import { version } from '../package.json'
 import { getDefaultConfigPath, loadConfig } from './utils/config'
 import { runCloneCommand } from './commands/clone'
+import { runCdCommand } from './commands/cd'
 import { runListCommand } from './commands/list'
 import { promptRunSetupOnMissingConfig, runSetupCommand } from './commands/setup'
 import { error } from './utils/error'
@@ -41,6 +42,11 @@ cli
   .command('list', 'List repositories under configured root')
   .alias('ls')
   .action(withConfig(runListCommand))
+
+cli
+  .command('cd [target]', 'Resolve a repository path for shell navigation')
+  .alias('d')
+  .action(withConfig((config, target?: string) => runCdCommand(target, config)))
 
 cli.help()
 cli.version(version || '0.0.0')
