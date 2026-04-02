@@ -31,8 +31,7 @@
   },
   "scripts": {
     "build": "vp pack",
-    "ghm": "tsx src/ghm.ts",
-    "ghmi": "tsx src/ghmi.ts",
+    "dev": "tsx scripts/install.ts",
     "preview": "node bin/cli.mjs",
     "test": "vp test run",
     "check": "vp check",
