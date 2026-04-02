@@ -31,7 +31,8 @@
   },
   "scripts": {
     "build": "vp pack",
-    "dev": "tsx scripts/install.ts",
+    "dev:i": "tsx scripts/install.ts",
+    "dev:uni": "tsx scripts/uninstall.ts",
     "preview": "node bin/cli.mjs",
     "test": "vp test run",
     "check": "vp check",

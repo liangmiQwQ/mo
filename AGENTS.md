@@ -23,6 +23,7 @@ Shell integration is managed through `ghmrc.json` `shells` (`zsh`/`bash`/`fish`)
 If users run config-required commands without default config, ghm should prompt to run `ghm setup` first.
 `preinstall` blocks unsupported Windows installs and rejects non-global package installs (except contributor installs in the source repo).
 `ghm cd` should be handled through shell functions: resolve path via `ghm cd`, run `ghmi cd` to print pending target from `GHM_CD_TARGET` (or `.` when empty), and execute shell `cd` immediately.
+Local development wrappers are managed by `vp run dev:i` and `vp run dev:uni`, targeting `~/.local/bin/ghm` and `~/.local/bin/ghmi`.
 
 ## Rule
 
