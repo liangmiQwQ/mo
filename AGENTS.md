@@ -1,6 +1,6 @@
-# `ghm` Agent Guide
+# `mo` Agent Guide
 
-`ghm` is a set of command line tools, used to manage multiple repos globally.
+`mo` is a set of command line tools, used to manage multiple repos globally.
 
 ## Product Features
 
@@ -18,12 +18,12 @@ Like `~/code/vitejs/vite`, `~/code/vuejs/vue`, `~/code/vuejs/core`.
 
 Read [ROADMAP](/ROADMAP.md) to learn more about project architecture and the road map.
 
-Shell integration is managed through `ghmrc.json` `shells` (`zsh`/`bash`/`fish`) and ghm-controlled shellrc blocks.
-`ghm setup` initializes config by checking `git`/`gh` availability, collecting root directory/shells, optionally collecting command aliases, then writing config and syncing shellrc.
-If users run config-required commands without default config, ghm should prompt to run `ghm setup` first.
+Shell integration is managed through `morc.json` `shells` (`zsh`/`bash`/`fish`) and mo-controlled shellrc blocks.
+`mo setup` initializes config by checking `git`/`gh` availability, collecting root directory/shells, optionally collecting command aliases, then writing config and syncing shellrc.
+If users run config-required commands without default config, mo should prompt to run `mo setup` first.
 `preinstall` blocks unsupported Windows installs and rejects non-global package installs (except contributor installs in the source repo).
-`ghm cd` should be handled through shell functions: resolve path via `ghm cd`, run `ghmi cd` to print pending target from `GHM_CD_TARGET` (or `.` when empty), and execute shell `cd` immediately.
-Local development wrappers are managed by `vp run dev:i` and `vp run dev:uni`, targeting `~/.local/bin/ghm` and `~/.local/bin/ghmi`.
+`mo cd` should be handled through shell functions: resolve path via `mo cd`, run `mo-inner cd` to print pending target from `MO_CD_TARGET` (or `.` when empty), and execute shell `cd` immediately.
+Local development wrappers are managed by `vp run dev:i` and `vp run dev:uni`, targeting `~/.local/bin/mo` and `~/.local/bin/mo-inner`.
 
 ## Rule
 

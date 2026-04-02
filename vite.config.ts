@@ -8,8 +8,8 @@ export default defineConfig({
     fixedExtension: true,
     platform: 'node',
     entry: {
-      ghm: 'src/ghm.ts',
-      ghmi: 'src/ghmi.ts',
+      mo: 'src/mo.ts',
+      'mo-inner': 'src/mo-inner.ts',
     },
     dts: false,
     exports: false,

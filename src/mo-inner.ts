@@ -9,7 +9,7 @@ cli
   .action((shell: string) => console.log(generateShellIntegration(shell)))
 
 cli.command('cd', 'Print pending directory path from shell state').action(() => {
-  const pending = process.env.GHM_CD_TARGET
+  const pending = process.env.MO_CD_TARGET
   if (typeof pending !== 'string' || !pending.trim()) {
     console.log('.')
     return

@@ -16,8 +16,8 @@ export async function syncShellrc(shells: SupportedShell[]) {
   }
 }
 
-const GHM_START_MARKER = '#_GHM_START_'
-const GHM_END_MARKER = '#_GHM_END_'
+const MO_START_MARKER = '#_MO_START_'
+const MO_END_MARKER = '#_MO_END_'
 
 const shellRcRelativePaths: Record<SupportedShell, string> = {
   zsh: '~/.zshrc',
@@ -40,16 +40,16 @@ function resolveShellRcPath(shell: SupportedShell): string {
 function buildManagedShellrcBlock(shell: SupportedShell): string {
   const shellSourceCommands = getShellSourceCommands()
   return [
-    GHM_START_MARKER,
-    '# Please do not edit the comments `#_GHM_START_` or `#_GHM_END_`, which probably makes ghm feature broken.',
+    MO_START_MARKER,
+    '# Please do not edit the comments `#_MO_START_` or `#_MO_END_`, which probably makes mo feature broken.',
     shellSourceCommands[shell],
-    GHM_END_MARKER,
+    MO_END_MARKER,
   ].join('\n')
 }
 
 function upsertManagedShellrcBlock(content: string, managedBlock: string): string {
-  const escapedStart = escapeRegex(GHM_START_MARKER)
-  const escapedEnd = escapeRegex(GHM_END_MARKER)
+  const escapedStart = escapeRegex(MO_START_MARKER)
+  const escapedEnd = escapeRegex(MO_END_MARKER)
   const pattern = new RegExp(`^${escapedStart}$[\\s\\S]*?^${escapedEnd}$\\n?`, 'gm')
   const matches = content.match(pattern)
 

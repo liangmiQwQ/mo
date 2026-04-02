@@ -5,13 +5,13 @@ import { basename, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import pc from 'picocolors'
 
-const managedMarker = 'ghm-dev-wrapper:managed'
+const managedMarker = 'mo-dev-wrapper:managed'
 const binDir = resolve(homedir(), '.local/bin')
 const repoRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
 const tsxBin = resolve(repoRoot, 'node_modules/.bin/tsx')
 const entries = [
-  { name: 'ghm', entry: resolve(repoRoot, 'src/ghm.ts') },
-  { name: 'ghmi', entry: resolve(repoRoot, 'src/ghmi.ts') },
+  { name: 'mo', entry: resolve(repoRoot, 'src/mo.ts') },
+  { name: 'mo-inner', entry: resolve(repoRoot, 'src/mo-inner.ts') },
 ]
 
 function shellQuote(input: string): string {
@@ -28,7 +28,7 @@ function createWrapperContent(entryPath: string): string {
     '#!/usr/bin/env sh',
     `# ${managedMarker}`,
     `case "$PWD" in ${shellQuote(repoRoot)}|${shellQuote(`${repoRoot}/*`)}) ;;`,
-    `*) echo ${shellQuote(`ghm dev wrapper can only run inside ${repoRoot}`)} >&2; exit 78 ;;`,
+    `*) echo ${shellQuote(`mo dev wrapper can only run inside ${repoRoot}`)} >&2; exit 78 ;;`,
     'esac',
     `exec ${shellQuote(tsxBin)} ${shellQuote(entryPath)} "$@"`,
     '',
@@ -54,7 +54,9 @@ async function main() {
   }
 
   if (!isPathContains(binDir)) {
-    console.log(pc.yellow(`Add ${binDir} to PATH so "ghm" and "ghmi" are available in new shells.`))
+    console.log(
+      pc.yellow(`Add ${binDir} to PATH so "mo" and "mo-inner" are available in new shells.`),
+    )
   }
 }
 

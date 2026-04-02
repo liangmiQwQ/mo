@@ -1,6 +1,6 @@
-# Contributing to `ghm`
+# Contributing to `mo`
 
-Thanks for contributing to `ghm`.
+Thanks for contributing to `mo`.
 
 ## Prerequisites
 
@@ -24,16 +24,16 @@ vp run dev:i
 
 This creates:
 
-- `~/.local/bin/ghm`
-- `~/.local/bin/ghmi`
+- `~/.local/bin/mo`
+- `~/.local/bin/mo-inner`
 
 Both wrappers run local source files through `tsx`.
 
 ## Verify Commands
 
 ```bash
-ghm --help
-ghmi --help
+mo --help
+mo-inner --help
 ```
 
 ## Uninstall Development Wrappers

@@ -31,7 +31,7 @@ function withConfig<T extends any[]>(
   }
 }
 
-cli.command('setup', 'Setup config and shell integration for ghm').action(runSetupCommand)
+cli.command('setup', 'Setup config and shell integration for mo').action(runSetupCommand)
 
 cli
   .command('clone <repo>', 'Clone a repository to <root>/<owner>/<repo>')

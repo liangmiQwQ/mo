@@ -18,7 +18,7 @@ import {
   useSquareMultiselectIndicator,
 } from '../utils/prompt'
 
-const CONFIG_SCHEMA_URL = 'https://raw.githubusercontent.com/liangmiQwQ/ghm/main/config_schema.json'
+const CONFIG_SCHEMA_URL = 'https://raw.githubusercontent.com/liangmiQwQ/mo/main/config_schema.json'
 const ALIAS_NAME_PATTERN = '[A-Za-z_][A-Za-z0-9_-]*'
 
 useSquareMultiselectIndicator()
@@ -50,7 +50,7 @@ export async function runSetupCommand(): Promise<void> {
 
 export async function promptRunSetupOnMissingConfig(runSetup: () => Promise<void>): Promise<void> {
   const confirmed = await promptConfirm(
-    'No config found, would you like to run `ghm setup` first?',
+    'No config found, would you like to run `mo setup` first?',
     'runSetup',
   )
 

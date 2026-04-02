@@ -1,20 +1,20 @@
 {
-  "name": "@liangmi/ghm",
+  "name": "@liangmi/mo",
   "version": "0.0.5",
-  "description": "Project manager for opensource developers on Github",
-  "homepage": "https://github.com/liangmiQwQ/ghm#readme",
+  "description": "Manage your Opensource projects",
+  "homepage": "https://github.com/liangmiQwQ/mo#readme",
   "bugs": {
-    "url": "https://github.com/liangmiQwQ/ghm/issues"
+    "url": "https://github.com/liangmiQwQ/mo/issues"
   },
   "license": "MIT",
   "author": "Liang Mi <hi@liangmi.dev>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/liangmiQwQ/ghm.git"
+    "url": "git+https://github.com/liangmiQwQ/mo.git"
   },
   "bin": {
-    "ghm": "./bin/ghm.mjs",
-    "ghmi": "./bin/ghmi.mjs"
+    "mo": "./bin/mo.mjs",
+    "mo-inner": "./bin/mo-inner.mjs"
   },
   "files": [
     "dist",

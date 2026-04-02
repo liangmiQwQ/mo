@@ -1,7 +1,7 @@
 export const aliasCommands = ['clone', 'list', 'cd'] as const
 export type AliasCommand = (typeof aliasCommands)[number]
 export type CommandAliasConfig = Partial<Record<AliasCommand, string[]>>
-export const legacyAliasCommands = ['ghm', ...aliasCommands] as const
+export const legacyAliasCommands = ['mo', ...aliasCommands] as const
 export type LegacyAliasCommand = (typeof legacyAliasCommands)[number]
 
 export const defaultAliases: Record<AliasCommand, string> = {
@@ -66,7 +66,7 @@ export function buildAliasLines(
 }
 
 export function getAliasPromptLabel(command: AliasCommand): string {
-  return `ghm ${command}`
+  return `mo ${command}`
 }
 
 export function isAliasCommand(value: string): value is AliasCommand {
@@ -82,5 +82,5 @@ export function isValidAliasName(value: string): boolean {
 }
 
 function getAliasTarget(command: AliasCommand): string {
-  return `ghm ${command}`
+  return `mo ${command}`
 }

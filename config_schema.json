@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Ghmrc",
-  "description": "Configuration file for ghm - Project manager for opensource developers on Github.",
+  "title": "Morc",
+  "description": "Configuration file for mo - Project manager for opensource developers on Github.",
   "type": "object",
   "required": ["root", "shells"],
   "properties": {
@@ -17,7 +17,7 @@
     },
     "shells": {
       "type": "array",
-      "description": "Shells whose shellrc files should be managed by ghm. At least one shell is required.",
+      "description": "Shells whose shellrc files should be managed by mo. At least one shell is required.",
       "items": {
         "type": "string",
         "enum": ["zsh", "bash", "fish"]
@@ -28,7 +28,7 @@
     },
     "alias": {
       "type": "object",
-      "description": "Optional shell aliases for ghm commands.",
+      "description": "Optional shell aliases for mo commands.",
       "properties": {
         "clone": {
           "type": "array",

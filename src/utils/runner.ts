@@ -1,12 +1,12 @@
 import { ensureToolReady } from './commands'
 import { error } from './error'
 
-export const userBinName = 'ghm'
-export const innerBinName = 'ghmi'
+export const userBinName = 'mo'
+export const innerBinName = 'mo-inner'
 
 export async function preventRunning() {
   if (process.platform === 'win32') {
-    error('Windows is not supported. ghm currently supports macOS and Linux only.', 69)
+    error('Windows is not supported. mo currently supports macOS and Linux only.', 69)
   }
 
   try {
@@ -17,6 +17,6 @@ export async function preventRunning() {
       throw new Error() // Trigger catch block
     }
   } catch {
-    error('Local installation is not supported. Please install ghm globally.', 78)
+    error('Local installation is not supported. Please install mo globally.', 78)
   }
 }

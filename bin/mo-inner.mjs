@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 'use strict'
-import '../dist/ghm.mjs'
+import '../dist/mo-inner.mjs'

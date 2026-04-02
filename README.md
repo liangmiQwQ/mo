@@ -1,14 +1,13 @@
-# `ghm`
+# `mo`
 
-`ghm` is a GitHub project manager for open source developers.
+`mo` stands for "**M**anage your **O**pensource projects"
 
-```bash
-vp install -g @liangmi/ghm
-```
-
-It keeps your local repositories organized under one predictable layout:
+Just keep your repos organized like this:
 
 ```text
+
+$ tree
+
 ~/code
 ├── vitejs
 │   ├── vite
@@ -16,10 +15,15 @@ It keeps your local repositories organized under one predictable layout:
 └── vuejs
     ├── core
     └── vue
+
 ```
 
-```text
-<root>/<owner>/<repo>
+## Install
+
+```bash
+
+vp install -g @liangmi/mo
+
 ```
 
 ## Requirements
@@ -34,52 +38,52 @@ It keeps your local repositories organized under one predictable layout:
 Run setup once:
 
 ```bash
-ghm setup
+mo setup
 ```
 
-`ghm setup` will:
+`mo setup` will:
 
 1. check `git`
 2. check `gh` authentication
 3. ask for your projects root directory
 4. ask which shell(s) you use (`zsh`, `bash`, `fish`)
-5. optionally collect aliases for `ghm clone`, `ghm list`, and `ghm cd`
-6. write `~/.config/ghmrc.json`
+5. optionally collect aliases for `mo clone`, `mo list`, and `mo cd`
+6. write `~/.config/morc.json`
 7. sync managed shellrc blocks
 
 After setup:
 
 ```bash
-ghm clone vitejs/vite
-ghm list
-ghm cd
+mo clone vitejs/vite
+mo list
+mo cd
 ```
 
 ## Commands
 
-### `ghm setup`
+### `mo setup`
 
 Initialize config and shell integration.
 
-### `ghm clone <owner>/<repo>`
+### `mo clone <owner>/<repo>`
 
 Clone a GitHub repository into `<root>/<owner>/<repo>`.
 
-Alias: `ghm c <owner>/<repo>`
+Alias: `mo c <owner>/<repo>`
 
 Example:
 
 ```bash
-ghm clone vuejs/core
+mo clone vuejs/core
 ```
 
-### `ghm list`
+### `mo list`
 
 List repositories under your configured root.
 
-Alias: `ghm ls`
+Alias: `mo ls`
 
-### `ghm cd [target]`
+### `mo cd [target]`
 
 Resolve and jump to a managed path in your shell integration function.
 
@@ -95,21 +99,21 @@ With `target`, supported forms are:
 - `<owner>`
 - `<owner>/<repo>`
 
-Alias: `ghm d`
+Alias: `mo d`
 
 ## Config
 
 Default config path:
 
 ```text
-~/.config/ghmrc.json
+~/.config/morc.json
 ```
 
 Example:
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/liangmiQwQ/ghm/main/config_schema.json",
+  "$schema": "https://raw.githubusercontent.com/liangmiQwQ/mo/main/config_schema.json",
   "root": "~/code",
   "shells": ["zsh"],
   "alias": {
@@ -134,7 +138,7 @@ Alias names must match:
 
 ## Shell Integration
 
-`ghm` manages shell integration blocks in your shellrc files:
+`mo` manages shell integration blocks in your shellrc files:
 
 - `~/.zshrc`
 - `~/.bashrc`
@@ -142,8 +146,8 @@ Alias names must match:
 
 ## Notes
 
-- If you run config-required commands without config, `ghm` prompts you to run `ghm setup`.
-- `ghm list` only shows repositories that are Git repos with a GitHub remote.
+- If you run config-required commands without config, `mo` prompts you to run `mo setup`.
+- `mo list` only shows repositories that are Git repos with a GitHub remote.
 
 ## Contribution
 

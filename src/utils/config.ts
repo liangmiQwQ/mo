@@ -21,7 +21,7 @@ export type GlobalUserConfig = {
 }
 
 export function getDefaultConfigPath(): string {
-  return path.join(homedir(), '.config', 'ghmrc.json')
+  return path.join(homedir(), '.config', 'morc.json')
 }
 
 export function loadConfig(): GlobalUserConfig {
@@ -151,7 +151,7 @@ function parseAliasConfig(
 
     const normalized = normalizeAliasValues(aliasValues, command, invalidConfigError)
 
-    if (command === 'ghm') {
+    if (command === 'mo') {
       continue
     }
 

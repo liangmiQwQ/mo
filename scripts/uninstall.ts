@@ -4,9 +4,9 @@ import { homedir } from 'node:os'
 import { resolve } from 'node:path'
 import pc from 'picocolors'
 
-const managedMarker = 'ghm-dev-wrapper:managed'
+const managedMarker = 'mo-dev-wrapper:managed'
 const binDir = resolve(homedir(), '.local/bin')
-const wrapperNames = ['ghm', 'ghmi']
+const wrapperNames = ['mo', 'mo-inner']
 
 async function removeIfManaged(name: string): Promise<void> {
   const target = resolve(binDir, name)
