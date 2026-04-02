@@ -1,12 +1,10 @@
-# `mo`
+# mo
 
-`mo` stands for "**M**anage your **O**pensource projects"
+**M**anage your **O**pensource projects!
 
-Just keep your repos organized like this:
+It just keeps your repos organized like this:
 
 ```text
-
-$ tree
 
 ~/code
 ├── vitejs
