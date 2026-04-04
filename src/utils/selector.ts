@@ -362,7 +362,9 @@ const locationPrompt = createPrompt<
           displayName = pc.bold(displayName)
         }
       } else if (item.ownerName) {
-        displayName = `${item.name} ${pc.black(pc.dim(`(${item.ownerName})`))}`
+        displayName = searchTerm
+          ? `${item.name} ${pc.black(pc.dim(`(${item.ownerName})`))}`
+          : item.name
       } else if (item.isRoot) {
         // stay as is
       }
@@ -378,7 +380,7 @@ const locationPrompt = createPrompt<
   let helpTip = ''
   const currentItem = items[safeActive]
   if (currentItem && isSelectable(currentItem)) {
-    helpTip = `\n\n  ${pc.dim(`Path: ${toTildePath(currentItem.value)}`)}`
+    helpTip = `${pc.dim('\n\n  Path: ')}${pc.gray(toTildePath(currentItem.value))}`
   }
 
   const searchStr = pc.cyan(searchTerm)
