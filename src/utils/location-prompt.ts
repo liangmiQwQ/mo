@@ -30,6 +30,10 @@ type LocationChoice = {
   name: string
   short: string
   group: string | null
+  isOwner?: boolean
+  isRoot?: boolean
+  isRepoMatch?: boolean
+  ownerName?: string
 }
 
 type ListItem = LocationChoice | Separator
@@ -68,12 +72,19 @@ function isSelectable(item: ListItem): item is LocationChoice {
 }
 
 function buildBrowseItems(root: string, groups: OwnerGroup[]): ListItem[] {
-  const items: ListItem[] = [{ value: root, name: '.', short: '.', group: null }]
+  const items: ListItem[] = [
+    { value: root, name: '<root>', short: '<root>', group: null, isRoot: true },
+  ]
 
   for (const group of groups) {
-    items.push(new Separator(''))
-    items.push(new Separator(pc.bold(pc.cyan(group.name))))
-    items.push({ value: group.path, name: '.', short: `${group.name}/.`, group: group.name })
+    items.push(new Separator(' '))
+    items.push({
+      value: group.path,
+      name: group.name,
+      short: group.name,
+      group: group.name,
+      isOwner: true,
+    })
     for (const repo of group.repos) {
       items.push({
         value: repo.path,
@@ -91,8 +102,8 @@ function buildSearchItems(query: string, root: string, groups: OwnerGroup[]): Li
   const q = query.trim().toLowerCase()
   const items: ListItem[] = []
 
-  if (q === '.') {
-    items.push({ value: root, name: '.', short: '.', group: null })
+  if (q === '.' || q === '<root>') {
+    items.push({ value: root, name: '<root>', short: '<root>', group: null, isRoot: true })
   }
 
   const repoMatches: LocationChoice[] = []
@@ -101,9 +112,11 @@ function buildSearchItems(query: string, root: string, groups: OwnerGroup[]): Li
       if (repo.name.toLowerCase().includes(q)) {
         repoMatches.push({
           value: repo.path,
-          name: `${repo.name} ${pc.dim(`(${group.name})`)}`,
+          name: repo.name,
           short: `${group.name}/${repo.name}`,
           group: null,
+          isRepoMatch: true,
+          ownerName: group.name,
         })
       }
     }
@@ -112,13 +125,13 @@ function buildSearchItems(query: string, root: string, groups: OwnerGroup[]): Li
 
   const ownerMatches = groups.filter((g) => g.name.toLowerCase().includes(q))
   if (ownerMatches.length > 0) {
-    if (items.length > 0) items.push(new Separator(''))
     for (const g of ownerMatches) {
       items.push({
         value: g.path,
-        name: pc.dim(g.name),
+        name: g.name,
         short: g.name,
         group: null,
+        isOwner: true,
       })
     }
   }
@@ -156,7 +169,21 @@ const locationPrompt = createPrompt<
   const safeActive = active ?? bounds.first
 
   useKeypress((key, rl) => {
-    if (isEnterKey(key)) {
+    if (key.name === 'escape') {
+      if (searchTerm) {
+        setSearchTerm('')
+        if ('line' in rl) {
+          // @ts-ignore Let's try gently clearing it
+          rl.line = ''
+          // @ts-ignore
+          rl.cursor = 0
+        }
+      } else {
+        const err = new Error('Operation canceled.')
+        err.name = 'ExitPromptError'
+        throw err
+      }
+    } else if (isEnterKey(key)) {
       const selected = items[safeActive]
       if (selected && isSelectable(selected)) {
         done(selected.value)
@@ -191,24 +218,59 @@ const locationPrompt = createPrompt<
       if (Separator.isSeparator(item)) {
         return ` ${item.separator}`
       }
+
+      let displayName = item.name
+      if (item.isOwner) {
+        displayName = isActive ? displayName : pc.cyan(displayName)
+        displayName = pc.bold(displayName)
+      } else if (item.isRepoMatch) {
+        displayName = `${item.name} ${pc.dim(`(${item.ownerName})`)}`
+      } else if (item.isRoot) {
+        // stay as is
+      }
+
       const cursor = isActive ? pc.cyan(figures.pointer) : ' '
-      const text = isActive ? theme.style.highlight(item.name) : item.name
+      const text = isActive
+        ? theme.style.highlight(displayName)
+        : pc.gray(item.name === displayName && !item.isOwner ? item.name : displayName)
       return `${cursor} ${text}`
     },
   })
 
-  // Sticky header: pin the active item's owner group label above the scrollable page
+  // Sticky header: pin the active item's owner group label above the scrollable page when scrolled out of view
   let stickyHeader = ''
   if (!searchTerm) {
     const activeItem = items[safeActive]
     if (activeItem && isSelectable(activeItem) && activeItem.group) {
-      stickyHeader = `  ${pc.bold(pc.cyan(activeItem.group))}\n`
+      const ownerIndex = items.findIndex(
+        (i) => isSelectable(i) && i.isOwner && i.group === activeItem.group,
+      )
+
+      const middleOfList = Math.floor(PAGE_SIZE / 2)
+      let startIndex = Math.max(0, safeActive - middleOfList)
+      if (startIndex + PAGE_SIZE > items.length) {
+        startIndex = Math.max(0, items.length - PAGE_SIZE)
+      }
+
+      if (ownerIndex !== -1 && ownerIndex < startIndex) {
+        stickyHeader = `  ${pc.bold(pc.cyan(activeItem.group))}\n`
+      }
     }
+  }
+
+  let helpTip = ''
+  const currentItem = items[safeActive]
+  if (currentItem && isSelectable(currentItem)) {
+    const home = process.env.HOME || ''
+    const p = currentItem.value.startsWith(home)
+      ? currentItem.value.replace(home, '~')
+      : currentItem.value
+    helpTip = `\n\n  ${pc.gray(`Path: ${p}`)}`
   }
 
   const searchStr = pc.cyan(searchTerm)
   const header = [prefix, config.message, searchStr].filter(Boolean).join(' ').trimEnd()
-  const body = `${stickyHeader}${page}`
+  const body = `${stickyHeader}${page}${helpTip}`
 
   return [header, body]
 })
