@@ -1,7 +1,7 @@
-import { readdirSync } from 'node:fs'
 import path from 'node:path'
+import { readdirSync } from 'node:fs'
 import { error } from './error'
-import { promptAutocomplete } from './prompt'
+import { collectOwnerGroups, promptLocationPath } from './location-prompt'
 
 export type LocationOption = {
   label: string
@@ -38,49 +38,6 @@ function resolvePathFromTarget(target: string, root: string): string {
   error('Invalid target. Use "root", "<owner>", or "<owner>/<repo>".', 78)
 }
 
-async function promptLocationPath(root: string): Promise<string> {
-  const options = collectLocationOptions(root)
-
-  const selected = await promptAutocomplete(
-    'Where would you like to go?',
-    'path',
-    options.map((option) => ({
-      title: option.label,
-      value: option.path,
-    })),
-    'Operation canceled.',
-  )
-
-  if (typeof selected !== 'string' || !selected) {
-    error('No target selected.', 78)
-  }
-
-  return selected
-}
-
-function collectLocationOptions(root: string): LocationOption[] {
-  const options: LocationOption[] = [{ label: 'root', path: root }]
-  const owners = readDirectoryNames(root)
-
-  for (const owner of owners) {
-    const ownerPath = path.join(root, owner)
-    options.push({
-      label: owner,
-      path: ownerPath,
-    })
-
-    const repos = readDirectoryNames(ownerPath)
-    for (const repo of repos) {
-      options.push({
-        label: `${owner}/${repo}`,
-        path: path.join(ownerPath, repo),
-      })
-    }
-  }
-
-  return options
-}
-
 function resolveOwnerPath(root: string, owner: string): string {
   const ownerPath = path.join(root, owner)
   if (!readDirectoryNames(root).includes(owner)) {
@@ -110,3 +67,5 @@ function readDirectoryNames(dir: string): string[] {
     return []
   }
 }
+
+export { collectOwnerGroups }

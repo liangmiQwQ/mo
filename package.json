@@ -42,6 +42,8 @@
     "release": "bumpp"
   },
   "dependencies": {
+    "@inquirer/core": "^11.1.7",
+    "@inquirer/figures": "^2.0.4",
     "@inquirer/prompts": "^8.3.2",
     "jsonc-parser": "^3.3.1"
   },
