@@ -86,11 +86,11 @@ function searchItems(query: string, groups: RepoGroup[], root: string): SearchIt
   const items: SearchItem[] = []
   const matchedOwners = new Set<string>()
 
-  // Search projects
+  // Search projects - only match by project name
   const projectMatches: SearchItem[] = []
   for (const group of groups) {
     for (const repo of group.repos) {
-      if (repo.name.toLowerCase().includes(q) || repo.owner.toLowerCase().includes(q)) {
+      if (repo.name.toLowerCase().includes(q)) {
         projectMatches.push({
           type: 'project',
           label: repo.name,
@@ -269,14 +269,11 @@ function ListModeView({
 
     const prefix = isSelected ? POINTER : POINTER_BLANK
 
-    if (item.type === 'root') {
-      const text = isSelected ? pc.underline(pc.green(item.label)) : pc.gray(item.label)
-      lines.push(prefix + text)
-    } else if (item.type === 'owner') {
+    if (item.type === 'owner') {
       const text = isSelected ? pc.underline(pc.green(item.label)) : pc.bold(pc.cyan(item.label))
       lines.push(prefix + text)
     } else {
-      const text = isSelected ? pc.underline(pc.green(item.label)) : pc.gray(item.label)
+      const text = isSelected ? pc.underline(pc.green(item.label)) : item.label
       lines.push(prefix + text)
     }
   }
@@ -318,7 +315,7 @@ function SearchModeView({
         const suffix = item.owner ? pc.dim(` (${item.owner})`) : ''
         lines.push(prefix + name + suffix)
       } else {
-        const name = highlightMatch(item.label, query, pc.gray)
+        const name = highlightMatch(item.label, query, (s) => s)
         const suffix = item.owner ? pc.dim(` (${item.owner})`) : ''
         lines.push(prefix + name + suffix)
       }
@@ -338,7 +335,7 @@ function Footer({ path: footerPath, noMatch }: { path: string; noMatch: boolean 
   if (noMatch) {
     return <Text>{pc.dim(pc.italic('No directory found'))}</Text>
   }
-  return <Text>{pc.dim('Path: ') + pc.gray(toTildePath(footerPath))}</Text>
+  return <Text>{pc.dim('Path: ') + toTildePath(footerPath)}</Text>
 }
 
 // --- Main Selector ---
