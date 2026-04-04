@@ -8,8 +8,13 @@ export async function runCdCommand(
   target: string | undefined,
   config: GlobalUserConfig,
 ): Promise<void> {
-  await withPathSelector(config.root, target, (nextPath) => {
-    const targetFile = path.join(tmpdir(), 'mo-cd-target')
-    writeFileSync(targetFile, nextPath, 'utf8')
-  })
+  try {
+    await withPathSelector(config.root, target, (nextPath) => {
+      const targetFile = path.join(tmpdir(), 'mo-cd-target')
+      writeFileSync(targetFile, nextPath, 'utf8')
+    })
+  } catch {
+    // Canceled by user - exit silently
+    process.exit(130)
+  }
 }

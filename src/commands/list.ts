@@ -1,40 +1,12 @@
-import { existsSync, readdirSync } from 'node:fs'
-import path from 'node:path'
-import { x } from 'tinyexec'
 import pc from 'picocolors'
 import type { GlobalUserConfig } from '../utils/config'
 import { icons, toTildePath } from '../utils/format'
+import { scanRepos } from '../utils/repos'
 
 export async function runListCommand(config: GlobalUserConfig): Promise<void> {
-  const owners = readDirectoryNames(config.root)
+  const groups = await scanRepos(config.root)
 
-  if (!owners.length) {
-    printNoRepositoriesFound(config.root)
-    return
-  }
-
-  const ownerRepos = new Map<string, string[]>()
-  let totalRepos = 0
-
-  for (const owner of owners) {
-    const ownerPath = path.join(config.root, owner)
-    const potentialRepos = readDirectoryNames(ownerPath)
-    const validRepos: string[] = []
-
-    for (const repo of potentialRepos) {
-      const repoPath = path.join(ownerPath, repo)
-      if (isGitRepo(repoPath) && (await hasGitHubRemote(repoPath))) {
-        validRepos.push(repo)
-      }
-    }
-
-    if (validRepos.length) {
-      ownerRepos.set(owner, validRepos)
-      totalRepos += validRepos.length
-    }
-  }
-
-  if (!totalRepos) {
+  if (!groups.length) {
     printNoRepositoriesFound(config.root)
     return
   }
@@ -43,11 +15,11 @@ export async function runListCommand(config: GlobalUserConfig): Promise<void> {
   console.log(`${pc.gray(`Projects in`)} ${pc.cyan(displayRoot)}`)
   console.log()
 
-  const ownerEntries = Array.from(ownerRepos.entries()).sort(([a], [b]) => a.localeCompare(b))
-
-  for (const [owner, repos] of ownerEntries) {
-    repos.sort()
-    console.log(`${pc.bold(owner)} ${pc.dim(`(${repos.length})`)}`)
+  let totalRepos = 0
+  for (const group of groups) {
+    const repos = group.repos.map((r) => r.name).sort()
+    totalRepos += repos.length
+    console.log(`${pc.bold(group.owner)} ${pc.dim(`(${repos.length})`)}`)
 
     for (const repo of repos) {
       console.log(`${pc.dim(` - `)}${repo}`)
@@ -56,41 +28,12 @@ export async function runListCommand(config: GlobalUserConfig): Promise<void> {
     console.log()
   }
 
-  const totalOwners = ownerRepos.size
+  const totalOwners = groups.length
   console.log(
-    `${pc.dim('Found')} ${pc.cyan(totalRepos.toString())} ${pc.dim(`reposiItor${totalRepos === 1 ? 'y' : 'ies'} in`)} ${pc.cyan(totalOwners.toString())} ${pc.dim(`organization${totalOwners === 1 ? '' : 's'}`)}`,
+    `${pc.dim('Found')} ${pc.cyan(totalRepos.toString())} ${pc.dim(`repositor${totalRepos === 1 ? 'y' : 'ies'} in`)} ${pc.cyan(totalOwners.toString())} ${pc.dim(`organization${totalOwners === 1 ? '' : 's'}`)}`,
   )
 }
 
 function printNoRepositoriesFound(root: string): void {
   console.log(`${icons.warning} ${pc.yellow(`No repositories found under ${pc.cyan(root)}`)}`)
-}
-
-function readDirectoryNames(dir: string): string[] {
-  try {
-    return readdirSync(dir, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory())
-      .map((entry) => entry.name)
-      .sort()
-  } catch {
-    return []
-  }
-}
-
-function isGitRepo(dir: string): boolean {
-  const gitDir = path.join(dir, '.git')
-  return existsSync(gitDir)
-}
-
-async function hasGitHubRemote(dir: string): Promise<boolean> {
-  try {
-    const result = await x('git', ['remote', '-v'], {
-      throwOnError: false,
-      nodeOptions: { cwd: dir },
-    })
-    // Check if any remote URL contains github.com
-    return result.stdout.includes('github.com')
-  } catch {
-    return false
-  }
 }
