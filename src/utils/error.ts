@@ -8,6 +8,6 @@ import { icons } from './format'
  * - Returns `never` because it calls `process.exit()`.
  */
 export function error(message: string, exitCode: number = 1): never {
-  console.error(pc.red(`${icons.error} ${message}`))
+  console.error(pc.bold(pc.red(`${icons.error} ${message}`)))
   process.exit(exitCode)
 }
