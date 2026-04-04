@@ -381,6 +381,8 @@ const locationPrompt = createPrompt<
   const currentItem = items[safeActive]
   if (currentItem && isSelectable(currentItem)) {
     helpTip = `${pc.dim('\n\n  Path: ')}${pc.gray(toTildePath(currentItem.value))}`
+  } else {
+    helpTip = pc.dim(pc.italic('\n\n  No item found'))
   }
 
   const searchStr = pc.cyan(searchTerm)
