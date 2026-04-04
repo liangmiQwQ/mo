@@ -1,12 +1,48 @@
 import path from 'node:path'
 import { readdirSync } from 'node:fs'
+import {
+  Separator,
+  createPrompt,
+  isDownKey,
+  isEnterKey,
+  isUpKey,
+  makeTheme,
+  useMemo,
+  usePagination,
+  useKeypress,
+  usePrefix,
+  useState,
+} from '@inquirer/core'
+import figures from '@inquirer/figures'
+import pc from 'picocolors'
 import { error } from './error'
-import { collectOwnerGroups, promptLocationPath } from './location-prompt'
+import { toTildePath } from './format'
 
 export type LocationOption = {
   label: string
   path: string
 }
+
+// ---- Types from location-prompt ----
+
+type OwnerGroup = {
+  name: string
+  path: string
+  repos: Array<{ name: string; path: string }>
+}
+
+type LocationChoice = {
+  value: string
+  name: string
+  short: string
+  group: string | null
+  isOwner?: boolean
+  isRoot?: boolean
+  isRepoMatch?: boolean
+  ownerName?: string
+}
+
+type ListItem = LocationChoice | Separator
 
 export async function withPathSelector<T>(
   root: string,
@@ -68,4 +104,268 @@ function readDirectoryNames(dir: string): string[] {
   }
 }
 
-export { collectOwnerGroups }
+export function collectOwnerGroups(root: string): OwnerGroup[] {
+  return readDirectoryNames(root).map((owner) => {
+    const ownerPath = path.join(root, owner)
+    return {
+      name: owner,
+      path: ownerPath,
+      repos: readDirectoryNames(ownerPath).map((repo) => ({
+        name: repo,
+        path: path.join(ownerPath, repo),
+      })),
+    }
+  })
+}
+
+function isSelectable(item: ListItem): item is LocationChoice {
+  return !Separator.isSeparator(item)
+}
+
+function buildBrowseItems(root: string, groups: OwnerGroup[]): ListItem[] {
+  const items: ListItem[] = [
+    { value: root, name: '<root>', short: '<root>', group: null, isRoot: true },
+  ]
+
+  for (const group of groups) {
+    items.push(new Separator(' '))
+    items.push({
+      value: group.path,
+      name: group.name,
+      short: group.name,
+      group: group.name,
+      isOwner: true,
+    })
+    for (const repo of group.repos) {
+      items.push({
+        value: repo.path,
+        name: repo.name,
+        short: `${group.name}/${repo.name}`,
+        group: group.name,
+        ownerName: group.name,
+      })
+    }
+  }
+
+  return items
+}
+
+function buildSearchItems(query: string, root: string, groups: OwnerGroup[]): ListItem[] {
+  const q = query.trim().toLowerCase()
+  const items: ListItem[] = []
+
+  if (q === '.' || q === 'root' || q === '<root>') {
+    items.push({ value: root, name: '<root>', short: '<root>', group: null, isRoot: true })
+  }
+
+  const repoMatches: LocationChoice[] = []
+  for (const group of groups) {
+    for (const repo of group.repos) {
+      if (repo.name.toLowerCase().includes(q)) {
+        repoMatches.push({
+          value: repo.path,
+          name: repo.name,
+          short: `${group.name}/${repo.name}`,
+          group: null,
+          isRepoMatch: true,
+          ownerName: group.name,
+        })
+      }
+    }
+  }
+  items.push(...repoMatches)
+
+  const ownerMatches = groups.filter((g) => g.name.toLowerCase().includes(q))
+  if (ownerMatches.length > 0) {
+    if (items.length > 0) {
+      items.push(new Separator(' '))
+    }
+    for (const g of ownerMatches) {
+      items.push({
+        value: g.path,
+        name: g.name,
+        short: g.name,
+        group: null,
+        isOwner: true,
+      })
+    }
+  }
+
+  return items
+}
+
+// ---- Prompt ----
+
+const PAGE_SIZE = 10
+
+const locationPrompt = createPrompt<
+  string,
+  { root: string; message: string; groups: OwnerGroup[] }
+>((config, done) => {
+  const { root, groups } = config
+  const theme = makeTheme({})
+  const [status, setStatus] = useState<'idle' | 'done'>('idle')
+  const prefix = usePrefix({ status, theme })
+
+  const [searchTerm, setSearchTerm] = useState('')
+  const [doneText, setDoneText] = useState('')
+
+  const items = useMemo<ListItem[]>(
+    () =>
+      searchTerm ? buildSearchItems(searchTerm, root, groups) : buildBrowseItems(root, groups),
+    [searchTerm],
+  )
+
+  const bounds = useMemo(() => {
+    const first = items.findIndex(isSelectable)
+    const last = items.findLastIndex(isSelectable)
+    return { first, last }
+  }, [items])
+
+  const [active, setActive] = useState<number | undefined>(undefined)
+  const safeActive = active ?? bounds.first
+
+  useKeypress((key, rl) => {
+    if (key.name === 'escape') {
+      if (searchTerm) {
+        setSearchTerm('')
+        if ('line' in rl) {
+          // @ts-ignore Let's try gently clearing it
+          rl.line = ''
+          // @ts-ignore
+          rl.cursor = 0
+        }
+      } else {
+        error('Operation canceled.', 78)
+      }
+    } else if (isEnterKey(key)) {
+      const selected = items[safeActive]
+      if (selected && isSelectable(selected)) {
+        setStatus('done')
+
+        let dp = selected.name
+        if (selected.isOwner) dp = selected.name
+        else if (selected.isRoot) dp = '<root>'
+        else if (selected.isRepoMatch) dp = `${selected.ownerName}/${selected.name}`
+        else if (selected.group) dp = `${selected.group}/${selected.name}`
+
+        setDoneText(dp + ` ${pc.black(pc.dim(`(${toTildePath(selected.value)})`))}`)
+        done(selected.value)
+      } else {
+        rl.write(searchTerm)
+      }
+    } else if (isUpKey(key) || isDownKey(key)) {
+      rl.clearLine(0)
+      if (
+        (isUpKey(key) && safeActive !== bounds.first) ||
+        (isDownKey(key) && safeActive !== bounds.last)
+      ) {
+        const offset = isUpKey(key) ? -1 : 1
+        let next = safeActive
+        do {
+          next = (next + offset + items.length) % items.length
+        } while (!isSelectable(items[next]))
+        setActive(next)
+      }
+    } else {
+      setActive(undefined)
+      setSearchTerm(rl.line)
+    }
+  })
+
+  // Sticky header: pin the active item's owner group label above the scrollable page when scrolled out of view
+  // When a sticky header is shown, we reduce the page size by 1 to keep total displayed lines constant.
+  let stickyHeader = ''
+  let pageSizeForItems = PAGE_SIZE
+  if (!searchTerm) {
+    const activeItem = items[safeActive]
+    if (activeItem && isSelectable(activeItem) && activeItem.group) {
+      const ownerIndex = items.findIndex(
+        (i) => isSelectable(i) && i.isOwner && i.group === activeItem.group,
+      )
+
+      const middleOfList = Math.floor(pageSizeForItems / 2)
+      let startIndex = Math.max(0, safeActive - middleOfList)
+      if (startIndex + pageSizeForItems > items.length) {
+        startIndex = Math.max(0, items.length - pageSizeForItems)
+      }
+
+      if (ownerIndex !== -1 && ownerIndex < startIndex) {
+        stickyHeader = `  ${pc.bold(pc.cyan(activeItem.group))}\n`
+        pageSizeForItems = PAGE_SIZE - 1
+        // Recompute startIndex with adjusted page size
+        const middleOfListAdjusted = Math.floor(pageSizeForItems / 2)
+        startIndex = Math.max(0, safeActive - middleOfListAdjusted)
+        if (startIndex + pageSizeForItems > items.length) {
+          startIndex = Math.max(0, items.length - pageSizeForItems)
+        }
+        // If owner index is now visible, remove sticky header
+        if (ownerIndex >= startIndex) {
+          stickyHeader = ''
+          pageSizeForItems = PAGE_SIZE
+        }
+      }
+    }
+  }
+
+  const page = usePagination({
+    items,
+    active: safeActive,
+    pageSize: pageSizeForItems,
+    loop: false,
+    renderItem({ item, isActive }) {
+      if (Separator.isSeparator(item)) {
+        return ` ${item.separator}`
+      }
+
+      let displayName = item.name
+      if (item.isOwner) {
+        if (searchTerm) {
+          displayName = isActive ? displayName : pc.black(pc.dim(displayName))
+        } else {
+          displayName = isActive ? displayName : pc.cyan(displayName)
+          displayName = pc.bold(displayName)
+        }
+      } else if (item.ownerName) {
+        displayName = `${item.name} ${pc.black(pc.dim(`(${item.ownerName})`))}`
+      } else if (item.isRoot) {
+        // stay as is
+      }
+
+      const cursor = isActive ? pc.cyan(figures.pointer) : ' '
+      const text = isActive
+        ? theme.style.highlight(displayName)
+        : pc.gray(item.name === displayName && !item.isOwner ? item.name : displayName)
+      return `${cursor} ${text}`
+    },
+  })
+
+  let helpTip = ''
+  const currentItem = items[safeActive]
+  if (currentItem && isSelectable(currentItem)) {
+    helpTip = `\n\n  ${pc.dim(`Path: ${toTildePath(currentItem.value)}`)}`
+  }
+
+  const searchStr = pc.cyan(searchTerm)
+  const header = [prefix, config.message, searchStr].filter(Boolean).join(' ').trimEnd()
+
+  if (status === 'done') {
+    return `${prefix} ${config.message} ${pc.cyan(doneText)}`
+  }
+
+  const body = `${stickyHeader}${page}${helpTip}`
+
+  return [header, body]
+})
+
+export async function promptLocationPath(root: string): Promise<string> {
+  const groups = collectOwnerGroups(root)
+  return locationPrompt({ root, message: pc.bold('Where would you like to go?'), groups }).catch(
+    (err: unknown) => {
+      if (err instanceof Error && err.name === 'ExitPromptError') {
+        error('Operation canceled.', 78)
+      }
+      throw err
+    },
+  )
+}
