@@ -7,32 +7,6 @@ import { scanRepos, type RepoGroup } from './repos'
 import pc from 'picocolors'
 import { startSpinner, stopSpinner, icons, toTildePath } from './format'
 
-export function resolveTarget(root: string, target: string, groups: RepoGroup[]): string | null {
-  if (target === '.') return root
-
-  // Try as owner or owner/repo path relative to root (max depth 2)
-  const segments = target.split('/').filter(Boolean)
-  if (segments.length >= 1 && segments.length <= 2) {
-    const candidate = path.join(root, ...segments)
-    if (existsSync(candidate) && statSync(candidate).isDirectory()) {
-      return candidate
-    }
-  }
-
-  // Search by name: repos first, then owners
-  const q = target.toLowerCase()
-  for (const group of groups) {
-    for (const repo of group.repos) {
-      if (repo.name.toLowerCase().includes(q)) return repo.path
-    }
-  }
-  for (const group of groups) {
-    if (group.owner.toLowerCase().includes(q)) return group.path
-  }
-
-  return null
-}
-
 export async function withPathSelector<T>(
   root: string,
   target: string | undefined,
@@ -84,4 +58,30 @@ export async function withPathSelector<T>(
       { exitOnCtrlC: false },
     )
   })
+}
+
+function resolveTarget(root: string, target: string, groups: RepoGroup[]): string | null {
+  if (target === '.') return root
+
+  // Try as owner or owner/repo path relative to root (max depth 2)
+  const segments = target.split('/').filter(Boolean)
+  if (segments.length >= 1 && segments.length <= 2) {
+    const candidate = path.join(root, ...segments)
+    if (existsSync(candidate) && statSync(candidate).isDirectory()) {
+      return candidate
+    }
+  }
+
+  // Search by name: repos first, then owners
+  const q = target.toLowerCase()
+  for (const group of groups) {
+    for (const repo of group.repos) {
+      if (repo.name.toLowerCase().includes(q)) return repo.path
+    }
+  }
+  for (const group of groups) {
+    if (group.owner.toLowerCase().includes(q)) return group.path
+  }
+
+  return null
 }
