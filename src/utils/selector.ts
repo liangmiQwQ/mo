@@ -4,7 +4,8 @@ import { existsSync, statSync } from 'node:fs'
 import path from 'node:path'
 import { Selector } from '../components/selector'
 import { scanRepos, type RepoGroup } from './repos'
-import { startSpinner, stopSpinner } from './format'
+import pc from 'picocolors'
+import { startSpinner, stopSpinner, icons, toTildePath } from './format'
 
 export function resolveTarget(root: string, target: string, groups: RepoGroup[]): string | null {
   if (target === '.') return root
@@ -39,10 +40,23 @@ export async function withPathSelector<T>(
 ): Promise<T> {
   const resolvedTarget = target?.trim()
 
-  // If a direct target is provided, resolve it without the UI
   if (resolvedTarget) {
-    // TODO: integrate resolveTarget here
-    return action(resolvedTarget)
+    let groups: RepoGroup[] = []
+    if (resolvedTarget !== '.') {
+      const spinner = startSpinner('Scanning repositories...')
+      groups = await scanRepos(root)
+      stopSpinner(spinner)
+    }
+
+    const resolved = resolveTarget(root, resolvedTarget, groups)
+    if (!resolved) {
+      console.error(
+        `${icons.error} ${pc.red(`No matching directory found for '${resolvedTarget}'`)}`,
+      )
+      throw new Error(`No match: ${resolvedTarget}`)
+    }
+    console.log(`${icons.success} ${pc.cyan(toTildePath(resolved))}`)
+    return action(resolved)
   }
 
   const spinner = startSpinner('Scanning repositories...')
