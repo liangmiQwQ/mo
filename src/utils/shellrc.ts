@@ -49,7 +49,7 @@ function buildManagedShellrcBlock(shell: SupportedShell): string {
       `if command -v ${innerBinName} &>/dev/null; then`,
       `  ${sourceCmd}`,
       `else`,
-      `  _mo_tmp=$(mktemp) && ${awkRemoveBlock} ${shellrcPath} > "$_mo_tmp" && mv "$_mo_tmp" ${shellrcPath}`,
+      `  _mo_tmp=$(mktemp) && ${awkRemoveBlock} ${shellrcPath} >| "$_mo_tmp" && mv "$_mo_tmp" ${shellrcPath}`,
       `  unset _mo_tmp`,
       `fi`,
     ].join('\n')
