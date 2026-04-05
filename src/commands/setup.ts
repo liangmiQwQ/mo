@@ -31,11 +31,18 @@ export async function runSetupCommand(): Promise<void> {
   )
   const rootPath = await resolveAndValidateRootPath(rootInput)
 
+  const editorInput = await promptText(
+    'What editor would you like to use? (optional, e.g. code, vim)',
+    'editor',
+    { initial: '' },
+  )
+  const editor = editorInput.trim() || undefined
+
   const selectedShells = await promptShellSelection()
   await ensureShellCommandsAvailable(selectedShells)
   const aliases = await promptAliasConfig()
 
-  await writeConfigFile(configPath, rootPath, selectedShells, aliases)
+  await writeConfigFile(configPath, rootPath, selectedShells, aliases, editor)
   await syncShellrc(selectedShells)
 
   success(`Setup completed. Config written to ${pc.cyan(toTildePath(configPath))}`)
@@ -120,11 +127,13 @@ async function writeConfigFile(
   rootPath: string,
   shells: SupportedShell[],
   alias?: CommandAliasConfig,
+  editor?: string,
 ): Promise<void> {
   const content = `${JSON.stringify(
     {
       $schema: CONFIG_SCHEMA_URL,
       root: rootPath,
+      ...(editor ? { editor } : {}),
       shells,
       ...(alias ? { alias } : {}),
     },

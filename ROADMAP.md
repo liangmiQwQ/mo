@@ -81,9 +81,9 @@ Display a prompt, allow users to enter repo name to cd to it, also allow user cd
 
 Because it needs to cd to the target directory, it needs to be a shell script. We need add a wrapper `mo`(function) to call it.
 
-## - [ ] Stage Three: Editor Support
+## - [x] Stage Three: Editor Support
 
-### - [ ] `editor` option
+### - [x] `editor` option
 
 Add `editor` option in `~/.config/morc.json`, modify `setup` command as well.
 
@@ -94,7 +94,7 @@ Add `editor` option in `~/.config/morc.json`, modify `setup` command as well.
 }
 ```
 
-### - [ ] `edit` command
+### - [x] `edit` command
 
 Add `mo edit` command to open the repo in the editor. For example, `mo open vitejs/devtools` which actually runs `code ~/code/vitejs/devtools`.
 
@@ -102,7 +102,7 @@ The prompt logic should be similar as `mo cd` command. Use `-e` or `--editor` to
 
 Alias: `mo e` (`e` as default global alias for `edit`)
 
-### - [ ] `open` command
+### - [x] `open` command
 
 Alias `mo o` (`o` as default global alias for `open`)
 

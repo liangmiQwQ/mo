@@ -1,4 +1,4 @@
-export const aliasCommands = ['clone', 'list', 'cd'] as const
+export const aliasCommands = ['clone', 'list', 'cd', 'edit', 'open'] as const
 export type AliasCommand = (typeof aliasCommands)[number]
 export type CommandAliasConfig = Partial<Record<AliasCommand, string[]>>
 export const legacyAliasCommands = ['mo', ...aliasCommands] as const
@@ -8,6 +8,8 @@ export const defaultAliases: Record<AliasCommand, string> = {
   clone: 'k',
   list: 'li',
   cd: 'i',
+  edit: 'e',
+  open: 'o',
 }
 
 const aliasNameRegex = /^[A-Za-z_][A-Za-z0-9_-]*$/

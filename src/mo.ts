@@ -4,6 +4,7 @@ import { version } from '../package.json'
 import { getDefaultConfigPath, loadConfig } from './utils/config'
 import { runCloneCommand } from './commands/clone'
 import { runCdCommand } from './commands/cd'
+import { runEditCommand, runOpenCommand } from './commands/edit'
 import { runListCommand } from './commands/list'
 import { promptRunSetupOnMissingConfig, runSetupCommand } from './commands/setup'
 import { error } from './utils/error'
@@ -47,6 +48,21 @@ cli
   .command('cd [target]', 'Resolve a repository path for shell navigation')
   .alias('d')
   .action(withConfig((config, target?: string) => runCdCommand(target, config)))
+
+cli
+  .command('edit [target]', 'Open a repository in your editor')
+  .alias('e')
+  .option('-e, --editor <editor>', 'Editor to use (overrides config)')
+  .action(
+    withConfig((config, target?: string, options?: { editor?: string }) =>
+      runEditCommand(target, config, options ?? {}),
+    ),
+  )
+
+cli
+  .command('open [target]', 'Open a repository in system file explorer')
+  .alias('o')
+  .action(withConfig((config, target?: string) => runOpenCommand(target, config)))
 
 cli.help()
 cli.version(version || '0.0.0')
