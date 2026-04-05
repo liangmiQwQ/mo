@@ -188,7 +188,7 @@ function Header({
     content = pc.bold(QUESTION) + pc.cyan(toTildePath(selectedPath))
   } else if (state === 'error') {
     icon = pc.red('\u2717')
-    content = pc.red(errorMessage)
+    content = pc.bold(pc.red(errorMessage))
   } else {
     icon = pc.yellow('?')
     content = pc.bold(QUESTION) + query
@@ -208,8 +208,6 @@ function ListModeView({
   scrollOffset: number
   height: number
 }) {
-  const visibleItems = items.slice(scrollOffset, scrollOffset + height)
-
   // Find sticky owner: look backward from scrollOffset for the current group's owner
   let stickyOwner: ListItem | null = null
   if (scrollOffset > 0) {
@@ -245,9 +243,8 @@ function ListModeView({
   }
 
   const adjustedHeight = stickyOwner ? height - 1 : height
-  const displayItems = stickyOwner
-    ? items.slice(scrollOffset, scrollOffset + adjustedHeight)
-    : visibleItems
+  const displayStart = stickyOwner ? scrollOffset + 1 : scrollOffset
+  const displayItems = items.slice(displayStart, displayStart + adjustedHeight)
 
   const lines: string[] = []
 
@@ -259,7 +256,7 @@ function ListModeView({
 
   for (let i = 0; i < displayItems.length; i++) {
     const item = displayItems[i]
-    const actualIndex = scrollOffset + i
+    const actualIndex = displayStart + i
     const isSelected = actualIndex === cursorIndex
 
     if (item.type === 'blank') {
