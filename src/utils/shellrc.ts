@@ -25,24 +25,40 @@ const shellRcRelativePaths: Record<SupportedShell, string> = {
   fish: '~/.config/fish/config.fish',
 }
 
-function getShellSourceCommands(): Record<SupportedShell, string> {
-  return {
-    bash: `source <(${innerBinName} shell bash)`,
-    zsh: `source <(${innerBinName} shell zsh)`,
-    fish: `${innerBinName} shell fish | source`,
-  }
-}
-
 function resolveShellRcPath(shell: SupportedShell): string {
   return untildify(shellRcRelativePaths[shell])
 }
 
+const awkRemoveBlock = `awk '/^#_MO_START_$/{f=1;next} f&&/^#_MO_END_$/{f=0;next} !f'`
+
 function buildManagedShellrcBlock(shell: SupportedShell): string {
-  const shellSourceCommands = getShellSourceCommands()
+  const shellrcPath = shellRcRelativePaths[shell]
+
+  let block: string
+  if (shell === 'fish') {
+    block = [
+      `if command -q ${innerBinName}`,
+      `  ${innerBinName} shell fish | source`,
+      `else`,
+      `  set -l _mo_tmp (mktemp); and ${awkRemoveBlock} ${shellrcPath} > $_mo_tmp; and mv $_mo_tmp ${shellrcPath}`,
+      `end`,
+    ].join('\n')
+  } else {
+    const sourceCmd = `source <(${innerBinName} shell ${shell})`
+    block = [
+      `if command -v ${innerBinName} &>/dev/null; then`,
+      `  ${sourceCmd}`,
+      `else`,
+      `  _mo_tmp=$(mktemp) && ${awkRemoveBlock} ${shellrcPath} > "$_mo_tmp" && mv "$_mo_tmp" ${shellrcPath}`,
+      `  unset _mo_tmp`,
+      `fi`,
+    ].join('\n')
+  }
+
   return [
     MO_START_MARKER,
     '# Please do not edit the comments `#_MO_START_` or `#_MO_END_`, which probably makes mo feature broken.',
-    shellSourceCommands[shell],
+    block,
     MO_END_MARKER,
   ].join('\n')
 }
