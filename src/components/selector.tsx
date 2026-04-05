@@ -107,7 +107,7 @@ function searchItems(query: string, groups: RepoGroup[], root: string): SearchIt
       matchedOwners.add(repo.owner)
     }
   }
-  projectMatches.sort((a, b) => a.score - b.score)
+  projectMatches.sort((a, b) => a.score - b.score || a.item.label.length - b.item.label.length)
 
   const sortedProjects: SearchItem[] = projectMatches.map((m) => m.item)
 
