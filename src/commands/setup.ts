@@ -2,10 +2,10 @@ import { existsSync } from 'node:fs'
 import { mkdir, stat, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import untildify from 'untildify'
-import type { SupportedShell } from '../utils/config'
+import type { SupportedShell, GlobalUserConfig } from '../utils/config'
 import type { CommandAliasConfig } from '../utils/alias'
 import { aliasCommands, defaultAliases, getAliasPromptLabel, parseAliasInput } from '../utils/alias'
-import { getDefaultConfigPath, supportedShells } from '../utils/config'
+import { getDefaultConfigPath, loadConfig, supportedShells } from '../utils/config'
 import { syncShellrc } from '../utils/shellrc'
 import { error } from '../utils/error'
 import pc from 'picocolors'
@@ -18,8 +18,22 @@ const ALIAS_NAME_PATTERN = '[A-Za-z_][A-Za-z0-9_-]*'
 
 export async function runSetupCommand(): Promise<void> {
   const configPath = getDefaultConfigPath()
+
+  let existingConfig: GlobalUserConfig | undefined
   if (existsSync(configPath)) {
-    error(`Config file already exists at ${toTildePath(configPath)}.`, 78)
+    const confirmed = await promptConfirm(
+      `Config already exists at ${toTildePath(configPath)}. Would you like to reconfigure?`,
+      'reconfigure',
+      { default: false },
+    )
+    if (!confirmed) {
+      return
+    }
+    try {
+      existingConfig = loadConfig()
+    } catch {
+      // proceed without defaults if config is invalid
+    }
   }
 
   await ensureToolReady('git')
@@ -28,19 +42,20 @@ export async function runSetupCommand(): Promise<void> {
   const rootInput = await promptText(
     'What directory would you like to store all your projects?',
     'root',
+    { initial: existingConfig ? toTildePath(existingConfig.root) : undefined },
   )
   const rootPath = await resolveAndValidateRootPath(rootInput)
 
   const editorInput = await promptText(
     'What editor would you like to use? (optional, e.g. code, vim)',
     'editor',
-    { initial: '' },
+    { initial: existingConfig?.editor ?? '' },
   )
   const editor = editorInput.trim() || undefined
 
-  const selectedShells = await promptShellSelection()
+  const selectedShells = await promptShellSelection(existingConfig?.shells)
   await ensureShellCommandsAvailable(selectedShells)
-  const aliases = await promptAliasConfig()
+  const aliases = await promptAliasConfig(existingConfig?.alias)
 
   await writeConfigFile(configPath, rootPath, selectedShells, aliases, editor)
   await syncShellrc(selectedShells)
@@ -99,12 +114,17 @@ async function resolveAndValidateRootPath(input: string): Promise<string> {
   return rootPath
 }
 
-async function promptShellSelection(): Promise<SupportedShell[]> {
-  const value = await promptMultiselect('What kind of shell would you use?', 'shells', [
-    { title: 'zsh (~/.zshrc)', value: 'zsh' },
-    { title: 'fish (~/.config/fish/config.fish)', value: 'fish' },
-    { title: 'bash (~/.bashrc)', value: 'bash' },
-  ])
+async function promptShellSelection(initial?: SupportedShell[]): Promise<SupportedShell[]> {
+  const value = await promptMultiselect(
+    'What kind of shell would you use?',
+    'shells',
+    [
+      { title: 'zsh (~/.zshrc)', value: 'zsh' },
+      { title: 'fish (~/.config/fish/config.fish)', value: 'fish' },
+      { title: 'bash (~/.bashrc)', value: 'bash' },
+    ],
+    initial,
+  )
 
   const selected = [
     ...new Set(value.filter((shell): shell is SupportedShell => isSupportedShell(shell))),
@@ -144,15 +164,19 @@ async function writeConfigFile(
   await writeFile(configPath, content, 'utf8')
 }
 
-async function promptAliasConfig(): Promise<CommandAliasConfig | undefined> {
-  const withAlias = await promptConfirm('Would you like to add command aliases?', 'withAlias')
+async function promptAliasConfig(
+  initial?: CommandAliasConfig,
+): Promise<CommandAliasConfig | undefined> {
+  const withAlias = await promptConfirm('Would you like to add command aliases?', 'withAlias', {
+    default: initial != null ? Object.keys(initial).length > 0 : true,
+  })
   if (!withAlias) {
     return undefined
   }
 
   const aliases: CommandAliasConfig = {}
   for (const command of aliasCommands) {
-    const parsed = await promptCommandAlias(command)
+    const parsed = await promptCommandAlias(command, initial?.[command])
     if (parsed.length > 0) {
       aliases[command] = parsed
     }
@@ -161,8 +185,11 @@ async function promptAliasConfig(): Promise<CommandAliasConfig | undefined> {
   return Object.keys(aliases).length > 0 ? aliases : undefined
 }
 
-async function promptCommandAlias(command: (typeof aliasCommands)[number]): Promise<string[]> {
-  const suggested = defaultAliases[command]
+async function promptCommandAlias(
+  command: (typeof aliasCommands)[number],
+  existing?: string[],
+): Promise<string[]> {
+  const suggested = existing != null ? existing.join(', ') : defaultAliases[command]
   const commandLabel = getAliasPromptLabel(command)
   const input = await promptText(`Aliases for "${commandLabel}" (optional)`, `alias_${command}`, {
     initial: suggested,

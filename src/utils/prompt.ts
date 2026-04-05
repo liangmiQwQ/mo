@@ -39,11 +39,15 @@ export async function promptText(
   return answer || ''
 }
 
-export async function promptConfirm(message: string, _name: string): Promise<boolean> {
+export async function promptConfirm(
+  message: string,
+  _name: string,
+  options: { default?: boolean } = {},
+): Promise<boolean> {
   return catchCancel(
     confirm({
       message,
-      default: true,
+      default: options.default ?? true,
     }),
   )
 }
@@ -52,11 +56,16 @@ export async function promptMultiselect<T extends string>(
   message: string,
   _name: string,
   choices: Array<{ title: string; value: T }>,
+  initial?: T[],
 ): Promise<T[]> {
   return catchCancel(
     checkbox({
       message,
-      choices: choices.map((c) => ({ name: c.title, value: c.value })),
+      choices: choices.map((c) => ({
+        name: c.title,
+        value: c.value,
+        checked: initial ? initial.includes(c.value) : false,
+      })),
     }),
   )
 }
