@@ -1,9 +1,9 @@
-import { checkbox, confirm, input, search } from '@inquirer/prompts'
+import prompts from 'prompts'
 import { error } from './error'
 
 type TextPromptOptions = {
   initial?: string
-  validate?: (value: string) => boolean | string | Promise<boolean | string>
+  validate?: (value: string) => boolean | string
 }
 
 type AutocompleteChoice<T> = {
@@ -15,80 +15,89 @@ const onSetupCancel = () => {
   error('Setup canceled.', 78)
 }
 
-function catchCancel<T>(promise: Promise<T>, onCancel: () => void = onSetupCancel): Promise<T> {
-  return promise.catch((err) => {
-    if (err instanceof Error && err.name === 'ExitPromptError') {
+function catchCancel<T>(
+  promise: Promise<T | undefined>,
+  onCancel: () => void = onSetupCancel,
+): Promise<T> {
+  return promise.then((result) => {
+    if (result === undefined) {
       onCancel()
     }
-    throw err
+    return result as T
   })
 }
 
 export async function promptText(
   message: string,
-  _name: string,
+  name: string,
   options: TextPromptOptions = {},
 ): Promise<string> {
-  const answer = await catchCancel(
-    input({
-      message,
-      default: options.initial,
-      validate: options.validate,
-    }),
-  )
+  const response = await prompts({
+    type: 'text',
+    name,
+    message,
+    initial: options.initial,
+    validate: options.validate,
+  })
+  const answer = await catchCancel<string>(Promise.resolve(response[name]))
   return answer || ''
 }
 
 export async function promptConfirm(
   message: string,
-  _name: string,
+  name: string,
   options: { default?: boolean } = {},
 ): Promise<boolean> {
-  return catchCancel(
-    confirm({
-      message,
-      default: options.default ?? true,
-    }),
-  )
+  const response = await prompts({
+    type: 'confirm',
+    name,
+    message,
+    initial: options.default ?? true,
+  })
+  const answer = await catchCancel<boolean>(Promise.resolve(response[name]))
+  return answer ?? false
 }
 
 export async function promptMultiselect<T extends string>(
   message: string,
-  _name: string,
+  name: string,
   choices: Array<{ title: string; value: T }>,
   initial?: T[],
 ): Promise<T[]> {
-  return catchCancel(
-    checkbox({
-      message,
-      choices: choices.map((c) => ({
-        name: c.title,
-        value: c.value,
-        checked: initial ? initial.includes(c.value) : false,
-      })),
-    }),
-  )
+  const response = await prompts({
+    type: 'multiselect',
+    name,
+    message,
+    choices: choices.map((c) => ({
+      title: c.title,
+      value: c.value,
+      selected: initial ? initial.includes(c.value) : false,
+    })),
+  })
+  const answer = await catchCancel<T[]>(Promise.resolve(response[name]))
+  return answer || []
 }
 
 export async function promptAutocomplete<T>(
   message: string,
-  _name: string,
+  name: string,
   choices: AutocompleteChoice<T>[],
   onCancelMessage: string,
 ): Promise<T | undefined> {
-  return catchCancel(
-    search({
+  return catchCancel<T | undefined>(
+    prompts({
+      type: 'autocomplete',
+      name,
       message,
-      source: async (term: string | undefined) => {
-        const query = (term || '').trim().toLowerCase()
-        if (!query) {
-          return choices.map((c) => ({ name: c.title, value: c.value }))
-        }
-        return choices
-          .filter((option) => option.title.toLowerCase().includes(query))
-          .map((c) => ({ name: c.title, value: c.value }))
+      choices: choices.map((c) => ({ title: c.title, value: c.value })),
+      suggest: (input, choicesList) => {
+        const query = input.trim().toLowerCase()
+        if (!query) return Promise.resolve(choicesList)
+        return Promise.resolve(
+          choicesList.filter((choice) => choice.title.toLowerCase().includes(query)),
+        )
       },
-    }),
+    }).then((r: Record<string, unknown>) => r[name] as T | undefined),
     () => {
       error(onCancelMessage, 78)
     },
