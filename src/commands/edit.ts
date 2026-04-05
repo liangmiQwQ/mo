@@ -13,9 +13,14 @@ export async function runEditCommand(
     error('No editor configured. Set "editor" in config via `mo setup` or use `-e <editor>`.', 78)
   }
 
+  const reuseWindowEditors = ['code', 'cursor', 'agy', 'antigravity']
+
   try {
     await withPathSelector(config.root, target, (selectedPath) => {
-      spawnSync(editorCommand, [selectedPath], { stdio: 'inherit' })
+      const args = reuseWindowEditors.includes(editorCommand)
+        ? ['-r', selectedPath]
+        : [selectedPath]
+      spawnSync(editorCommand, args, { stdio: 'inherit' })
     })
   } catch {
     process.exit(130)
