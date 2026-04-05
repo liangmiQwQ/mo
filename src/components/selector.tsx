@@ -3,6 +3,7 @@ import { Box, Text, useInput } from 'ink'
 import pc from 'picocolors'
 import type { RepoGroup } from '../utils/repos'
 import { toTildePath } from '../utils/format'
+import { getMatchScore, searchReposByName } from '../utils/search'
 
 // --- Types ---
 
@@ -84,36 +85,19 @@ function buildListItems(root: string, groups: RepoGroup[]): ListItem[] {
 function searchItems(query: string, groups: RepoGroup[], root: string): SearchItem[] {
   const q = query.toLowerCase()
   const items: SearchItem[] = []
-  const matchedOwners = new Set<string>()
+  const projectMatches = searchReposByName(query, groups)
+  const sortedProjects: SearchItem[] = projectMatches.map((match) => ({
+    type: 'project',
+    label: match.repo.name,
+    owner: match.repo.owner,
+    path: match.repo.path,
+    selectable: true,
+  }))
+  const matchedOwners = new Set(projectMatches.map((match) => match.repo.owner))
 
-  // Search projects - only match by project name
-  // Score: 0 = exact match, 1 = prefix match, 2 = substring match
-  const projectMatches: Array<{ score: number; item: SearchItem }> = []
-  for (const group of groups) {
-    for (const repo of group.repos) {
-      const name = repo.name.toLowerCase()
-      if (!name.includes(q)) continue
-      const score = name === q ? 0 : name.startsWith(q) ? 1 : 2
-      projectMatches.push({
-        score,
-        item: {
-          type: 'project',
-          label: repo.name,
-          owner: repo.owner,
-          path: repo.path,
-          selectable: true,
-        },
-      })
-      matchedOwners.add(repo.owner)
-    }
-  }
-  projectMatches.sort((a, b) => a.score - b.score || a.item.label.length - b.item.label.length)
-
-  const sortedProjects: SearchItem[] = projectMatches.map((m) => m.item)
-
-  // Root match - exact match gets score 0, prefix score 1, substring score 2
+  // Keep <root> in the same score ordering as project matches.
   if ('<root>'.includes(q)) {
-    const rootScore = '<root>' === q ? 0 : '<root>'.startsWith(q) ? 1 : 2
+    const rootScore = getMatchScore('<root>', query) ?? 3
     const rootItem: SearchItem = { type: 'project', label: '<root>', path: root, selectable: true }
     const insertIdx = sortedProjects.findIndex(
       (_, i) => (projectMatches[i]?.score ?? 3) > rootScore,

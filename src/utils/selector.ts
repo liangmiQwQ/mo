@@ -4,6 +4,7 @@ import { existsSync, statSync } from 'node:fs'
 import path from 'node:path'
 import { Selector } from '../components/selector'
 import { scanRepos, type RepoGroup } from './repos'
+import { searchOwnerGroupsByName, searchReposByName } from './search'
 import pc from 'picocolors'
 import { startSpinner, stopSpinner, icons, toTildePath } from './format'
 
@@ -72,16 +73,12 @@ function resolveTarget(root: string, target: string, groups: RepoGroup[]): strin
     }
   }
 
-  // Search by name: repos first, then owners
-  const q = target.toLowerCase()
-  for (const group of groups) {
-    for (const repo of group.repos) {
-      if (repo.name.toLowerCase().includes(q)) return repo.path
-    }
-  }
-  for (const group of groups) {
-    if (group.owner.toLowerCase().includes(q)) return group.path
-  }
+  // Search by best match score: repos first, then owners.
+  const repoMatches = searchReposByName(target, groups)
+  if (repoMatches.length) return repoMatches[0].repo.path
+
+  const ownerMatches = searchOwnerGroupsByName(target, groups)
+  if (ownerMatches.length) return ownerMatches[0].path
 
   return null
 }
