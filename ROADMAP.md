@@ -32,7 +32,7 @@ alias `mo ls`
 
 Show the all repos available.
 
-## - [ ] Stage Two: Better UX
+## - [x] Stage Two: Better UX
 
 This stage will import some features related to shell and shellrc. We need to support fish, zsh, bash.
 
@@ -81,11 +81,7 @@ Display a prompt, allow users to enter repo name to cd to it, also allow user cd
 
 Because it needs to cd to the target directory, it needs to be a shell script. We need add a wrapper `mo`(function) to call it.
 
-## - [ ] Stage Three: Add `fork` and `remote` control
-
-It's a big feature, need `gh` and `git` commands work together, leave a blank for now.
-
-## - [ ] Stage Four: Editor Support
+## - [ ] Stage Three: Editor Support
 
 ### - [ ] `editor` option
 
@@ -102,16 +98,20 @@ Add `editor` option in `~/.config/morc.json`, modify `setup` command as well.
 
 Add `mo edit` command to open the repo in the editor. For example, `mo open vitejs/devtools` which actually runs `code ~/code/vitejs/devtools`.
 
-The prompt logic should be similar as `mo` command. Use `-e` or `--editor` to specify the editor.
+The prompt logic should be similar as `mo cd` command. Use `-e` or `--editor` to specify the editor.
 
-Alias: `mo e`
+Alias: `mo e` (`e` as default global alias for `edit`)
 
 ### - [ ] `open` command
 
-Alias `mo o`
+Alias `mo o` (`o` as default global alias for `open`)
 
 A wrapper for `mo edit -e open` to open the project in system finder / explorer.
 
-## - [ ] Stage Five: Editor Plugin
+---
 
-Similar to `Project Manager` or `Git Project Manager` extension in VSCode. This is a fairly long-term plan, so leave a blank for now.
+`mo edit`, `mo cd` and `mo open` essentially do the same thing, which has similar arguments and prompt logic, we should reuse the code as possible.
+
+## - [ ] Stage Four: Add `fork` and `remote` control
+
+It's a big feature, need `gh` and `git` commands work together, leave a blank for now.
