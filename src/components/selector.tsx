@@ -188,7 +188,7 @@ function Header({
     content = pc.bold(QUESTION) + pc.cyan(toTildePath(selectedPath))
   } else if (state === 'error') {
     icon = pc.red('\u2717')
-    content = pc.red(errorMessage)
+    content = pc.bold(pc.red(errorMessage))
   } else {
     icon = pc.yellow('?')
     content = pc.bold(QUESTION) + query
@@ -228,7 +228,7 @@ function ListModeView({
       while (groupEnd < items.length && items[groupEnd].type !== 'blank') {
         groupEnd++
       }
-      if (groupEnd + 1 <= scrollOffset) {
+      if (groupEnd - 1 <= scrollOffset) {
         stickyOwner = null
       }
     }
