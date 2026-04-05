@@ -53,6 +53,22 @@
             "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
           },
           "uniqueItems": true
+        },
+        "edit": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+          },
+          "uniqueItems": true
+        },
+        "open": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+          },
+          "uniqueItems": true
         }
       },
       "additionalProperties": false
