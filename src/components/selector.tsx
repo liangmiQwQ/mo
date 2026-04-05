@@ -473,7 +473,7 @@ export function Selector({ root, groups, onSelect, onCancel }: SelectorProps) {
   return (
     <Box flexDirection="column">
       <Header
-        state={isSearchMode ? 'search' : state}
+        state={isSearchMode && state === 'list' ? 'search' : state}
         query={query}
         selectedPath={selectedPath}
         errorMessage={errorMessage}
