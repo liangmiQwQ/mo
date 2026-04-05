@@ -87,33 +87,42 @@ function searchItems(query: string, groups: RepoGroup[], root: string): SearchIt
   const matchedOwners = new Set<string>()
 
   // Search projects - only match by project name
-  const projectMatches: SearchItem[] = []
+  // Score: 0 = exact match, 1 = prefix match, 2 = substring match
+  const projectMatches: Array<{ score: number; item: SearchItem }> = []
   for (const group of groups) {
     for (const repo of group.repos) {
-      if (repo.name.toLowerCase().includes(q)) {
-        projectMatches.push({
+      const name = repo.name.toLowerCase()
+      if (!name.includes(q)) continue
+      const score = name === q ? 0 : name.startsWith(q) ? 1 : 2
+      projectMatches.push({
+        score,
+        item: {
           type: 'project',
           label: repo.name,
           owner: repo.owner,
           path: repo.path,
           selectable: true,
-        })
-        matchedOwners.add(repo.owner)
-      }
+        },
+      })
+      matchedOwners.add(repo.owner)
     }
   }
+  projectMatches.sort((a, b) => a.score - b.score)
 
-  // Root match
+  const sortedProjects: SearchItem[] = projectMatches.map((m) => m.item)
+
+  // Root match - exact match gets score 0, prefix score 1, substring score 2
   if ('<root>'.includes(q)) {
-    projectMatches.unshift({
-      type: 'project',
-      label: '<root>',
-      path: root,
-      selectable: true,
-    })
+    const rootScore = '<root>' === q ? 0 : '<root>'.startsWith(q) ? 1 : 2
+    const rootItem: SearchItem = { type: 'project', label: '<root>', path: root, selectable: true }
+    const insertIdx = sortedProjects.findIndex(
+      (_, i) => (projectMatches[i]?.score ?? 3) > rootScore,
+    )
+    if (insertIdx === -1) sortedProjects.push(rootItem)
+    else sortedProjects.splice(insertIdx, 0, rootItem)
   }
 
-  items.push(...projectMatches)
+  items.push(...sortedProjects)
 
   // Search owners
   const ownerMatches: SearchItem[] = []
@@ -128,7 +137,7 @@ function searchItems(query: string, groups: RepoGroup[], root: string): SearchIt
     }
   }
 
-  if (ownerMatches.length && projectMatches.length) {
+  if (ownerMatches.length && sortedProjects.length) {
     // Blank separator
     items.push({
       type: 'owner',
