@@ -39,6 +39,7 @@ export async function withPathSelector<T>(
           }, 50)
         },
       }),
+      { exitOnCtrlC: false },
     )
   })
 }
