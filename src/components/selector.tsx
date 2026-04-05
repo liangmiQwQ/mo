@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react'
-import { Box, Text, useInput, useApp } from 'ink'
+import { Box, Text, useInput } from 'ink'
 import pc from 'picocolors'
 import type { RepoGroup } from '../utils/repos'
 import { toTildePath } from '../utils/format'
@@ -351,7 +351,6 @@ function Footer({ path: footerPath, noMatch }: { path: string; noMatch: boolean 
 // --- Main Selector ---
 
 export function Selector({ root, groups, onSelect, onCancel }: SelectorProps) {
-  const { exit } = useApp()
   const [state, setState] = useState<SelectorState>('list')
   const [query, setQuery] = useState('')
   const [cursorIndex, setCursorIndex] = useState(0)
@@ -404,11 +403,23 @@ export function Selector({ root, groups, onSelect, onCancel }: SelectorProps) {
     if (state === 'succeed' || state === 'error') return
 
     // Cancel
-    if (key.escape || (key.ctrl && input === 'c')) {
+    if (key.ctrl && input === 'c') {
       setState('error')
       setErrorMessage('Canceled.')
       onCancel()
-      setTimeout(() => exit(), 0)
+      return
+    }
+
+    // Escape - clear search or cancel
+    if (key.escape) {
+      if (query) {
+        setQuery('')
+        resetCursor(listItems)
+      } else {
+        setState('error')
+        setErrorMessage('Canceled.')
+        onCancel()
+      }
       return
     }
 
@@ -418,7 +429,6 @@ export function Selector({ root, groups, onSelect, onCancel }: SelectorProps) {
         setState('succeed')
         setSelectedPath(currentPath)
         onSelect(currentPath)
-        setTimeout(() => exit(), 0)
       }
       return
     }
@@ -463,7 +473,7 @@ export function Selector({ root, groups, onSelect, onCancel }: SelectorProps) {
   return (
     <Box flexDirection="column">
       <Header
-        state={isSearchMode ? 'search' : state}
+        state={isSearchMode && state === 'list' ? 'search' : state}
         query={query}
         selectedPath={selectedPath}
         errorMessage={errorMessage}
