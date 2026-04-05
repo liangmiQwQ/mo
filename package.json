@@ -46,7 +46,7 @@
     "prompts": "^2.4.2"
   },
   "devDependencies": {
-    "@types/node": "^25.5.0",
+    "@types/node": "^25.5.2",
     "@types/prompts": "^2.4.9",
     "@types/react": "^19.2.14",
     "@types/which": "^3.0.4",
