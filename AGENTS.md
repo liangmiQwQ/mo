@@ -24,6 +24,7 @@ If users run config-required commands without default config, mo should prompt t
 `preinstall` blocks unsupported Windows installs and rejects non-global package installs (except contributor installs in the source repo).
 `mo cd` should be handled through shell functions: resolve path via `mo cd`, run `mo-inner cd` to print pending target from `MO_CD_TARGET` (or `.` when empty), and execute shell `cd` immediately.
 Local development wrappers are managed by `vp run dev:i` and `vp run dev:uni`, targeting `~/.local/bin/mo` and `~/.local/bin/mo-inner`.
+CLI startup performance matters: keep `src/mo.ts` using dynamic imports for command modules so `ink/react` selector code only loads for interactive flows.
 
 ## Rule
 
