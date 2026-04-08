@@ -64,9 +64,9 @@ export async function withPathSelector<T>(
 function resolveTarget(root: string, target: string, groups: RepoGroup[]): string | null {
   if (target === '.') return root
 
-  // Try as owner or owner/repo path relative to root (max depth 2)
+  // Try as explicit owner/repo path relative to root
   const segments = target.split('/').filter(Boolean)
-  if (segments.length >= 1 && segments.length <= 2) {
+  if (segments.length === 2) {
     const candidate = path.join(root, ...segments)
     if (existsSync(candidate) && statSync(candidate).isDirectory()) {
       return candidate
@@ -74,6 +74,7 @@ function resolveTarget(root: string, target: string, groups: RepoGroup[]): strin
   }
 
   // Search by best match score: repos first, then owners.
+  // This ensures a repo named "foo" is preferred over an owner directory named "foo".
   const repoMatches = searchReposByName(target, groups)
   if (repoMatches.length) return repoMatches[0].repo.path
 
