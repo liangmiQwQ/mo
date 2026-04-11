@@ -1,4 +1,4 @@
-# Selector UI spec
+# RFC: Selector UI
 
 The selector ui should be a easy-use ui for users to select a project. It is similar to the selector of `@inquirer/prompts`, but we should build it ourselves with Ink and React because of the custom featrures.
 
