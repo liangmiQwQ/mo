@@ -58,7 +58,14 @@ export async function runSetupCommand(): Promise<void> {
   await ensureShellCommandsAvailable(selectedShells)
   const aliases = await promptAliasConfig(existingConfig?.alias)
 
-  await writeConfigFile(configPath, rootPath, selectedShells, aliases, editor)
+  const forkOwnerInput = await promptText(
+    'What is your default GitHub username/org for forking repos? (required for `mo fork`)',
+    'forkOwner',
+    { initial: existingConfig?.forkOwner ?? '' },
+  )
+  const forkOwner = forkOwnerInput.trim() || undefined
+
+  await writeConfigFile(configPath, rootPath, selectedShells, aliases, editor, forkOwner)
   await syncShellrc(selectedShells)
   await createRestartFlag()
 
@@ -156,6 +163,7 @@ async function writeConfigFile(
   shells: SupportedShell[],
   alias?: CommandAliasConfig,
   editor?: string,
+  forkOwner?: string,
 ): Promise<void> {
   const content = `${JSON.stringify(
     {
@@ -164,6 +172,7 @@ async function writeConfigFile(
       ...(editor ? { editor } : {}),
       shells,
       ...(alias ? { alias } : {}),
+      ...(forkOwner ? { 'fork-owner': forkOwner } : {}),
     },
     null,
     2,

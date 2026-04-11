@@ -18,6 +18,7 @@ export type GlobalUserConfig = {
   editor?: string
   shells: SupportedShell[]
   alias?: CommandAliasConfig
+  forkOwner?: string
 }
 
 export function getDefaultConfigPath(): string {
@@ -68,11 +69,17 @@ function parseConfig(jsonc: string, configFilePath: string): GlobalUserConfig {
     invalidConfigError(`"root" path is not a directory`)
   }
 
+  const forkOwner =
+    typeof config['fork-owner'] === 'string' && config['fork-owner']
+      ? config['fork-owner']
+      : undefined
+
   return {
     root: rootPath,
     ...(config.editor ? { editor: String(config.editor) } : {}),
     shells,
     ...(alias ? { alias } : {}),
+    ...(forkOwner ? { forkOwner } : {}),
   }
 }
 

@@ -73,6 +73,11 @@
       },
       "additionalProperties": false
     },
+    "fork-owner": {
+      "type": "string",
+      "description": "Default GitHub username or organization to fork repositories into.",
+      "examples": ["liangmiQwQ", "myorg"]
+    },
     "$schema": {
       "type": "string",
       "description": "The schema URL for this config file."
