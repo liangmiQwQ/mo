@@ -18,4 +18,4 @@
 
 ## Stage Four: Fork and Remote Control
 
-- [ ] [Fork and remote control](/rfcs/fork-remote.md)
+- [ ] [Fork control](/rfcs/fork.md)
