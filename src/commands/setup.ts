@@ -58,14 +58,20 @@ export async function runSetupCommand(): Promise<void> {
   await ensureShellCommandsAvailable(selectedShells)
   const aliases = await promptAliasConfig(existingConfig?.alias)
 
-  const forkOwnerInput = await promptText(
-    'What is your default GitHub username/org for forking repos? (required for `mo fork`)',
-    'forkOwner',
-    { initial: existingConfig?.forkOwner ?? '' },
+  let forkOrg: string | undefined
+  const wantsForkOrg = await promptConfirm(
+    'Whether you always fork to an organization?',
+    'wantsForkOrg',
+    { default: existingConfig?.forkOrg != null },
   )
-  const forkOwner = forkOwnerInput.trim() || undefined
+  if (wantsForkOrg) {
+    const forkOrgInput = await promptText('Default org name for forking repos:', 'forkOrg', {
+      initial: existingConfig?.forkOrg ?? '',
+    })
+    forkOrg = forkOrgInput.trim() || undefined
+  }
 
-  await writeConfigFile(configPath, rootPath, selectedShells, aliases, editor, forkOwner)
+  await writeConfigFile(configPath, rootPath, selectedShells, aliases, editor, forkOrg)
   await syncShellrc(selectedShells)
   await createRestartFlag()
 
@@ -163,7 +169,7 @@ async function writeConfigFile(
   shells: SupportedShell[],
   alias?: CommandAliasConfig,
   editor?: string,
-  forkOwner?: string,
+  forkOrg?: string,
 ): Promise<void> {
   const content = `${JSON.stringify(
     {
@@ -172,7 +178,7 @@ async function writeConfigFile(
       ...(editor ? { editor } : {}),
       shells,
       ...(alias ? { alias } : {}),
-      ...(forkOwner ? { 'fork-owner': forkOwner } : {}),
+      ...(forkOrg ? { 'fork-org': forkOrg } : {}),
     },
     null,
     2,

@@ -45,7 +45,7 @@ cli
 cli
   .command('fork [repo]', 'Fork a repository and clone it, or fork the current repo in place')
   .alias('f')
-  .option('-o, --owner <owner>', 'GitHub username or org to fork into (overrides config)')
+  .option('-o, --org <org>', 'GitHub org to fork into (overrides config)')
   .option('-n, --name <name>', 'Name for the forked repository')
   .action(
     withConfig((config, repo?: string, options?: ForkOptions) =>

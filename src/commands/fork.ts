@@ -8,7 +8,7 @@ import { icons, startSpinner, stopSpinner, success, toTildePath } from '../utils
 import { promptConfirm, promptText } from '../utils/prompt'
 
 export type ForkOptions = {
-  owner?: string
+  org?: string
   name?: string
 }
 
@@ -23,34 +23,42 @@ export async function runForkCommand(
   }
 
   const parsed = parseRepo(repo)
-  const forkOwner = options.owner ?? config.forkOwner
-  if (!forkOwner) {
-    error('No fork owner configured. Run `mo setup` to set a default fork owner, or use --owner.')
-  }
+  const forkOrg = options.org ?? config.forkOrg
 
-  const forkName = await resolveForkName(parsed.name, parsed.owner, options.name)
-  const resolvedOwner = await resolveForkOwner(forkOwner, options.owner, parsed.owner, forkName)
-
-  // Guard: forking to same owner+name is not allowed
-  if (resolvedOwner === parsed.owner && forkName === parsed.name) {
+  // Same owner with same name → immediate error before any prompts
+  if (forkOrg === parsed.owner && options.name === parsed.name && options.name !== undefined) {
     error(`Cannot fork ${parsed.owner}/${parsed.name} to itself.`)
   }
 
-  // Extra confirmation when same owner but different name
-  if (resolvedOwner === parsed.owner) {
-    const confirmed = await promptConfirm(
-      `Fork target ${pc.cyan(`${resolvedOwner}/${forkName}`)} has the same owner as the original. Continue?`,
-      'sameOwnerConfirm',
+  // Same owner → extra confirm before other prompts
+  if (forkOrg === parsed.owner) {
+    const ok = await promptConfirm(
+      `Fork target has the same owner as the original (${pc.cyan(forkOrg)}). Continue?`,
+      'sameOrgConfirm',
       { default: false },
     )
-    if (!confirmed) {
-      error('Fork canceled.', 78)
-    }
+    if (!ok) error('Fork canceled.', 78)
   }
 
-  const confirmed = await confirmForkPath(resolvedOwner, forkName)
-  if (!confirmed) {
-    error('Fork canceled.', 78)
+  const forkName = await resolveForkName(parsed.name, parsed.owner, options.name)
+
+  // After resolving name, check same org+name
+  if (forkOrg === parsed.owner && forkName === parsed.name) {
+    error(`Cannot fork ${parsed.owner}/${parsed.name} to itself.`)
+  }
+
+  // Q2: confirm path (skip if no org configured)
+  let finalOrg = forkOrg
+  let finalName = forkName
+  if (forkOrg) {
+    const resolved = await resolveForkPathWithConfirm(forkOrg, forkName)
+    finalOrg = resolved.org
+    finalName = resolved.name
+  }
+
+  // Re-check after custom path input
+  if (finalOrg === parsed.owner && finalName === parsed.name) {
+    error(`Cannot fork ${parsed.owner}/${parsed.name} to itself.`)
   }
 
   const ownerDir = path.join(config.root, parsed.owner)
@@ -66,12 +74,13 @@ export async function runForkCommand(
   }
 
   const cloneUrl = `https://github.com/${parsed.owner}/${parsed.name}.git`
+  const forkLabel = finalOrg ? `${finalOrg}/${finalName}` : finalName
   const spinner = startSpinner(
-    `Cloning ${pc.bold(`${parsed.owner}/${parsed.name}`)} and forking to ${pc.bold(`${resolvedOwner}/${forkName}`)}...`,
+    `Cloning ${pc.bold(`${parsed.owner}/${parsed.name}`)} and forking to ${pc.bold(forkLabel)}...`,
   )
 
   const cloneExec = x('git', ['clone', '--progress', cloneUrl, targetDir], { throwOnError: false })
-  const ghArgs = buildGhForkArgs(parsed.owner, parsed.name, resolvedOwner, forkName)
+  const ghArgs = buildGhForkArgs(parsed.owner, parsed.name, finalOrg, finalName)
   const forkExec = x('gh', ghArgs, { throwOnError: false })
 
   // If fork fails, kill the clone process
@@ -97,13 +106,13 @@ export async function runForkCommand(
       forkSettled.status === 'rejected'
         ? String(forkSettled.reason)
         : forkResult?.stderr || `gh fork exited with code ${forkResult?.exitCode}`
-    error(`Fork failed for ${resolvedOwner}/${forkName}: ${details}`)
+    error(`Fork failed for ${forkLabel}: ${details}`)
   }
 
   if (cloneFailed) {
     cleanupClone(targetDir, ownerDir, ownerExisted)
     console.log(
-      `${icons.warning} ${pc.yellow(`Fork created at ${pc.bold(`${resolvedOwner}/${forkName}`)} but clone failed.`)}`,
+      `${icons.warning} ${pc.yellow(`Fork created at ${pc.bold(forkLabel)} but clone failed.`)}`,
     )
     const details =
       cloneSettled.status === 'rejected'
@@ -112,11 +121,10 @@ export async function runForkCommand(
     error(`Clone failed for ${parsed.owner}/${parsed.name}: ${details}`)
   }
 
-  success(
-    `Forked ${pc.bold(`${parsed.owner}/${parsed.name}`)} to ${pc.bold(`${resolvedOwner}/${forkName}`)}`,
-  )
+  success(`Forked ${pc.bold(`${parsed.owner}/${parsed.name}`)} to ${pc.bold(forkLabel)}`)
 
-  await configureRemotes(targetDir, parsed.owner, parsed.name, resolvedOwner, forkName)
+  const effectiveOrg = finalOrg ?? (await getGhAuthUser())
+  await configureRemotes(targetDir, parsed.owner, parsed.name, effectiveOrg, finalName)
 
   console.log(`  ${pc.dim('→')} ${pc.cyan(toTildePath(targetDir))}`)
 }
@@ -138,36 +146,42 @@ async function runForkInPlace(config: GlobalUserConfig, options: ForkOptions): P
     error('No "origin" remote found in current repository.')
   }
 
-  const forkOwner = options.owner ?? config.forkOwner
-  if (!forkOwner) {
-    error('No fork owner configured. Run `mo setup` to set a default fork owner, or use --owner.')
-  }
+  const forkOrg = options.org ?? config.forkOrg
 
-  const forkName = await resolveForkName(detected.name, detected.owner, options.name)
-  const resolvedOwner = await resolveForkOwner(forkOwner, options.owner, detected.owner, forkName)
-
-  if (resolvedOwner === detected.owner && forkName === detected.name) {
+  if (forkOrg === detected.owner && options.name === detected.name && options.name !== undefined) {
     error(`Cannot fork ${detected.owner}/${detected.name} to itself.`)
   }
 
-  if (resolvedOwner === detected.owner) {
-    const confirmed = await promptConfirm(
-      `Fork target ${pc.cyan(`${resolvedOwner}/${forkName}`)} has the same owner as the original. Continue?`,
-      'sameOwnerConfirm',
+  if (forkOrg === detected.owner) {
+    const ok = await promptConfirm(
+      `Fork target has the same owner as the original (${pc.cyan(forkOrg)}). Continue?`,
+      'sameOrgConfirm',
       { default: false },
     )
-    if (!confirmed) {
-      error('Fork canceled.', 78)
-    }
+    if (!ok) error('Fork canceled.', 78)
   }
 
-  const confirmed = await confirmForkPath(resolvedOwner, forkName)
-  if (!confirmed) {
-    error('Fork canceled.', 78)
+  const forkName = await resolveForkName(detected.name, detected.owner, options.name)
+
+  if (forkOrg === detected.owner && forkName === detected.name) {
+    error(`Cannot fork ${detected.owner}/${detected.name} to itself.`)
   }
 
-  const spinner = startSpinner(`Forking to ${pc.bold(`${resolvedOwner}/${forkName}`)}...`)
-  const ghArgs = buildGhForkArgs(detected.owner, detected.name, resolvedOwner, forkName)
+  let finalOrg = forkOrg
+  let finalName = forkName
+  if (forkOrg) {
+    const resolved = await resolveForkPathWithConfirm(forkOrg, forkName)
+    finalOrg = resolved.org
+    finalName = resolved.name
+  }
+
+  if (finalOrg === detected.owner && finalName === detected.name) {
+    error(`Cannot fork ${detected.owner}/${detected.name} to itself.`)
+  }
+
+  const forkLabel = finalOrg ? `${finalOrg}/${finalName}` : finalName
+  const spinner = startSpinner(`Forking to ${pc.bold(forkLabel)}...`)
+  const ghArgs = buildGhForkArgs(detected.owner, detected.name, finalOrg, finalName)
   const result = await x('gh', ghArgs, { throwOnError: false })
   stopSpinner(spinner)
 
@@ -175,11 +189,10 @@ async function runForkInPlace(config: GlobalUserConfig, options: ForkOptions): P
     error(`Fork failed: ${result.stderr || `gh fork exited with code ${result.exitCode}`}`)
   }
 
-  success(
-    `Forked ${pc.bold(`${detected.owner}/${detected.name}`)} to ${pc.bold(`${resolvedOwner}/${forkName}`)}`,
-  )
+  success(`Forked ${pc.bold(`${detected.owner}/${detected.name}`)} to ${pc.bold(forkLabel)}`)
 
-  await configureRemotes(cwd, detected.owner, detected.name, resolvedOwner, forkName)
+  const effectiveOrg = finalOrg ?? (await getGhAuthUser())
+  await configureRemotes(cwd, detected.owner, detected.name, effectiveOrg, finalName)
 }
 
 async function resolveForkName(
@@ -205,68 +218,68 @@ async function resolveForkName(
   return trimmed
 }
 
-async function resolveForkOwner(
-  defaultOwner: string,
-  ownerOption: string | undefined,
-  _originalOwner: string,
-  _forkName: string,
-): Promise<string> {
-  return ownerOption ?? defaultOwner
-}
-
-async function confirmForkPath(forkOwner: string, forkName: string): Promise<boolean> {
+async function resolveForkPathWithConfirm(
+  org: string,
+  name: string,
+): Promise<{ org: string; name: string }> {
   const confirmed = await promptConfirm(
-    `Create fork at ${pc.cyan(`${forkOwner}/${forkName}`)}?`,
+    `Create fork at ${pc.cyan(`${org}/${name}`)}?`,
     'confirmFork',
   )
 
-  if (confirmed) return true
+  if (confirmed) return { org, name }
 
-  const input = await promptText(
-    'Enter fork path (<owner>/<repo>) or leave empty to cancel:',
-    'customForkPath',
-  )
+  const input = await promptText('Enter fork path (<owner>/<repo>):', 'customForkPath')
 
   const trimmed = input.trim()
-  if (!trimmed) return false
+  if (!trimmed) {
+    error('Fork canceled.', 78)
+  }
 
   const match = trimmed.match(/^([^/]+)\/([^/]+)$/)
   if (!match) {
     error('Invalid fork path format. Use <owner>/<repo>.', 78)
   }
 
-  // Re-confirm with user-provided path
-  return promptConfirm(`Create fork at ${pc.cyan(trimmed)}?`, 'confirmCustomFork')
+  return { org: match[1], name: match[2] }
 }
 
 function buildGhForkArgs(
   originalOwner: string,
   originalName: string,
-  forkOwner: string,
+  forkOrg: string | undefined,
   forkName: string,
 ): string[] {
   const args = ['repo', 'fork', `${originalOwner}/${originalName}`, '--clone=false']
   if (forkName !== originalName) {
     args.push('--fork-name', forkName)
   }
-  if (forkOwner !== originalOwner) {
-    args.push('--org', forkOwner)
+  if (forkOrg) {
+    args.push('--org', forkOrg)
   }
   return args
+}
+
+async function getGhAuthUser(): Promise<string> {
+  const result = await x('gh', ['api', 'user', '--jq', '.login'], { throwOnError: false })
+  if (result.exitCode !== 0) {
+    error('Failed to get GitHub authenticated user.')
+  }
+  return result.stdout.trim()
 }
 
 async function configureRemotes(
   dir: string,
   originalOwner: string,
   originalName: string,
-  forkOwner: string,
+  forkOrg: string,
   forkName: string,
 ): Promise<void> {
   const run = (cmd: string, args: string[]) =>
     x(cmd, args, { throwOnError: false, nodeOptions: { cwd: dir } })
 
   await run('git', ['remote', 'rename', 'origin', 'upstream'])
-  await run('git', ['remote', 'add', 'origin', `https://github.com/${forkOwner}/${forkName}.git`])
+  await run('git', ['remote', 'add', 'origin', `https://github.com/${forkOrg}/${forkName}.git`])
 
   const branchResult = await run('git', ['rev-parse', '--abbrev-ref', 'HEAD'])
   const defaultBranch = branchResult.stdout.trim() || 'main'
@@ -277,7 +290,7 @@ async function configureRemotes(
     `  ${pc.dim('upstream')} → ${pc.cyan(`https://github.com/${originalOwner}/${originalName}.git`)}`,
   )
   console.log(
-    `  ${pc.dim('origin')}   → ${pc.cyan(`https://github.com/${forkOwner}/${forkName}.git`)}`,
+    `  ${pc.dim('origin')}   → ${pc.cyan(`https://github.com/${forkOrg}/${forkName}.git`)}`,
   )
 }
 

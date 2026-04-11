@@ -81,10 +81,10 @@
       },
       "additionalProperties": false
     },
-    "fork-owner": {
+    "fork-org": {
       "type": "string",
-      "description": "Default GitHub username or organization to fork repositories into.",
-      "examples": ["liangmiQwQ", "myorg"]
+      "description": "Default GitHub organization to fork repositories into. Omit to fork to your own account.",
+      "examples": ["myorg"]
     },
     "$schema": {
       "type": "string",
