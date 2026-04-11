@@ -46,6 +46,8 @@ Two options `--owner` (-o), `--name` (-n) could be used to specify the target or
 
 We should provide a config field in the config file and setup command, allow users to specify the default org name for the fork. If nothing provided, we should call `gh repo fork` without `--org` option
 
+The config file should use `fork-org` as the field name, and add `Whether you always fork to an organization` before the user input in setup command and skip if user say `n`
+
 ##### Control with prompts
 
 We should prompt the user to choose the repo name and confirm the full fork path.
