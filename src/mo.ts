@@ -5,6 +5,8 @@ import { getDefaultConfigPath, loadConfig } from './utils/config'
 import { runCloneCommand } from './commands/clone'
 import { runCdCommand } from './commands/cd'
 import { runEditCommand, runOpenCommand } from './commands/edit'
+import { runForkCommand } from './commands/fork'
+import type { ForkOptions } from './commands/fork'
 import { runListCommand } from './commands/list'
 import { promptRunSetupOnMissingConfig, runSetupCommand } from './commands/setup'
 import { error } from './utils/error'
@@ -39,6 +41,17 @@ cli
   .command('clone <repo>', 'Clone a repository to <root>/<owner>/<repo>')
   .alias('c')
   .action(withConfig((config, repo: string) => runCloneCommand(repo, config)))
+
+cli
+  .command('fork [repo]', 'Fork a repository and clone it, or fork the current repo in place')
+  .alias('f')
+  .option('-o, --owner <owner>', 'GitHub username or org to fork into (overrides config)')
+  .option('-n, --name <name>', 'Name for the forked repository')
+  .action(
+    withConfig((config, repo?: string, options?: ForkOptions) =>
+      runForkCommand(repo, config, options ?? {}),
+    ),
+  )
 
 cli
   .command('list', 'List repositories under configured root')
