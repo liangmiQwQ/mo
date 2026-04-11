@@ -42,9 +42,9 @@ The repo created remotely could be controlled detailedly (the owner name and rep
 
 ##### Control with options and config
 
-Two options `--owner` (-o), `--name` (-n) could be used to specify the target owner name and repo name. like `mo fork vitejs/vite -o liangmiQwQ -n vite`. And `https://github.com/liangmiQwQ/vite` should be available after the command. These two options are optional.
+Two options `--owner` (-o), `--name` (-n) could be used to specify the target org name and repo name. like `mo fork vitejs/vite -o liangmiQwQ -n vite`. And `https://github.com/liangmiQwQ/vite` should be available after the command. These two options are optional.
 
-We should provide a config field in the config file and setup command, allow users to specify the default owner name for the fork. It is a required field.
+We should provide a config field in the config file and setup command, allow users to specify the default org name for the fork. If nothing provided, we should call `gh repo fork` without `--org` option
 
 ##### Control with prompts
 
