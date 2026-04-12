@@ -12,7 +12,7 @@ type AutocompleteChoice<T> = {
 }
 
 const onSetupCancel = () => {
-  error('Setup canceled.', 78)
+  error('Canceled.', 78)
 }
 
 async function catchCancel<T>(
