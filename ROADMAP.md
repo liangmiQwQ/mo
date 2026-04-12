@@ -19,3 +19,4 @@
 ## Stage Four: Fork and Remote Control
 
 - [x] [`fork` command](/rfcs/fork.md)
+- [ ] [`init` command](/rfcs/init.md)
