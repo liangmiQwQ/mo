@@ -30,14 +30,15 @@ mo setup
 
 ## Commands
 
-| Command                   | Alias   | Description                               |
-| ------------------------- | ------- | ----------------------------------------- |
-| `mo setup`                |         | Initialize config and shell integration   |
-| `mo clone <owner>/<repo>` | `mo c`  | Clone a repo into `<root>/<owner>/<repo>` |
-| `mo list`                 | `mo ls` | List all managed repos                    |
-| `mo cd [query]`           |         | Jump to root, owner, or repo directory    |
-| `mo edit [query]`         | `mo e`  | Open a directory in your editor           |
-| `mo open [query]`         | `mo o`  | Open a directory in Finder/Explorer       |
+| Command           | Alias   | Description                                 |
+| ----------------- | ------- | ------------------------------------------- |
+| `mo setup`        |         | Initialize config and shell integration     |
+| `mo clone <repo>` | `mo c`  | Clone `<owner>/<repo>` or a GitHub repo URL |
+| `mo fork [repo]`  | `mo f`  | Fork `<owner>/<repo>`, a GitHub URL, or cwd |
+| `mo list`         | `mo ls` | List all managed repos                      |
+| `mo cd [query]`   |         | Jump to root, owner, or repo directory      |
+| `mo edit [query]` | `mo e`  | Open a directory in your editor             |
+| `mo open [query]` | `mo o`  | Open a directory in Finder/Explorer         |
 
 `mo cd`, `mo edit`, and `mo open` has the similar behavior and they open an interactive selector when called without arguments.
 

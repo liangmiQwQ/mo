@@ -5,18 +5,21 @@
 ## Usage
 
 ```bash
-mo clone <user>/<repo>
-mo c <user>/<repo>      # alias
+mo clone <owner>/<repo>
+mo clone https://github.com/<owner>/<repo>
+mo clone https://github.com/<owner>/<repo>.git
+mo c <owner>/<repo>      # alias
 ```
 
 Example: `mo clone vitejs/vite` clones to `<root>/vitejs/vite`.
+Example: `mo clone https://github.com/vuejs/core.git` clones to `<root>/vuejs/core`.
 
 ## Behavior
 
-1. Parse `<user>/<repo>` from the argument.
-2. Resolve destination: `<root>/<user>/<repo>`.
+1. Parse `<owner>/<repo>` from the argument or GitHub repository URL.
+2. Resolve destination: `<root>/<owner>/<repo>`.
 3. Create intermediate directories if they do not exist.
-4. Run `gh repo clone <user>/<repo> <destination>`.
+4. Run `git clone https://github.com/<owner>/<repo>.git <destination>`.
 5. Print the cloned path on success.
 
 ## Aliases

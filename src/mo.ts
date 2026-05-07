@@ -40,12 +40,12 @@ function withConfig<T extends any[]>(
 cli.command('setup', 'Setup config and shell integration for mo').action(runSetupCommand)
 
 cli
-  .command('clone <repo>', 'Clone a repository to <root>/<owner>/<repo>')
+  .command('clone <repo>', 'Clone a GitHub repo or URL to <root>/<owner>/<repo>')
   .alias('c')
   .action(withConfig((config, repo: string) => runCloneCommand(repo, config)))
 
 cli
-  .command('fork [repo]', 'Fork a repository and clone it, or fork the current repo in place')
+  .command('fork [repo]', 'Fork a GitHub repo or URL, or fork the current repo in place')
   .alias('f')
   .option('-o, --org <org>', 'GitHub org to fork into (overrides config)')
   .option('-n, --name <name>', 'Name for the forked repository')

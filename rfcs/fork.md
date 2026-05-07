@@ -15,12 +15,14 @@ Open source contributors frequently need to:
 ### `mo fork`
 
 ```bash
-mo fork <user>/<repo>
+mo fork <owner>/<repo>
+mo fork https://github.com/<owner>/<repo>
+mo fork https://github.com/<owner>/<repo>.git
 ```
 
 Alias: `mo f` or global default `fr`
 
-Basically it is a wrapper around `mo clone` and `gh repo fork`. It should clone the repo to the local and create fork remotely with `gh` command.
+Basically it is a wrapper around `mo clone` and `gh repo fork`. It should clone the repo to the local and create fork remotely with `gh` command. The repo argument accepts `<owner>/<repo>` or a GitHub repository URL.
 
 The cloning and forking should be done in parallel to save the time. After cloning, the original repo should be set as `upstream` remote and the fork should be set as `origin` remote. `git branch --set-upstream-to=upstream/${defaultBranch}` should be run as well.
 

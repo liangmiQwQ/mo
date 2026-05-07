@@ -5,6 +5,7 @@ import pc from 'picocolors'
 import type { GlobalUserConfig } from '../utils/config'
 import { error } from '../utils/error'
 import { icons, startSpinner, stopSpinner, success, toTildePath } from '../utils/format'
+import { parseGitHubRepo } from '../utils/github'
 import { promptConfirm, promptText } from '../utils/prompt'
 
 export type ForkOptions = {
@@ -22,7 +23,7 @@ export async function runForkCommand(
     return
   }
 
-  const parsed = parseRepo(repo)
+  const parsed = parseGitHubRepo(repo)
 
   // Q1: Would you like to fork to an organization? (skip if --org provided)
   const forkOrg = await resolveForkOrg(options.org)
@@ -303,12 +304,4 @@ async function getRemoteUrl(dir: string, remoteName: string): Promise<string | n
   })
   if (result.exitCode !== 0) return null
   return result.stdout.trim() || null
-}
-
-function parseRepo(repo: string): { owner: string; name: string } {
-  const match = repo.match(/^([^/]+)\/([^/]+)$/)
-  if (!match) {
-    error('Invalid repository format. Use <owner>/<repo>.')
-  }
-  return { owner: match[1], name: match[2] }
 }

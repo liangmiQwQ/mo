@@ -5,9 +5,10 @@ import pc from 'picocolors'
 import type { GlobalUserConfig } from '../utils/config'
 import { error } from '../utils/error'
 import { success, startSpinner, stopSpinner, toTildePath } from '../utils/format'
+import { parseGitHubRepo } from '../utils/github'
 
 export async function runCloneCommand(repo: string, config: GlobalUserConfig): Promise<void> {
-  const parsedRepo = parseRepo(repo)
+  const parsedRepo = parseGitHubRepo(repo)
   const ownerDir = path.join(config.root, parsedRepo.owner)
   const targetDir = path.join(ownerDir, parsedRepo.name)
   const ownerExisted = existsSync(ownerDir)
@@ -57,18 +58,5 @@ async function runGitClone(url: string, targetDir: string): Promise<void> {
 
   if (result.exitCode !== 0) {
     throw new Error(result.stderr || `Git clone exited with code ${result.exitCode}`)
-  }
-}
-
-function parseRepo(repo: string): { owner: string; name: string } {
-  const match = repo.match(/^([^/]+)\/([^/]+)$/)
-
-  if (!match) {
-    error('Invalid repository format. Use <owner>/<repo>.')
-  }
-
-  return {
-    owner: match[1],
-    name: match[2],
   }
 }
