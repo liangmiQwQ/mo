@@ -24,6 +24,7 @@ Shell integration is managed through `morc.json` `shells` (`zsh`/`bash`/`fish`) 
 If users run config-required commands without default config, mo should prompt to run `mo setup` first.
 `preinstall` blocks unsupported Windows installs and rejects non-global package installs (except contributor installs in the source repo).
 `mo cd` should be handled through shell functions: resolve path via `mo cd`, run `mo-inner cd` to print pending target from `MO_CD_TARGET` (or `.` when empty), and execute shell `cd` immediately.
+Interactive selector UI is built as Vue SFCs rendered by `@vue-tui/runtime`; keep the Vue plugin under `pack.plugins` so `vp pack` can compile `.vue` files.
 Local development wrappers are managed by `vp run dev:i` and `vp run dev:uni`, targeting `~/.local/bin/mo` and `~/.local/bin/mo-inner`; each wrapper runs Vite+ pack quietly before executing the bundled `bin` entry with `node`.
 
 ## Rule
