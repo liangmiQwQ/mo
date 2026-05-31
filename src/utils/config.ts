@@ -1,13 +1,11 @@
 import { existsSync, readFileSync, statSync } from 'node:fs'
-import { homedir } from 'node:os'
-import path from 'node:path'
-import untildify from 'untildify'
 
-import { parse } from 'jsonc-parser'
 import type { CommandAliasConfig } from './alias'
 import { aliasCommands, isAliasCommand, isLegacyAliasCommand, isValidAliasName } from './alias'
 
 import { error } from './error'
+import { getDefaultConfigPath, parseJsonc, resolveRootFromConfig } from './root'
+export { getDefaultConfigPath, resolveRootPath } from './root'
 
 export const supportedShells = ['zsh', 'bash', 'fish'] as const
 export type SupportedShell = (typeof supportedShells)[number]
@@ -19,10 +17,6 @@ export type GlobalUserConfig = {
   shells: SupportedShell[]
   alias?: CommandAliasConfig
   compositionAlias: boolean
-}
-
-export function getDefaultConfigPath(): string {
-  return path.join(homedir(), '.config', 'morc.json')
 }
 
 export function loadConfig(): GlobalUserConfig {
@@ -38,29 +32,28 @@ export function loadConfig(): GlobalUserConfig {
 }
 
 function parseConfig(jsonc: string, configFilePath: string): GlobalUserConfig {
-  const invalidConfigError = (message: string) =>
+  const invalidConfigError = (message: string): never =>
     error(`Invalid config: ${message} at ${configFilePath}`)
 
   if (!jsonc) {
     invalidConfigError('Empty file found')
   }
 
-  const config = parse(jsonc, undefined, { allowTrailingComma: true })
+  const config = parseJsonc(jsonc)
 
   if (!config || typeof config !== 'object' || Array.isArray(config)) {
     invalidConfigError('Config must be an object')
   }
 
-  const shells = parseShells(config.shells, invalidConfigError)
-  const alias = parseAliasConfig(config.alias, invalidConfigError)
-  const compositionAlias = parseCompositionAlias(config.compositionAlias, invalidConfigError)
+  const configRecord = config as Record<string, unknown>
+  const shells = parseShells(configRecord.shells, invalidConfigError)
+  const alias = parseAliasConfig(configRecord.alias, invalidConfigError)
+  const compositionAlias = parseCompositionAlias(configRecord.compositionAlias, invalidConfigError)
 
-  const root = config.root
-  if (typeof root !== 'string' || !root) {
+  const rootPath =
+    resolveRootFromConfig(configRecord, configFilePath) ??
     invalidConfigError('"root" must be a non-empty string')
-  }
-
-  const rootPath = path.resolve(path.dirname(configFilePath), untildify(root))
+  const editor = configRecord.editor
 
   if (!existsSync(rootPath)) {
     invalidConfigError(`"root" directory does not exist`)
@@ -72,7 +65,7 @@ function parseConfig(jsonc: string, configFilePath: string): GlobalUserConfig {
 
   return {
     root: rootPath,
-    ...(config.editor ? { editor: String(config.editor) } : {}),
+    ...(typeof editor === 'string' && editor ? { editor } : {}),
     shells,
     ...(alias ? { alias } : {}),
     compositionAlias,

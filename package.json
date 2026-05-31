@@ -14,6 +14,7 @@
   },
   "bin": {
     "mo": "./bin/mo.mjs",
+    "mo-get-root": "./bin/mo-get-root.mjs",
     "mo-inner": "./bin/mo-inner.mjs"
   },
   "files": [

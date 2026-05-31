@@ -23,10 +23,10 @@ Examples:
 
 ## First Step
 
-Skill loading does not automatically execute bundled code. When a task needs the project root, run the bundled resolver first:
+Skill loading does not automatically execute commands. When a task needs the project root, run the resolver first:
 
 ```bash
-node <skill-dir>/scripts/resolve-root.mjs
+mo-get-root
 ```
 
 It only reads `~/.config/morc.json` and prints JSON with `rootPath`. If `rootPath` is missing, ask the user before creating or cloning anything; they may need to run `mo setup`.
