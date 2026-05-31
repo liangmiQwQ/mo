@@ -1,3 +1,4 @@
+import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite-plus'
 
 export default defineConfig({
@@ -5,6 +6,7 @@ export default defineConfig({
     '*': 'vp check --fix',
   },
   pack: {
+    plugins: [vue()],
     fixedExtension: true,
     platform: 'node',
     entry: {

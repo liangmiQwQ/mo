@@ -1,8 +1,7 @@
-import React from 'react'
-import { render } from 'ink'
+import { createApp } from '@vue-tui/runtime'
 import { existsSync, statSync } from 'node:fs'
 import path from 'node:path'
-import { Selector } from '../components/selector'
+import Selector from '../components/Selector.vue'
 import { scanRepos, type RepoGroup } from './repos'
 import { searchOwnerGroupsByName, searchReposByName } from './search'
 import pc from 'picocolors'
@@ -39,25 +38,24 @@ export async function withPathSelector<T>(
   stopSpinner(spinner)
 
   return new Promise<T>((resolve, reject) => {
-    const { unmount } = render(
-      React.createElement(Selector, {
-        root,
-        groups,
-        onSelect: (selectedPath: string) => {
-          setTimeout(() => {
-            unmount()
-            resolve(action(selectedPath))
-          }, 50)
-        },
-        onCancel: () => {
-          setTimeout(() => {
-            unmount()
-            reject(new Error('Canceled.'))
-          }, 50)
-        },
-      }),
-      { exitOnCtrlC: false },
-    )
+    const app = createApp(Selector, {
+      root,
+      groups,
+      onSelect: (selectedPath: string) => {
+        setTimeout(() => {
+          app.unmount()
+          resolve(action(selectedPath))
+        }, 50)
+      },
+      onCancel: () => {
+        setTimeout(() => {
+          app.unmount()
+          reject(new Error('Canceled.'))
+        }, 50)
+      },
+    })
+
+    app.mount({ exitOnCtrlC: false })
   })
 }
 
