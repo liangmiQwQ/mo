@@ -12,16 +12,18 @@
   "alias": {
     "clone": ["k"],
     "list": ["li"]
-  }
+  },
+  "compositionAlias": true
 }
 ```
 
-| Field    | Type                       | Required | Description                                          |
-| -------- | -------------------------- | -------- | ---------------------------------------------------- |
-| `root`   | `string`                   | yes      | Absolute or `~`-prefixed path to the code root       |
-| `editor` | `string`                   | no       | Editor binary used by `mo edit` (e.g. `code`, `vim`) |
-| `shells` | `string[]`                 | no       | Shells that mo manages rc blocks for                 |
-| `alias`  | `Record<string, string[]>` | no       | Per-command shell alias list                         |
+| Field              | Type                       | Required | Description                                          |
+| ------------------ | -------------------------- | -------- | ---------------------------------------------------- |
+| `root`             | `string`                   | yes      | Absolute or `~`-prefixed path to the code root       |
+| `editor`           | `string`                   | no       | Editor binary used by `mo edit` (e.g. `code`, `vim`) |
+| `shells`           | `string[]`                 | no       | Shells that mo manages rc blocks for                 |
+| `alias`            | `Record<string, string[]>` | no       | Per-command shell alias list                         |
+| `compositionAlias` | `boolean`                  | no       | Should provide alias like `ke` for `mo composition`  |
 
 ## Shell RC Block
 

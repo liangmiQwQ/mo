@@ -23,9 +23,10 @@ mo setup
 
    The user can accept, modify, or skip each alias.
 
-6. **Editor**: prompt for the editor binary to use with `mo edit`. Default to `$EDITOR` or `code` if unset.
-7. **Write config**: save all collected values to `~/.config/morc.json`.
-8. **Sync rc blocks**: write or update the `#_MO_START_` ... `#_MO_END_` block in each selected shell's rc file.
+6. **Composition Alias**: prompt for whether to use commands like `ki` to compose commands.
+7. **Editor**: prompt for the editor binary to use with `mo edit`. Default to `$EDITOR` or `code` if unset.
+8. **Write config**: save all collected values to `~/.config/morc.json`.
+9. **Sync rc blocks**: write or update the `#_MO_START_` ... `#_MO_END_` block in each selected shell's rc file.
 
 ## Setup Guard
 
