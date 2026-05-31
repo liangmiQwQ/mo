@@ -28,6 +28,17 @@ Run once to initialize config and shell integration:
 mo setup
 ```
 
+> [!TIP]
+> If you are an agent user, we provide [`global-projects` skill](./skills/global-projects).
+>
+> Install it with:
+>
+> ```bash
+> skills add liangimQwQ/mo -g
+> ```
+>
+> It is not completely a `mo`'s usage skill, it is mainly about project organization standard, including how to get access the right project or how to place a cloned project correctly.
+
 ## Commands
 
 | Command                               | Alias   | Description                                 |
