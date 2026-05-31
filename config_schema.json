@@ -77,9 +77,21 @@
             "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
           },
           "uniqueItems": true
+        },
+        "init": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+          },
+          "uniqueItems": true
         }
       },
       "additionalProperties": false
+    },
+    "compositionAlias": {
+      "type": "boolean",
+      "description": "Generate composed shell aliases such as `ki` for `mo composition clone cd`."
     },
     "$schema": {
       "type": "string",

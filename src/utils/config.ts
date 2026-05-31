@@ -18,6 +18,7 @@ export type GlobalUserConfig = {
   editor?: string
   shells: SupportedShell[]
   alias?: CommandAliasConfig
+  compositionAlias: boolean
 }
 
 export function getDefaultConfigPath(): string {
@@ -52,6 +53,7 @@ function parseConfig(jsonc: string, configFilePath: string): GlobalUserConfig {
 
   const shells = parseShells(config.shells, invalidConfigError)
   const alias = parseAliasConfig(config.alias, invalidConfigError)
+  const compositionAlias = parseCompositionAlias(config.compositionAlias, invalidConfigError)
 
   const root = config.root
   if (typeof root !== 'string' || !root) {
@@ -73,7 +75,23 @@ function parseConfig(jsonc: string, configFilePath: string): GlobalUserConfig {
     ...(config.editor ? { editor: String(config.editor) } : {}),
     shells,
     ...(alias ? { alias } : {}),
+    compositionAlias,
   }
+}
+
+function parseCompositionAlias(
+  value: unknown,
+  invalidConfigError: (message: string) => never,
+): boolean {
+  if (value == null) {
+    return false
+  }
+
+  if (typeof value !== 'boolean') {
+    invalidConfigError('"compositionAlias" must be a boolean')
+  }
+
+  return value
 }
 
 function parseShells(
