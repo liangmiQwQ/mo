@@ -1,4 +1,4 @@
 interface:
   display_name: 'Global Projects'
-  short_description: "Find projects in the user's owner/repo layout"
+  short_description: 'Resolve projects in owner/repo layout'
   default_prompt: 'Use $global-projects to find the local path for this project.'

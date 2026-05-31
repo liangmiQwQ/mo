@@ -1,13 +1,13 @@
 ---
 name: global-projects
-description: Use when Codex needs to find, open, create, clone, or reason about projects on this computer using the user's global project layout. This skill explains the standard rootPath/owner/project convention, how to resolve the configured rootPath from morc.json, how to infer project paths, and when to use mo list, mo clone, or mo fork.
+description: "Load this skill when Codex needs to locate, enter, clone, open, or coordinate work across the user's local projects. Use it when the current directory is not the target project, when another local project is needed, or when multiple projects are involved. The user's standard is rootPath/github-owner/repo, managed by mo."
 ---
 
 # Global Projects
 
-The user manages source repositories under one configured root directory. Treat this as the default place to search for local projects before assuming a repository is missing.
+Use this skill to follow the user's project organization standard. `mo` is the user's CLI for managing global projects; the skill is mainly about the directory standard and when to use `mo`.
 
-Standard path shape:
+Standard layout:
 
 ```text
 <rootPath>/<github-owner-or-org>/<repo>
@@ -21,106 +21,98 @@ Examples:
 ~/code/liangmiQwQ/mo
 ```
 
-## Resolve `rootPath`
+## First Step
 
-`mo setup` writes the config to `~/.config/morc.json`. The `root` field is the project root and may contain `~` or a relative path. Resolve it before composing project paths.
+Skill loading does not automatically execute bundled code. When a task needs the project root, run the bundled resolver first:
 
-Use code like this when TypeScript/JavaScript is the easiest way to read the config:
-
-```ts
-import { existsSync, readFileSync } from 'node:fs'
-import { homedir } from 'node:os'
-import path from 'node:path'
-import { parse } from 'jsonc-parser'
-
-type MoConfig = {
-  root?: string
-}
-
-function expandHome(value: string): string {
-  if (value === '~') {
-    return homedir()
-  }
-
-  if (value.startsWith('~/')) {
-    return path.join(homedir(), value.slice(2))
-  }
-
-  return value
-}
-
-export function getMoRootPath(): string | undefined {
-  const configPath = path.join(homedir(), '.config', 'morc.json')
-
-  if (!existsSync(configPath)) {
-    return undefined
-  }
-
-  const config = parse(readFileSync(configPath, 'utf8')) as unknown
-
-  if (!config || typeof config !== 'object' || Array.isArray(config)) {
-    return undefined
-  }
-
-  const { root } = config as MoConfig
-  if (!root) {
-    return undefined
-  }
-
-  return path.resolve(path.dirname(configPath), expandHome(root))
-}
+```bash
+node <skill-dir>/scripts/resolve-root.mjs
 ```
 
-If `getMoRootPath()` returns `undefined`, ask the user before creating or cloning anything. They may need to run `mo setup`.
+It only reads `~/.config/morc.json` and prints JSON with `rootPath`. If `rootPath` is missing, ask the user before creating or cloning anything; they may need to run `mo setup`.
 
-## Know A Project Path
+## Project Path Rules
 
-For a GitHub repo identifier like `owner/repo`, the local path should be:
+After resolving `rootPath`, infer paths yourself.
+
+For a GitHub repo identifier, join the pieces directly:
 
 ```text
-<rootPath>/owner/repo
+owner/repo -> <rootPath>/owner/repo
 ```
 
-For a GitHub URL, extract the owner and repo first:
+For a GitHub URL:
 
 ```text
 https://github.com/vitejs/vite -> <rootPath>/vitejs/vite
 git@github.com:vuejs/core.git -> <rootPath>/vuejs/core
 ```
 
-When the user gives only a project name or a fuzzy query:
+For a bare project name or fuzzy query:
 
-1. Run `mo list` to inspect managed repositories.
-2. Prefer exact repo name matches.
-3. If multiple owners match, ask the user to choose.
-4. Use the resolved path directly for file operations.
+1. Run `mo list` or inspect one level under `rootPath`.
+2. Prefer exact repo-name matches.
+3. Prefer exact `owner/repo` matches when the user gave an owner.
+4. If multiple owners match, ask the user to choose.
+5. Use the resolved path directly for file operations.
 
 ## Command Usage
 
-Use `mo list` to discover existing managed repositories.
+Use `mo` for project discovery, placement, navigation, and opening. Once you know the local path, use normal shell and editor tooling for ordinary file reads, edits, builds, and tests.
+
+Use `mo setup` only when config is missing and the user agrees to initialize project management:
+
+```bash
+mo setup
+```
+
+Use `mo list` to discover existing managed repositories:
 
 ```bash
 mo list
 ```
 
-Use `mo clone <owner>/<repo>` when the user wants a GitHub project locally and it is not already under `<rootPath>/<owner>/<repo>`.
+Use `mo cd <target>` to resolve a managed repository path for shell navigation. In an interactive shell, shell integration handles the actual `cd`; inside an agent run, use it as a resolver signal and then operate on the resulting path when available:
+
+```bash
+mo cd vuejs/core
+mo cd core
+```
+
+Use `mo edit <target>` to open a project in the configured editor, and `mo open <target>` to open it in the system file explorer:
+
+```bash
+mo edit vuejs/core
+mo open vuejs/core
+```
+
+Use `mo clone <owner>/<repo>` when the user wants a GitHub project locally and it is not already under `<rootPath>/<owner>/<repo>`. This preserves the owner/repo layout:
 
 ```bash
 mo clone vitejs/vite
 ```
 
-Use `mo fork` only when the user explicitly asks to fork or create a fork. Forking changes remote GitHub state and is dangerous as an implicit action.
+Use `mo composition <main-command> <sub-commands> <repo>` when the user wants to clone or fork and then immediately open, edit, or cd into the same project. Use `clone` as the main command unless the user explicitly requested a fork:
+
+```bash
+mo composition clone edit vitejs/vite
+mo composition clone open,cd vuejs/core
+```
+
+Use `mo fork` only when the user explicitly asks to fork or create a fork:
 
 ```bash
 mo fork vitejs/vite
+mo fork vitejs/vite --org my-org
+mo fork vitejs/vite --name my-vite
 ```
 
-Do not replace `mo clone` with `mo fork` for convenience. If the user only asks to inspect, edit, build, test, or clone a project, do not fork.
+Forking changes remote GitHub state. Treat it as a dangerous command. Do not fork for inspection, editing, testing, cloning, opening, or convenience. Do not use `mo composition fork ...` unless the user explicitly requested a fork.
 
 ## Working Standard
 
-- Search under `rootPath` before using broad filesystem scans.
+- Search under `rootPath` before broad filesystem scans.
 - Preserve the `<owner>/<repo>` organization when cloning projects.
-- Do not create unrelated project layouts outside `rootPath` unless the user asks.
-- When operating across projects, name both the owner and repo in status updates so the target is clear.
-- Use `mo` commands for repository discovery and GitHub project placement; use normal shell and editor tooling once the local path is known.
+- Avoid creating project directories outside `rootPath` unless the user asks.
+- Name both owner and repo in status updates for cross-project work.
+- Use `mo` for repository discovery and placement; use normal shell and editor tooling once the local path is known.
