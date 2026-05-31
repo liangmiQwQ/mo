@@ -8,7 +8,7 @@ import pc from 'picocolors'
 const managedMarker = 'mo-dev-wrapper:managed'
 const binDir = resolve(homedir(), '.local/bin')
 const repoRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
-const tsxBin = resolve(repoRoot, 'node_modules/.bin/tsx')
+const oxnodeBin = resolve(repoRoot, 'node_modules/.bin/oxnode')
 const entries = [
   { name: 'mo', entry: resolve(repoRoot, 'src/mo.ts') },
   { name: 'mo-inner', entry: resolve(repoRoot, 'src/mo-inner.ts') },
@@ -30,7 +30,7 @@ function createWrapperContent(entryPath: string): string {
     `case "$PWD" in ${shellQuote(repoRoot)}|${shellQuote(`${repoRoot}/*`)}) ;;`,
     `*) echo ${shellQuote(`mo dev wrapper can only run inside ${repoRoot}`)} >&2; exit 78 ;;`,
     'esac',
-    `exec ${shellQuote(tsxBin)} ${shellQuote(entryPath)} "$@"`,
+    `exec ${shellQuote(oxnodeBin)} ${shellQuote(entryPath)} "$@"`,
     '',
   ].join('\n')
 }
@@ -43,8 +43,8 @@ async function installWrapper(name: string, entryPath: string): Promise<void> {
 }
 
 async function main() {
-  if (!existsSync(tsxBin)) {
-    console.error(pc.red(`Missing ${basename(tsxBin)} at ${tsxBin}. Run "vp install" first.`))
+  if (!existsSync(oxnodeBin)) {
+    console.error(pc.red(`Missing ${basename(oxnodeBin)} at ${oxnodeBin}. Run "vp install" first.`))
     process.exit(1)
   }
 

@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { Fragment, createElement, useState, useMemo, useCallback } from 'react'
 import { Box, Text, useInput } from 'ink'
 import pc from 'picocolors'
 import type { RepoGroup } from '../utils/repos'
@@ -187,7 +187,7 @@ function Header({
     content = pc.bold(QUESTION) + query
   }
 
-  return <Text>{`${icon} ${content}`}</Text>
+  return createElement(Text, null, `${icon} ${content}`)
 }
 
 function ListModeView({
@@ -268,7 +268,7 @@ function ListModeView({
     }
   }
 
-  return <Text>{lines.join('\n')}</Text>
+  return createElement(Text, null, lines.join('\n'))
 }
 
 function SearchModeView({
@@ -318,18 +318,14 @@ function SearchModeView({
     }
   }
 
-  return <Text>{lines.join('\n')}</Text>
+  return createElement(Text, null, lines.join('\n'))
 }
 
 function Footer({ path: footerPath, noMatch }: { path: string; noMatch: boolean }) {
   const text = noMatch
     ? pc.dim(pc.italic('No directory found'))
     : pc.dim('Path: ') + pc.gray(toTildePath(footerPath))
-  return (
-    <Box marginTop={1}>
-      <Text>{text}</Text>
-    </Box>
-  )
+  return createElement(Box, { marginTop: 1 }, createElement(Text, null, text))
 }
 
 // --- Main Selector ---
@@ -454,35 +450,34 @@ export function Selector({ root, groups, onSelect, onCancel }: SelectorProps) {
 
   const showBody = state === 'list' || state === 'search'
 
-  return (
-    <Box flexDirection="column">
-      <Header
-        state={isSearchMode && state === 'list' ? 'search' : state}
-        query={query}
-        selectedPath={selectedPath}
-        errorMessage={errorMessage}
-      />
-      {showBody && (
-        <>
-          {isSearchMode ? (
-            <SearchModeView
-              items={searchResults}
-              cursorIndex={cursorIndex}
-              scrollOffset={scrollOffset}
-              height={LIST_HEIGHT}
-              query={query}
-            />
-          ) : (
-            <ListModeView
-              items={listItems}
-              cursorIndex={cursorIndex}
-              scrollOffset={scrollOffset}
-              height={LIST_HEIGHT}
-            />
-          )}
-          <Footer path={currentPath} noMatch={!selectableIndices.length} />
-        </>
-      )}
-    </Box>
+  return createElement(
+    Box,
+    { flexDirection: 'column' },
+    createElement(Header, {
+      state: isSearchMode && state === 'list' ? 'search' : state,
+      query,
+      selectedPath,
+      errorMessage,
+    }),
+    showBody &&
+      createElement(
+        Fragment,
+        null,
+        isSearchMode
+          ? createElement(SearchModeView, {
+              items: searchResults,
+              cursorIndex,
+              scrollOffset,
+              height: LIST_HEIGHT,
+              query,
+            })
+          : createElement(ListModeView, {
+              items: listItems,
+              cursorIndex,
+              scrollOffset,
+              height: LIST_HEIGHT,
+            }),
+        createElement(Footer, { path: currentPath, noMatch: !selectableIndices.length }),
+      ),
   )
 }

@@ -27,7 +27,7 @@ This creates:
 - `~/.local/bin/mo`
 - `~/.local/bin/mo-inner`
 
-Both wrappers run local source files through `tsx`.
+Both wrappers run local source files through `oxnode`.
 
 ## Verify Commands
 
