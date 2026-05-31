@@ -11,7 +11,7 @@
 ## Install
 
 ```bash
-npm i -g @liangmi/mo
+vp i -g @liangmi/mo
 ```
 
 ### Requirement
