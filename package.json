@@ -20,7 +20,8 @@
     "dist",
     "bin",
     "scripts",
-    "config_schema.json"
+    "config_schema.json",
+    "skills"
   ],
   "type": "module",
   "exports": {
