@@ -11,6 +11,7 @@ export default defineConfig({
     platform: 'node',
     entry: {
       mo: 'src/mo.ts',
+      'mo-get-root': 'src/mo-get-root.ts',
       'mo-inner': 'src/mo-inner.ts',
     },
     dts: false,

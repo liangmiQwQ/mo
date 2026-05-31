@@ -25,7 +25,8 @@ If users run config-required commands without default config, mo should prompt t
 `preinstall` blocks unsupported Windows installs and rejects non-global package installs (except contributor installs in the source repo).
 `mo cd` should be handled through shell functions: resolve path via `mo cd`, run `mo-inner cd` to print pending target from `MO_CD_TARGET` (or `.` when empty), and execute shell `cd` immediately.
 Interactive selector UI is built as Vue SFCs rendered by `@vue-tui/runtime`; keep the Vue plugin under `pack.plugins` so `vp pack` can compile `.vue` files.
-Local development wrappers are managed by `vp run dev:i` and `vp run dev:uni`, targeting `~/.local/bin/mo` and `~/.local/bin/mo-inner`; each wrapper runs Vite+ pack quietly before executing the bundled `bin` entry with `node`.
+Local development wrappers are managed by `vp run dev:i` and `vp run dev:uni`, targeting `~/.local/bin/mo`, `~/.local/bin/mo-get-root`, and `~/.local/bin/mo-inner`; each wrapper runs Vite+ pack quietly before executing the bundled `bin` entry with `node`.
+The `global-projects` skill resolves the configured root by calling the `mo-get-root` bin, authored in `src/mo-get-root.ts`.
 
 ## Rule
 
