@@ -56,34 +56,14 @@ For a bare project name or fuzzy query:
 4. If multiple owners match, ask the user to choose.
 5. Use the resolved path directly for file operations.
 
-## Command Usage
+## `mo` Command Usage
 
-Use `mo` for project discovery, placement, navigation, and opening. Once you know the local path, use normal shell and editor tooling for ordinary file reads, edits, builds, and tests.
-
-Use `mo setup` only when config is missing and the user agrees to initialize project management:
-
-```bash
-mo setup
-```
+Use `mo` when you need to clone/fork/create a project. Once you know the local path, use normal shell and editor tooling for ordinary file reads, edits, builds, and tests.
 
 Use `mo list` to discover existing managed repositories:
 
 ```bash
 mo list
-```
-
-Use `mo cd <target>` to resolve a managed repository path for shell navigation. In an interactive shell, shell integration handles the actual `cd`; inside an agent run, use it as a resolver signal and then operate on the resulting path when available:
-
-```bash
-mo cd vuejs/core
-mo cd core
-```
-
-Use `mo edit <target>` to open a project in the configured editor, and `mo open <target>` to open it in the system file explorer:
-
-```bash
-mo edit vuejs/core
-mo open vuejs/core
 ```
 
 Use `mo clone <owner>/<repo>` when the user wants a GitHub project locally and it is not already under `<rootPath>/<owner>/<repo>`. This preserves the owner/repo layout:
@@ -92,12 +72,17 @@ Use `mo clone <owner>/<repo>` when the user wants a GitHub project locally and i
 mo clone vitejs/vite
 ```
 
-Use `mo composition <main-command> <sub-commands> <repo>` when the user wants to clone or fork and then immediately open, edit, or cd into the same project. Use `clone` as the main command unless the user explicitly requested a fork:
+Use `mo init` to make a local project initialized using git and create a GitHub repo, only when the user explicitly asks to create/init a project:
 
 ```bash
-mo composition clone edit vitejs/vite
-mo composition clone open,cd vuejs/core
+mo init [options]
+
+# Options, at least one of them should be provided if you
+# --public    Create as public repository
+# --private   Create as private repository
 ```
+
+`mo init` can change remote GitHub state. Treat it as a dangerous command.
 
 Use `mo fork` only when the user explicitly asks to fork or create a fork:
 
@@ -107,7 +92,7 @@ mo fork vitejs/vite --org my-org
 mo fork vitejs/vite --name my-vite
 ```
 
-Forking changes remote GitHub state. Treat it as a dangerous command. Do not fork for inspection, editing, testing, cloning, opening, or convenience. Do not use `mo composition fork ...` unless the user explicitly requested a fork.
+Forking also changes remote GitHub state. Treat it as a dangerous command. Do not fork for inspection, editing, testing, cloning, opening, or convenience. It also includes some prompts you need to answer.
 
 ## Working Standard
 
