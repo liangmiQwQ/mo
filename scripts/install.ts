@@ -8,10 +8,10 @@ import pc from 'picocolors'
 const managedMarker = 'mo-dev-wrapper:managed'
 const binDir = resolve(homedir(), '.local/bin')
 const repoRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
-const tsxBin = resolve(repoRoot, 'node_modules/.bin/tsx')
+const vpBin = resolve(repoRoot, 'node_modules/.bin/vp')
 const entries = [
-  { name: 'mo', entry: resolve(repoRoot, 'src/mo.ts') },
-  { name: 'mo-inner', entry: resolve(repoRoot, 'src/mo-inner.ts') },
+  { name: 'mo', bin: resolve(repoRoot, 'bin/mo.mjs') },
+  { name: 'mo-inner', bin: resolve(repoRoot, 'bin/mo-inner.mjs') },
 ]
 
 function shellQuote(input: string): string {
@@ -23,34 +23,35 @@ function isPathContains(pathname: string): boolean {
   return pathValue.split(':').includes(pathname)
 }
 
-function createWrapperContent(entryPath: string): string {
+function createWrapperContent(binPath: string): string {
   return [
     '#!/usr/bin/env sh',
     `# ${managedMarker}`,
-    `case "$PWD" in ${shellQuote(repoRoot)}|${shellQuote(`${repoRoot}/*`)}) ;;`,
+    `case "$PWD" in ${shellQuote(repoRoot)}|${shellQuote(repoRoot)}/*) ;;`,
     `*) echo ${shellQuote(`mo dev wrapper can only run inside ${repoRoot}`)} >&2; exit 78 ;;`,
     'esac',
-    `exec ${shellQuote(tsxBin)} ${shellQuote(entryPath)} "$@"`,
+    `(cd ${shellQuote(repoRoot)} && ${shellQuote(vpBin)} pack --logLevel silent >/dev/null) || exit $?`,
+    `exec node ${shellQuote(binPath)} "$@"`,
     '',
   ].join('\n')
 }
 
-async function installWrapper(name: string, entryPath: string): Promise<void> {
+async function installWrapper(name: string, binPath: string): Promise<void> {
   const target = resolve(binDir, name)
-  await writeFile(target, createWrapperContent(entryPath), 'utf8')
+  await writeFile(target, createWrapperContent(binPath), 'utf8')
   await chmod(target, 0o755)
   console.log(pc.green(`Installed ${name} -> ${target}`))
 }
 
 async function main() {
-  if (!existsSync(tsxBin)) {
-    console.error(pc.red(`Missing ${basename(tsxBin)} at ${tsxBin}. Run "vp install" first.`))
+  if (!existsSync(vpBin)) {
+    console.error(pc.red(`Missing ${basename(vpBin)} at ${vpBin}. Run "vp install" first.`))
     process.exit(1)
   }
 
   await mkdir(binDir, { recursive: true })
   for (const item of entries) {
-    await installWrapper(item.name, item.entry)
+    await installWrapper(item.name, item.bin)
   }
 
   if (!isPathContains(binDir)) {
