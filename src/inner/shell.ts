@@ -11,16 +11,23 @@ export function generateShellIntegration(shell: string): string {
     error(`Invalid shell "${shell}". Supported: ${supportedShells.join(', ')}`)
   }
 
-  const aliases = loadAliasConfig()
+  const config = loadShellConfig()
   if (shell === 'bash' || shell === 'zsh') {
-    return generateBashZshIntegration(aliases)
+    return generateBashZshIntegration(config.alias, config.compositionAlias)
   } else {
-    return generateFishIntegration(aliases)
+    return generateFishIntegration(config.alias, config.compositionAlias)
   }
 }
 
-function generateBashZshIntegration(aliases: CommandAliasConfig): string {
-  const lines = buildAliasLines(aliases, (name, target) => `alias ${name}='${target}'`)
+function generateBashZshIntegration(
+  aliases: CommandAliasConfig,
+  compositionAlias: boolean,
+): string {
+  const lines = buildAliasLines(
+    aliases,
+    compositionAlias,
+    (name, target) => `alias ${name}='${target}'`,
+  )
   const flagPath = getRestartFlagPath()
   return [
     '# mo shell integration script',
@@ -39,8 +46,12 @@ function generateBashZshIntegration(aliases: CommandAliasConfig): string {
   ].join('\n')
 }
 
-function generateFishIntegration(aliases: CommandAliasConfig): string {
-  const lines = buildAliasLines(aliases, (name, target) => `alias ${name} '${target}'`)
+function generateFishIntegration(aliases: CommandAliasConfig, compositionAlias: boolean): string {
+  const lines = buildAliasLines(
+    aliases,
+    compositionAlias,
+    (name, target) => `alias ${name} '${target}'`,
+  )
   const flagPath = getRestartFlagPath()
   return [
     '# mo shell integration script',
@@ -65,16 +76,16 @@ function isValidShell(shell: string): shell is SupportedShell {
   return supportedShells.includes(shell as SupportedShell)
 }
 
-function loadAliasConfig(): CommandAliasConfig {
+function loadShellConfig(): { alias: CommandAliasConfig; compositionAlias: boolean } {
   const configPath = getDefaultConfigPath()
   if (!existsSync(configPath)) {
-    return {}
+    return { alias: {}, compositionAlias: false }
   }
 
   try {
     const config = loadConfig()
-    return config.alias ?? {}
+    return { alias: config.alias ?? {}, compositionAlias: config.compositionAlias ?? false }
   } catch {
-    return {}
+    return { alias: {}, compositionAlias: false }
   }
 }

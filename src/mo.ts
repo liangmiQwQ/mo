@@ -3,6 +3,8 @@ import { cac } from 'cac'
 import { version } from '../package.json'
 import { getDefaultConfigPath, loadConfig } from './utils/config'
 import { runCloneCommand } from './commands/clone'
+import { runCompositionCommand } from './commands/composition'
+import type { CompositionOptions } from './commands/composition'
 import { runCdCommand } from './commands/cd'
 import { runEditCommand, runOpenCommand } from './commands/edit'
 import { runForkCommand } from './commands/fork'
@@ -43,6 +45,25 @@ cli
   .command('clone <repo>', 'Clone a GitHub repo or URL to <root>/<owner>/<repo>')
   .alias('c')
   .action(withConfig((config, repo: string) => runCloneCommand(repo, config)))
+
+cli
+  .command(
+    'composition <main-command> <sub-commands> <repo>',
+    'Run clone or fork, then run cd, edit, or open against the same repo',
+  )
+  .option('-o, --org <org>', 'GitHub org to fork into (fork main command only)')
+  .option('-n, --name <name>', 'Name for the forked repository (fork main command only)')
+  .action(
+    withConfig(
+      (
+        config,
+        mainCommand: string,
+        subCommands: string,
+        repo: string,
+        options?: CompositionOptions,
+      ) => runCompositionCommand(mainCommand, subCommands, repo, config, options ?? {}),
+    ),
+  )
 
 cli
   .command('fork [repo]', 'Fork a GitHub repo or URL, or fork the current repo in place')

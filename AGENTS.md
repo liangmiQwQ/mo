@@ -19,7 +19,8 @@ Like `~/code/vitejs/vite`, `~/code/vuejs/vue`, `~/code/vuejs/core`.
 Read [ROADMAP](/ROADMAP.md) to learn more about project architecture and the road map. If you want detailed information about some feature, view [RFCS](/rfcs) directory.
 
 Shell integration is managed through `morc.json` `shells` (`zsh`/`bash`/`fish`) and mo-controlled shellrc blocks.
-`mo setup` initializes config by checking `git`/`gh` availability, collecting root directory/shells, optionally collecting command aliases, then writing config and syncing shellrc.
+`mo setup` initializes config by checking `git`/`gh` availability, collecting root directory/shells, optionally collecting command aliases and composition aliases, then writing config and syncing shellrc.
+`mo composition <main-command> <sub-commands> <repo>` runs `clone`/`fork` first, then runs `cd`/`edit`/`open` subcommands against the same repo without spawning nested `mo` commands.
 If users run config-required commands without default config, mo should prompt to run `mo setup` first.
 `preinstall` blocks unsupported Windows installs and rejects non-global package installs (except contributor installs in the source repo).
 `mo cd` should be handled through shell functions: resolve path via `mo cd`, run `mo-inner cd` to print pending target from `MO_CD_TARGET` (or `.` when empty), and execute shell `cd` immediately.

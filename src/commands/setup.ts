@@ -47,6 +47,11 @@ export async function runSetupCommand(): Promise<void> {
   )
   const rootPath = await resolveAndValidateRootPath(rootInput)
 
+  const selectedShells = await promptShellSelection(existingConfig?.shells)
+  await ensureShellCommandsAvailable(selectedShells)
+  const aliases = await promptAliasConfig(existingConfig?.alias)
+  const compositionAlias = await promptCompositionAlias(existingConfig?.compositionAlias, aliases)
+
   const editorInput = await promptText(
     'What editor would you like to use? (optional, e.g. code, vim)',
     'editor',
@@ -54,11 +59,7 @@ export async function runSetupCommand(): Promise<void> {
   )
   const editor = editorInput.trim() || undefined
 
-  const selectedShells = await promptShellSelection(existingConfig?.shells)
-  await ensureShellCommandsAvailable(selectedShells)
-  const aliases = await promptAliasConfig(existingConfig?.alias)
-
-  await writeConfigFile(configPath, rootPath, selectedShells, aliases, editor)
+  await writeConfigFile(configPath, rootPath, selectedShells, aliases, compositionAlias, editor)
   await syncShellrc(selectedShells)
   await createRestartFlag()
 
@@ -155,6 +156,7 @@ async function writeConfigFile(
   rootPath: string,
   shells: SupportedShell[],
   alias?: CommandAliasConfig,
+  compositionAlias?: boolean,
   editor?: string,
 ): Promise<void> {
   const content = `${JSON.stringify(
@@ -164,6 +166,7 @@ async function writeConfigFile(
       ...(editor ? { editor } : {}),
       shells,
       ...(alias ? { alias } : {}),
+      ...(compositionAlias ? { compositionAlias } : {}),
     },
     null,
     2,
@@ -191,6 +194,15 @@ async function promptAliasConfig(
   }
 
   return Object.keys(aliases).length > 0 ? aliases : undefined
+}
+
+async function promptCompositionAlias(
+  initial: boolean | undefined,
+  aliases: CommandAliasConfig | undefined,
+): Promise<boolean> {
+  return promptConfirm('Would you like to add composition aliases like `ki`?', 'compositionAlias', {
+    default: initial ?? aliases != null,
+  })
 }
 
 async function promptCommandAlias(
