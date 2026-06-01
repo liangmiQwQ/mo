@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs'
 import { mkdir, stat, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import untildify from 'untildify'
 import type { SupportedShell, GlobalUserConfig } from '../utils/config'
 import type { CommandAliasConfig } from '../utils/alias'
@@ -14,8 +15,8 @@ import { ensureToolReady, runCommand } from '../utils/commands'
 import { promptConfirm, promptMultiselect, promptText } from '../utils/prompt'
 import { getRestartFlagPath } from '../utils/runner'
 
-const CONFIG_SCHEMA_URL = 'https://raw.githubusercontent.com/liangmiQwQ/mo/main/config_schema.json'
 const ALIAS_NAME_PATTERN = '[A-Za-z_][A-Za-z0-9_-]*'
+const currentDir = path.dirname(fileURLToPath(import.meta.url))
 
 export async function runSetupCommand(): Promise<void> {
   const configPath = getDefaultConfigPath()
@@ -161,7 +162,7 @@ async function writeConfigFile(
 ): Promise<void> {
   const content = `${JSON.stringify(
     {
-      $schema: CONFIG_SCHEMA_URL,
+      $schema: resolveConfigSchemaUrl(),
       root: rootPath,
       ...(editor ? { editor } : {}),
       shells,
@@ -173,6 +174,10 @@ async function writeConfigFile(
   )}\n`
   await mkdir(path.dirname(configPath), { recursive: true })
   await writeFile(configPath, content, 'utf8')
+}
+
+function resolveConfigSchemaUrl(): string {
+  return pathToFileURL(path.resolve(currentDir, '..', 'config_schema.json')).href
 }
 
 async function promptAliasConfig(
