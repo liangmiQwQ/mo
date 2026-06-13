@@ -4,8 +4,8 @@ import { error } from './error'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
-export const userBinName = 'mo'
-export const innerBinName = 'mo-inner'
+export const userBinName = resolveUserBinName()
+export const innerBinName = `${userBinName}-inner`
 
 export async function preventRunning() {
   if (process.platform === 'win32') {
@@ -25,7 +25,11 @@ export async function preventRunning() {
 }
 
 export function getRestartFlagPath() {
-  return path.join(tmpdir(), 'mo-restart-flag')
+  return path.join(tmpdir(), `${userBinName}-restart-flag`)
+}
+
+export function getCdTargetPath() {
+  return path.join(tmpdir(), `${userBinName}-cd-target`)
 }
 
 export function checkRestartRequired(): void {
@@ -33,4 +37,22 @@ export function checkRestartRequired(): void {
   if (existsSync(flagPath)) {
     error('Please restart your shell to apply the recent setup changes.')
   }
+}
+
+function resolveUserBinName(): string {
+  const fallback = 'mo'
+  const binPath = process.argv[1]
+  if (!binPath) {
+    return fallback
+  }
+
+  const binName = path.basename(binPath).replace(/\.mjs$/, '')
+  if (binName.endsWith('-inner')) {
+    return binName.slice(0, -'-inner'.length) || fallback
+  }
+  if (binName.endsWith('-get-root')) {
+    return binName.slice(0, -'-get-root'.length) || fallback
+  }
+
+  return binName || fallback
 }

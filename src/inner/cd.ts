@@ -1,9 +1,8 @@
 import { existsSync, readFileSync, rmSync } from 'node:fs'
-import { tmpdir } from 'node:os'
-import path from 'node:path'
+import { getCdTargetPath } from '../utils/runner'
 
 export function getCdPath(): string {
-  const targetFile = path.join(tmpdir(), 'mo-cd-target')
+  const targetFile = getCdTargetPath()
   if (!existsSync(targetFile)) {
     return '.'
   }

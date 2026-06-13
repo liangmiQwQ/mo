@@ -1,3 +1,5 @@
+import { userBinName } from './runner'
+
 export const aliasCommands = ['clone', 'list', 'cd', 'edit', 'open', 'fork', 'init'] as const
 export type AliasCommand = (typeof aliasCommands)[number]
 export type CommandAliasConfig = Partial<Record<AliasCommand, string[]>>
@@ -75,7 +77,7 @@ export function buildAliasLines(
 }
 
 export function getAliasPromptLabel(command: AliasCommand): string {
-  return `mo ${command}`
+  return `${userBinName} ${command}`
 }
 
 export function isAliasCommand(value: string): value is AliasCommand {
@@ -91,7 +93,7 @@ export function isValidAliasName(value: string): boolean {
 }
 
 function getAliasTarget(command: AliasCommand): string {
-  return `mo ${command}`
+  return `${userBinName} ${command}`
 }
 
 function buildCompositionAliasLines(
@@ -119,7 +121,7 @@ function buildCompositionAliasLines(
 
         used.add(aliasName)
         const commands = sequence.map((item) => item.command).join(',')
-        lines.push(toAliasLine(aliasName, `mo composition ${mainCommand} ${commands}`))
+        lines.push(toAliasLine(aliasName, `${userBinName} composition ${mainCommand} ${commands}`))
       }
     }
   }

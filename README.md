@@ -14,6 +14,14 @@
 vp i -g @liangmi/mo
 ```
 
+If another tool already uses the `mo` command, install the alias package instead:
+
+```bash
+vp i -g @liangmi/moi
+```
+
+`@liangmi/moi` has the same behavior, but exposes `moi`, `moi-inner`, and `moi-get-root` commands.
+
 ### Requirement
 
 - macOS or Linux

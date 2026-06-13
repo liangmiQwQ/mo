@@ -6,7 +6,7 @@ import pc from 'picocolors'
 
 const managedMarker = 'mo-dev-wrapper:managed'
 const binDir = resolve(homedir(), '.local/bin')
-const wrapperNames = ['mo', 'mo-get-root', 'mo-inner']
+const wrapperNames = ['mo', 'mo-get-root', 'mo-inner', 'moi', 'moi-get-root', 'moi-inner']
 
 async function removeIfManaged(name: string): Promise<void> {
   const target = resolve(binDir, name)

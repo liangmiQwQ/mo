@@ -1,5 +1,6 @@
 node_modules
 dist
+dist-moi
 *.log
 .DS_Store
 tests/fixtures/.temp

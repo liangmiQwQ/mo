@@ -13,6 +13,9 @@ const entries = [
   { name: 'mo', bin: resolve(repoRoot, 'bin/mo.mjs') },
   { name: 'mo-get-root', bin: resolve(repoRoot, 'bin/mo-get-root.mjs') },
   { name: 'mo-inner', bin: resolve(repoRoot, 'bin/mo-inner.mjs') },
+  { name: 'moi', bin: resolve(repoRoot, 'dist-moi/bin/moi.mjs') },
+  { name: 'moi-get-root', bin: resolve(repoRoot, 'dist-moi/bin/moi-get-root.mjs') },
+  { name: 'moi-inner', bin: resolve(repoRoot, 'dist-moi/bin/moi-inner.mjs') },
 ]
 
 function shellQuote(input: string): string {
@@ -31,7 +34,7 @@ function createWrapperContent(binPath: string): string {
     `case "$PWD" in ${shellQuote(repoRoot)}|${shellQuote(repoRoot)}/*) ;;`,
     `*) echo ${shellQuote(`mo dev wrapper can only run inside ${repoRoot}`)} >&2; exit 78 ;;`,
     'esac',
-    `(cd ${shellQuote(repoRoot)} && ${shellQuote(vpBin)} pack --logLevel silent >/dev/null) || exit $?`,
+    `(cd ${shellQuote(repoRoot)} && ${shellQuote(vpBin)} pack --logLevel silent >/dev/null && node scripts/build-moi.ts) || exit $?`,
     `exec node ${shellQuote(binPath)} "$@"`,
     '',
   ].join('\n')
@@ -57,9 +60,7 @@ async function main() {
 
   if (!isPathContains(binDir)) {
     console.log(
-      pc.yellow(
-        `Add ${binDir} to PATH so "mo", "mo-get-root", and "mo-inner" are available in new shells.`,
-      ),
+      pc.yellow(`Add ${binDir} to PATH so mo and moi dev wrappers are available in new shells.`),
     )
   }
 }
