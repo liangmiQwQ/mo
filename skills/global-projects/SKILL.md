@@ -1,6 +1,6 @@
 ---
 name: global-projects
-description: "Load this skill when Codex needs to locate, enter, clone, open, or coordinate work across the user's local projects. Use it when the current directory is not the target project, when another local project is needed, or when multiple projects are involved. The user's standard is rootPath/github-owner/repo, managed by mo."
+description: "Load this skill when you need to locate, enter, clone, open, or coordinate work across the user's local projects. Use it when the current directory is not the target project, when another local project is needed, or when multiple projects are involved. The user's standard is rootPath/github-owner/repo, managed by mo."
 ---
 
 # Global Projects
