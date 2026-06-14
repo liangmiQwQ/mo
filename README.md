@@ -14,14 +14,6 @@
 vp i -g @liangmi/mo
 ```
 
-### Alias package
-
-If another tool already uses the `mo` command, install the alias package instead:
-
-```bash
-vp i -g @liangmi/moi
-```
-
 `@liangmi/moi` has the same behavior, but exposes `moi`, `moi-inner`, and `moi-get-root` commands.
 
 ### Requirement
@@ -94,6 +86,14 @@ Please follow the [config_schema.json](./config_schema.json) if you are developi
   },
   "compositionAlias": true
 }
+```
+
+### Command `mo` Conflict
+
+If another tool already uses the `mo` command, we provide `moi` as an cli alias:
+
+```bash
+vp i -g @liangmi/moi
 ```
 
 ## Contribution
