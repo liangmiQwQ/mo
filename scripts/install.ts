@@ -52,7 +52,7 @@ function createWrapperContent(binPath: string): string {
     `case "$PWD" in ${shellQuote(repoRoot)}|${shellQuote(repoRoot)}/*) ;;`,
     `*) echo ${shellQuote(`mo dev wrapper can only run inside ${repoRoot}`)} >&2; exit 78 ;;`,
     'esac',
-    `(cd ${shellQuote(repoRoot)} && ${shellQuote(vpBin)} pack --logLevel silent >/dev/null && node scripts/build-moi.ts) || exit $?`,
+    `(cd ${shellQuote(repoRoot)} && ${shellQuote(vpBin)} pack --logLevel silent >/dev/null) || exit $?`,
     `exec node ${shellQuote(binPath)} "$@"`,
     '',
   ].join('\n')

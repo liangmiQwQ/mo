@@ -32,7 +32,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "vp pack && node scripts/build-moi.ts",
+    "build": "vp pack",
     "dev:mo": "node scripts/install.ts mo",
     "dev:moi": "node scripts/install.ts moi",
     "dev:mouni": "node scripts/uninstall.ts mo",
