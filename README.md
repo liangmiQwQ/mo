@@ -14,8 +14,6 @@
 vp i -g @liangmi/mo
 ```
 
-`@liangmi/moi` has the same behavior, but exposes `moi`, `moi-inner`, and `moi-get-root` commands.
-
 ### Requirement
 
 - macOS or Linux
@@ -95,6 +93,8 @@ If another tool already uses the `mo` command, we provide `moi` as an cli alias:
 ```bash
 vp i -g @liangmi/moi
 ```
+
+`@liangmi/moi` has the same behavior, but exposes `moi`, `moi-inner`, and `moi-get-root` commands.
 
 ## Contribution
 
