@@ -9,11 +9,32 @@ const managedMarker = 'mo-dev-wrapper:managed'
 const binDir = resolve(homedir(), '.local/bin')
 const repoRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
 const vpBin = resolve(repoRoot, 'node_modules/.bin/vp')
-const entries = [
-  { name: 'mo', bin: resolve(repoRoot, 'bin/mo.mjs') },
-  { name: 'mo-get-root', bin: resolve(repoRoot, 'bin/mo-get-root.mjs') },
-  { name: 'mo-inner', bin: resolve(repoRoot, 'bin/mo-inner.mjs') },
-]
+const entryGroups = {
+  mo: [
+    { name: 'mo', bin: resolve(repoRoot, 'bin/mo.mjs') },
+    { name: 'mo-get-root', bin: resolve(repoRoot, 'bin/mo-get-root.mjs') },
+    { name: 'mo-inner', bin: resolve(repoRoot, 'bin/mo-inner.mjs') },
+  ],
+  moi: [
+    { name: 'moi', bin: resolve(repoRoot, 'dist-moi/bin/moi.mjs') },
+    { name: 'moi-get-root', bin: resolve(repoRoot, 'dist-moi/bin/moi-get-root.mjs') },
+    { name: 'moi-inner', bin: resolve(repoRoot, 'dist-moi/bin/moi-inner.mjs') },
+  ],
+} as const
+const groupName = parseGroupName()
+const entries = entryGroups[groupName]
+
+function parseGroupName(): keyof typeof entryGroups {
+  const input = process.argv[2]
+  if (input === 'mo' || input === 'moi') {
+    return input
+  }
+
+  console.error(pc.red('Usage: node scripts/install.ts <mo|moi>'))
+  process.exit(1)
+}
+
+const entryNames = entries.map((item) => item.name)
 
 function shellQuote(input: string): string {
   return `'${input.replace(/'/g, `'"'"'`)}'`
@@ -57,9 +78,7 @@ async function main() {
 
   if (!isPathContains(binDir)) {
     console.log(
-      pc.yellow(
-        `Add ${binDir} to PATH so "mo", "mo-get-root", and "mo-inner" are available in new shells.`,
-      ),
+      pc.yellow(`Add ${binDir} to PATH so ${entryNames.join(', ')} are available in new shells.`),
     )
   }
 }
