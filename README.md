@@ -14,6 +14,8 @@
 vp i -g @liangmi/mo
 ```
 
+### Alias package
+
 If another tool already uses the `mo` command, install the alias package instead:
 
 ```bash

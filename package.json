@@ -33,8 +33,10 @@
   },
   "scripts": {
     "build": "vp pack && node scripts/build-moi.ts",
-    "dev:i": "node scripts/install.ts",
-    "dev:uni": "node scripts/uninstall.ts",
+    "dev:mo": "node scripts/install.ts mo",
+    "dev:moi": "node scripts/install.ts moi",
+    "dev:mouni": "node scripts/uninstall.ts mo",
+    "dev:moiuni": "node scripts/uninstall.ts moi",
     "preview": "node bin/cli.mjs",
     "test": "vp test run",
     "check": "vp check",

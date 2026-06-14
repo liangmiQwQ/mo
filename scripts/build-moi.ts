@@ -3,13 +3,9 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 type PackageJson = {
+  [key: string]: unknown
+  name: string
   version: string
-  license?: string
-  author?: string
-  homepage?: string
-  bugs?: unknown
-  repository?: unknown
-  dependencies?: Record<string, string>
 }
 
 const repoRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
@@ -24,12 +20,12 @@ async function main(): Promise<void> {
   await cp(resolve(repoRoot, 'dist'), resolve(outputDir, 'dist'), { recursive: true })
   await cp(resolve(repoRoot, 'config_schema.json'), resolve(outputDir, 'config_schema.json'))
   await cp(resolve(repoRoot, 'LICENSE'), resolve(outputDir, 'LICENSE'))
+  await cp(resolve(repoRoot, 'packages/moi/README.md'), resolve(outputDir, 'README.md'))
 
   await writeBin('moi', 'mo')
   await writeBin('moi-get-root', 'mo-get-root')
   await writeBin('moi-inner', 'mo-inner')
   await writePackageJson(rootPackage)
-  await writeReadme()
 }
 
 async function readRootPackage(): Promise<PackageJson> {
@@ -46,57 +42,29 @@ async function writeBin(name: string, entry: string): Promise<void> {
 }
 
 async function writePackageJson(rootPackage: PackageJson): Promise<void> {
-  const packageJson = {
-    name: '@liangmi/moi',
-    version: rootPackage.version,
-    description: 'Alias package for @liangmi/mo using moi CLI names',
-    homepage: rootPackage.homepage,
-    bugs: rootPackage.bugs,
-    license: rootPackage.license,
-    author: rootPackage.author,
-    repository: rootPackage.repository,
+  const packageJson: PackageJson = {
+    ...rootPackage,
     bin: {
       moi: './bin/moi.mjs',
       'moi-get-root': './bin/moi-get-root.mjs',
       'moi-inner': './bin/moi-inner.mjs',
     },
+    description: 'Alias package for @liangmi/mo using moi CLI names',
     files: ['dist', 'bin', 'config_schema.json', 'README.md', 'LICENSE'],
+    name: '@liangmi/moi',
     type: 'module',
-    exports: {
-      './package.json': './package.json',
-    },
-    publishConfig: {
-      access: 'public',
-    },
-    dependencies: rootPackage.dependencies,
+  }
+  for (const key of [
+    'devDependencies',
+    'inlinedDependencies',
+    'packageManager',
+    'pnpm',
+    'scripts',
+  ]) {
+    delete packageJson[key]
   }
 
   await writeFile(resolve(outputDir, 'package.json'), `${JSON.stringify(packageJson, null, 2)}\n`)
-}
-
-async function writeReadme(): Promise<void> {
-  const readme = `# moi
-
-\`@liangmi/moi\` is an alias package for [\`@liangmi/mo\`](https://www.npmjs.com/package/@liangmi/mo).
-
-It exists for users who already have another \`mo\` command installed. The runtime behavior is the same as \`@liangmi/mo\`, but the command names are \`moi\`, \`moi-inner\`, and \`moi-get-root\`.
-
-## Install
-
-\`\`\`bash
-vp i -g @liangmi/moi
-\`\`\`
-
-## Setup
-
-\`\`\`bash
-moi setup
-\`\`\`
-
-See the [mo README](https://github.com/liangmiQwQ/mo#readme) for full usage.
-`
-
-  await writeFile(resolve(outputDir, 'README.md'), readme)
 }
 
 await main()
