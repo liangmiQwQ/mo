@@ -1,14 +1,16 @@
 import { existsSync, mkdirSync, readdirSync, rmSync, rmdirSync } from 'node:fs'
 import path from 'node:path'
-import { x } from 'tinyexec'
-import pc from 'picocolors'
-import type { GlobalUserConfig } from '../utils/config'
-import { error } from '../utils/error'
-import { icons, startSpinner, stopSpinner, success, toTildePath } from '../utils/format'
-import { parseGitHubRepo } from '../utils/github'
-import { promptConfirm, promptText } from '../utils/prompt'
 
-export type ForkOptions = {
+import pc from 'picocolors'
+import { x } from 'tinyexec'
+
+import type { GlobalUserConfig } from '../utils/config.ts'
+import { error } from '../utils/error.ts'
+import { icons, startSpinner, stopSpinner, success, toTildePath } from '../utils/format.ts'
+import { parseGitHubRepo } from '../utils/github.ts'
+import { promptConfirm, promptText } from '../utils/prompt.ts'
+
+export interface ForkOptions {
   org?: string
   name?: string
 }
@@ -16,7 +18,7 @@ export type ForkOptions = {
 export async function runForkCommand(
   repo: string | undefined,
   config: GlobalUserConfig,
-  options: ForkOptions,
+  options: ForkOptions
 ): Promise<void> {
   if (repo === undefined) {
     await runForkInPlace(config, options)
@@ -29,7 +31,7 @@ export async function runForkCommand(
   const forkOrg = await resolveForkOrg(options.org)
 
   // Same owner with same name → immediate error before any prompts
-  if (forkOrg === parsed.owner && options.name === parsed.name && options.name !== undefined) {
+  if (options.name !== undefined && forkOrg === parsed.owner && options.name === parsed.name) {
     error(`Cannot fork ${parsed.owner}/${parsed.name} to itself.`)
   }
 
@@ -38,9 +40,11 @@ export async function runForkCommand(
     const ok = await promptConfirm(
       `Fork target has the same owner as the original (${pc.cyan(forkOrg)}). Continue?`,
       'sameOrgConfirm',
-      { default: false },
+      { default: false }
     )
-    if (!ok) error('Fork canceled.', 78)
+    if (!ok) {
+      error('Fork canceled.', 78)
+    }
   }
 
   // Q2: What is the repo name of the fork? (skip if --name provided)
@@ -66,7 +70,7 @@ export async function runForkCommand(
   const cloneUrl = `https://github.com/${parsed.owner}/${parsed.name}.git`
   const forkLabel = forkOrg ? `${forkOrg}/${forkName}` : forkName
   const spinner = startSpinner(
-    `Cloning ${pc.bold(`${parsed.owner}/${parsed.name}`)} and forking to ${pc.bold(forkLabel)}...`,
+    `Cloning ${pc.bold(`${parsed.owner}/${parsed.name}`)} and forking to ${pc.bold(forkLabel)}...`
   )
 
   const cloneExec = x('git', ['clone', '--progress', cloneUrl, targetDir], { throwOnError: false })
@@ -74,10 +78,11 @@ export async function runForkCommand(
   const forkExec = x('gh', ghArgs, { throwOnError: false })
 
   // If fork fails, kill the clone process
-  forkExec.then((result) => {
+  forkExec.then(result => {
     if (result.exitCode !== 0) {
       cloneExec.process?.kill()
     }
+    return result
   })
 
   const [cloneSettled, forkSettled] = await Promise.allSettled([cloneExec, forkExec])
@@ -95,19 +100,22 @@ export async function runForkCommand(
     const details =
       forkSettled.status === 'rejected'
         ? String(forkSettled.reason)
-        : forkResult?.stderr || `gh fork exited with code ${forkResult?.exitCode}`
+        : getErrorDetails(forkResult?.stderr, `gh fork exited with code ${forkResult?.exitCode}`)
     error(`Fork failed for ${forkLabel}: ${details}`)
   }
 
   if (cloneFailed) {
     cleanupClone(targetDir, ownerDir, ownerExisted)
     console.log(
-      `${icons.warning} ${pc.yellow(`Fork created at ${pc.bold(forkLabel)} but clone failed.`)}`,
+      `${icons.warning} ${pc.yellow(`Fork created at ${pc.bold(forkLabel)} but clone failed.`)}`
     )
     const details =
       cloneSettled.status === 'rejected'
         ? String(cloneSettled.reason)
-        : cloneResult?.stderr || `git clone exited with code ${cloneResult?.exitCode}`
+        : getErrorDetails(
+            cloneResult?.stderr,
+            `git clone exited with code ${cloneResult?.exitCode}`
+          )
     error(`Clone failed for ${parsed.owner}/${parsed.name}: ${details}`)
   }
 
@@ -139,7 +147,7 @@ async function runForkInPlace(config: GlobalUserConfig, options: ForkOptions): P
   // Q1: Would you like to fork to an organization? (skip if --org provided)
   const forkOrg = await resolveForkOrg(options.org)
 
-  if (forkOrg === detected.owner && options.name === detected.name && options.name !== undefined) {
+  if (options.name !== undefined && forkOrg === detected.owner && options.name === detected.name) {
     error(`Cannot fork ${detected.owner}/${detected.name} to itself.`)
   }
 
@@ -147,9 +155,11 @@ async function runForkInPlace(config: GlobalUserConfig, options: ForkOptions): P
     const ok = await promptConfirm(
       `Fork target has the same owner as the original (${pc.cyan(forkOrg)}). Continue?`,
       'sameOrgConfirm',
-      { default: false },
+      { default: false }
     )
-    if (!ok) error('Fork canceled.', 78)
+    if (!ok) {
+      error('Fork canceled.', 78)
+    }
   }
 
   // Q2: What is the repo name of the fork? (skip if --name provided)
@@ -178,9 +188,11 @@ async function runForkInPlace(config: GlobalUserConfig, options: ForkOptions): P
 async function resolveForkName(
   originalName: string,
   originalOwner: string,
-  nameOption: string | undefined,
+  nameOption: string | undefined
 ): Promise<string> {
-  if (nameOption) return nameOption
+  if (nameOption) {
+    return nameOption
+  }
 
   const choice1 = originalName
   const choice2 = `${originalOwner}-${originalName}`
@@ -188,7 +200,7 @@ async function resolveForkName(
   const input = await promptText(
     `Fork repo name? (suggestions: ${pc.cyan(choice1)}, ${pc.cyan(choice2)})`,
     'forkName',
-    { initial: choice1 },
+    { initial: choice1 }
   )
 
   const trimmed = input.trim()
@@ -199,15 +211,19 @@ async function resolveForkName(
 }
 
 async function resolveForkOrg(orgOption: string | undefined): Promise<string | undefined> {
-  if (orgOption) return orgOption
+  if (orgOption) {
+    return orgOption
+  }
 
   const wantsOrg = await promptConfirm(
     'Would you like to fork to an organization?',
     'wantsForkOrg',
-    { default: false },
+    { default: false }
   )
 
-  if (!wantsOrg) return undefined
+  if (!wantsOrg) {
+    return undefined
+  }
 
   const input = await promptText('Organization name:', 'forkOrg')
   const trimmed = input.trim()
@@ -221,7 +237,7 @@ function buildGhForkArgs(
   originalOwner: string,
   originalName: string,
   forkOrg: string | undefined,
-  forkName: string,
+  forkName: string
 ): string[] {
   const args = ['repo', 'fork', `${originalOwner}/${originalName}`, '--clone=false']
   if (forkName !== originalName) {
@@ -246,9 +262,9 @@ async function configureRemotes(
   originalOwner: string,
   originalName: string,
   forkOrg: string,
-  forkName: string,
+  forkName: string
 ): Promise<void> {
-  const run = (cmd: string, args: string[]) =>
+  const run = (cmd: string, args: string[]): ReturnType<typeof x> =>
     x(cmd, args, { throwOnError: false, nodeOptions: { cwd: dir } })
 
   await run('git', ['remote', 'rename', 'origin', 'upstream'])
@@ -260,10 +276,10 @@ async function configureRemotes(
   await run('git', ['branch', '--set-upstream-to', `upstream/${defaultBranch}`])
 
   console.log(
-    `  ${pc.dim('upstream')} → ${pc.cyan(`https://github.com/${originalOwner}/${originalName}.git`)}`,
+    `  ${pc.dim('upstream')} → ${pc.cyan(`https://github.com/${originalOwner}/${originalName}.git`)}`
   )
   console.log(
-    `  ${pc.dim('origin')}   → ${pc.cyan(`https://github.com/${forkOrg}/${forkName}.git`)}`,
+    `  ${pc.dim('origin')}   → ${pc.cyan(`https://github.com/${forkOrg}/${forkName}.git`)}`
   )
 }
 
@@ -276,16 +292,27 @@ function cleanupClone(targetDir: string, ownerDir: string, ownerExisted: boolean
       rmdirSync(ownerDir)
     }
   } catch {
-    // best-effort cleanup
+    // Best-effort cleanup
   }
 }
 
+function getErrorDetails(stderr: string | undefined, fallback: string): string {
+  if (stderr) {
+    return stderr
+  }
+  return fallback
+}
+
 function detectManagedRepo(root: string, cwd: string): { owner: string; name: string } | null {
-  const sep = path.sep
-  if (!cwd.startsWith(root + sep)) return null
+  const { sep } = path
+  if (!cwd.startsWith(root + sep)) {
+    return null
+  }
   const relative = path.relative(root, cwd)
   const parts = relative.split(sep)
-  if (parts.length < 2 || !parts[0] || !parts[1]) return null
+  if (parts.length < 2 || !parts[0] || !parts[1]) {
+    return null
+  }
   return { owner: parts[0], name: parts[1] }
 }
 
@@ -293,15 +320,17 @@ async function checkRemoteExists(dir: string, remoteName: string): Promise<boole
   const result = await x('git', ['remote'], { throwOnError: false, nodeOptions: { cwd: dir } })
   return result.stdout
     .split('\n')
-    .map((s) => s.trim())
+    .map(s => s.trim())
     .includes(remoteName)
 }
 
 async function getRemoteUrl(dir: string, remoteName: string): Promise<string | null> {
   const result = await x('git', ['remote', 'get-url', remoteName], {
     throwOnError: false,
-    nodeOptions: { cwd: dir },
+    nodeOptions: { cwd: dir }
   })
-  if (result.exitCode !== 0) return null
+  if (result.exitCode !== 0) {
+    return null
+  }
   return result.stdout.trim() || null
 }

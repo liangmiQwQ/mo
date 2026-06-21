@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, rmSync } from 'node:fs'
-import { getCdTargetPath } from '../utils/runner'
+
+import { getCdTargetPath } from '../utils/runner.ts'
 
 export function getCdPath(): string {
   const targetFile = getCdTargetPath()

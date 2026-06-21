@@ -1,3 +1,2 @@
 #!/usr/bin/env node
-'use strict'
-import '../dist/mo-get-root.mjs'
+await import('../dist/mo-get-root.mjs')

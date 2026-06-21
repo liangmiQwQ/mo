@@ -1,13 +1,15 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import { x } from 'tinyexec'
-import pc from 'picocolors'
-import type { GlobalUserConfig } from '../utils/config'
-import { error } from '../utils/error'
-import { icons, startSpinner, stopSpinner, success, toTildePath } from '../utils/format'
-import { promptConfirm } from '../utils/prompt'
 
-export type InitOptions = {
+import pc from 'picocolors'
+import { x } from 'tinyexec'
+
+import type { GlobalUserConfig } from '../utils/config.ts'
+import { error } from '../utils/error.ts'
+import { icons, startSpinner, stopSpinner, success, toTildePath } from '../utils/format.ts'
+import { promptConfirm } from '../utils/prompt.ts'
+
+export interface InitOptions {
   public?: boolean
   private?: boolean
   push?: boolean
@@ -15,7 +17,7 @@ export type InitOptions = {
 
 export async function runInitCommand(
   config: GlobalUserConfig,
-  options: InitOptions,
+  options: InitOptions
 ): Promise<void> {
   const cwd = process.cwd()
 
@@ -30,7 +32,7 @@ export async function runInitCommand(
     const hasOrigin = await checkRemoteExists(cwd, 'origin')
     if (hasOrigin) {
       error(
-        `Repository already has "origin" remote configured. Use ${pc.cyan('mo fork')} for fork workflows.`,
+        `Repository already has "origin" remote configured. Use ${pc.cyan('mo fork')} for fork workflows.`
       )
     }
   }
@@ -64,14 +66,14 @@ export async function runInitCommand(
     const stderr = createResult.stderr || ''
     if (stderr.includes('already exists')) {
       error(
-        `Repository ${pc.cyan(repoFullName)} already exists on GitHub. Use ${pc.cyan('mo clone')} instead.`,
+        `Repository ${pc.cyan(repoFullName)} already exists on GitHub. Use ${pc.cyan('mo clone')} instead.`
       )
     }
     if (stderr.includes('Could not resolve to an Organization') || stderr.includes('not an org')) {
       error(`Failed to create repository: ${stderr}`)
     }
     error(
-      `Failed to create repository: ${stderr || `gh exited with code ${createResult.exitCode}`}`,
+      `Failed to create repository: ${stderr || `gh exited with code ${createResult.exitCode}`}`
     )
   }
 
@@ -86,14 +88,14 @@ export async function runInitCommand(
 }
 
 function validateMoStructure(root: string, cwd: string): { owner: string; name: string } {
-  const sep = path.sep
+  const { sep } = path
 
   // Check if cwd is under root
   if (!cwd.startsWith(root + sep) && cwd !== root) {
     error(
       `Current directory is not under mo root.\n` +
         `  Expected: ${pc.cyan(`${toTildePath(root)}/<owner>/<repo>`)}\n` +
-        `  Current:  ${pc.cyan(toTildePath(cwd))}`,
+        `  Current:  ${pc.cyan(toTildePath(cwd))}`
     )
   }
 
@@ -104,7 +106,7 @@ function validateMoStructure(root: string, cwd: string): { owner: string; name: 
     error(
       `Current directory is not in mo structure.\n` +
         `  Expected: ${pc.cyan(`${toTildePath(root)}/<owner>/<repo>`)}\n` +
-        `  Current:  ${pc.cyan(toTildePath(cwd))}`,
+        `  Current:  ${pc.cyan(toTildePath(cwd))}`
     )
   }
 
@@ -112,7 +114,7 @@ function validateMoStructure(root: string, cwd: string): { owner: string; name: 
     const repoRoot = path.join(root, parts[0], parts[1])
     error(
       `Current directory is nested too deep.\n` +
-        `  Run from repository root: ${pc.cyan(toTildePath(repoRoot))}`,
+        `  Run from repository root: ${pc.cyan(toTildePath(repoRoot))}`
     )
   }
 
@@ -123,7 +125,7 @@ async function checkRemoteExists(dir: string, remoteName: string): Promise<boole
   const result = await x('git', ['remote'], { throwOnError: false, nodeOptions: { cwd: dir } })
   return result.stdout
     .split('\n')
-    .map((s) => s.trim())
+    .map(s => s.trim())
     .includes(remoteName)
 }
 
@@ -136,8 +138,12 @@ async function getGhAuthUser(): Promise<string> {
 }
 
 async function resolveVisibility(options: InitOptions): Promise<boolean> {
-  if (options.public) return true
-  if (options.private) return false
+  if (options.public) {
+    return true
+  }
+  if (options.private) {
+    return false
+  }
 
   return promptConfirm('Create as public repository?', 'visibility', { default: true })
 }
@@ -146,33 +152,36 @@ function buildGhCreateArgs(
   name: string,
   owner: string,
   isOrg: boolean,
-  isPublic: boolean,
+  isPublic: boolean
 ): string[] {
   const repoArg = isOrg ? `${owner}/${name}` : name
-  const args = ['repo', 'create', repoArg, '--source=.', '--remote=origin']
-
-  args.push(isPublic ? '--public' : '--private')
-
-  return args
+  return [
+    'repo',
+    'create',
+    repoArg,
+    '--source=.',
+    '--remote=origin',
+    isPublic ? '--public' : '--private'
+  ]
 }
 
 async function pushCurrentBranch(dir: string): Promise<void> {
   const branchResult = await x('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
     throwOnError: false,
-    nodeOptions: { cwd: dir },
+    nodeOptions: { cwd: dir }
   })
   const branch = branchResult.stdout.trim() || 'main'
 
   const spinner = startSpinner(`Pushing to ${pc.bold(branch)}...`)
   const pushResult = await x('git', ['push', '-u', 'origin', branch], {
     throwOnError: false,
-    nodeOptions: { cwd: dir },
+    nodeOptions: { cwd: dir }
   })
   stopSpinner(spinner)
 
   if (pushResult.exitCode !== 0) {
     console.log(
-      `  ${icons.warning} ${pc.yellow(`Push failed: ${pushResult.stderr || `exited with code ${pushResult.exitCode}`}`)}`,
+      `  ${icons.warning} ${pc.yellow(`Push failed: ${pushResult.stderr || `exited with code ${pushResult.exitCode}`}`)}`
     )
     return
   }

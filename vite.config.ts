@@ -1,48 +1,40 @@
-import vue from '@vitejs/plugin-vue'
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { defineConfig } from 'vite-plus'
 
-type PackageJson = {
+import { cli } from '@liangmi/vp-config'
+import vue from '@vitejs/plugin-vue'
+
+interface PackageJson {
   [key: string]: unknown
   name: string
   version: string
 }
 
-const repoRoot = resolve(fileURLToPath(new URL('.', import.meta.url)))
+const repoRoot = resolve(import.meta.dirname)
 const moiOutputDir = resolve(repoRoot, 'dist-moi')
 
-export default defineConfig({
-  staged: {
-    '*': 'vp check --fix',
+export default cli({
+  lint: {
+    rules: {
+      'eslint/id-length': 'off',
+      'promise/avoid-new': 'off',
+      'unicorn/filename-case': 'off'
+    }
   },
   pack: {
     plugins: [vue()],
     fixedExtension: true,
-    platform: 'node',
     entry: {
       mo: 'src/mo.ts',
       'mo-get-root': 'src/mo-get-root.ts',
-      'mo-inner': 'src/mo-inner.ts',
+      'mo-inner': 'src/mo-inner.ts'
     },
     dts: false,
     exports: false,
     hooks: {
-      'build:done': buildMoiPackage,
-    },
-  },
-  lint: {
-    options: {
-      typeAware: true,
-      typeCheck: true,
-    },
-  },
-  fmt: {
-    singleQuote: true,
-    semi: false,
-    sortPackageJson: true,
-  },
+      'build:done': buildMoiPackage
+    }
+  }
 })
 
 async function buildMoiPackage(): Promise<void> {
@@ -68,38 +60,35 @@ async function readRootPackage(): Promise<PackageJson> {
 }
 
 async function writeMoiBin(name: string, entry: string): Promise<void> {
-  const content = ['#!/usr/bin/env node', "'use strict'", `import '../dist/${entry}.mjs'`, ''].join(
-    '\n',
-  )
+  const content = ['#!/usr/bin/env node', `await import('../dist/${entry}.mjs')`, ''].join('\n')
 
   await writeFile(resolve(moiOutputDir, 'bin', `${name}.mjs`), content, { mode: 0o755 })
 }
 
 async function writeMoiPackageJson(rootPackage: PackageJson): Promise<void> {
+  const {
+    devDependencies: _devDependencies,
+    inlinedDependencies: _inlinedDependencies,
+    packageManager: _packageManager,
+    pnpm: _pnpm,
+    scripts: _scripts,
+    ...publishPackage
+  } = rootPackage
   const packageJson: PackageJson = {
-    ...rootPackage,
+    ...publishPackage,
     bin: {
       moi: './bin/moi.mjs',
       'moi-get-root': './bin/moi-get-root.mjs',
-      'moi-inner': './bin/moi-inner.mjs',
+      'moi-inner': './bin/moi-inner.mjs'
     },
     description: 'Alias package for @liangmi/mo using moi CLI names',
     files: ['dist', 'bin', 'config_schema.json', 'README.md', 'LICENSE'],
     name: '@liangmi/moi',
-    type: 'module',
-  }
-  for (const key of [
-    'devDependencies',
-    'inlinedDependencies',
-    'packageManager',
-    'pnpm',
-    'scripts',
-  ]) {
-    delete packageJson[key]
+    type: 'module'
   }
 
   await writeFile(
     resolve(moiOutputDir, 'package.json'),
-    `${JSON.stringify(packageJson, null, 2)}\n`,
+    `${JSON.stringify(packageJson, null, 2)}\n`
   )
 }

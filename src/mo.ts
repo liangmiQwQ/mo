@@ -1,30 +1,32 @@
 import { existsSync } from 'node:fs'
+
 import { cac } from 'cac'
+
 import { version } from '../package.json'
-import { getDefaultConfigPath, loadConfig } from './utils/config'
-import { runCloneCommand } from './commands/clone'
-import { runCompositionCommand } from './commands/composition'
-import type { CompositionOptions } from './commands/composition'
-import { runCdCommand } from './commands/cd'
-import { runEditCommand, runOpenCommand } from './commands/edit'
-import { runForkCommand } from './commands/fork'
-import type { ForkOptions } from './commands/fork'
-import { runInitCommand } from './commands/init'
-import type { InitOptions } from './commands/init'
-import { runListCommand } from './commands/list'
-import { promptRunSetupOnMissingConfig, runSetupCommand } from './commands/setup'
-import { error } from './utils/error'
-import { syncShellrc } from './utils/shellrc'
-import type { GlobalUserConfig } from './utils/config'
-import { checkRestartRequired, preventRunning, userBinName } from './utils/runner'
+import { runCdCommand } from './commands/cd.ts'
+import { runCloneCommand } from './commands/clone.ts'
+import { runCompositionCommand } from './commands/composition.ts'
+import type { CompositionOptions } from './commands/composition.ts'
+import { runEditCommand, runOpenCommand } from './commands/edit.ts'
+import { runForkCommand } from './commands/fork.ts'
+import type { ForkOptions } from './commands/fork.ts'
+import { runInitCommand } from './commands/init.ts'
+import type { InitOptions } from './commands/init.ts'
+import { runListCommand } from './commands/list.ts'
+import { promptRunSetupOnMissingConfig, runSetupCommand } from './commands/setup.ts'
+import { getDefaultConfigPath, loadConfig } from './utils/config.ts'
+import type { GlobalUserConfig } from './utils/config.ts'
+import { error as printError } from './utils/error.ts'
+import { checkRestartRequired, preventRunning, userBinName } from './utils/runner.ts'
+import { syncShellrc } from './utils/shellrc.ts'
 
 const cli = cac(userBinName)
 await preventRunning()
 checkRestartRequired()
 
-function withConfig<T extends any[]>(
-  handler: (config: GlobalUserConfig, ...args: T) => Promise<void> | void,
-) {
+function withConfig<T extends unknown[]>(
+  handler: (config: GlobalUserConfig, ...args: T) => Promise<void> | void
+): (...args: T) => Promise<void> {
   return async (...args: T): Promise<void> => {
     const configPath = getDefaultConfigPath()
 
@@ -49,7 +51,7 @@ cli
 cli
   .command(
     'composition <main-command> <sub-commands> <repo>',
-    'Run clone or fork, then run cd, edit, or open against the same repo',
+    'Run clone or fork, then run cd, edit, or open against the same repo'
   )
   .option('-o, --org <org>', 'GitHub org to fork into (fork main command only)')
   .option('-n, --name <name>', 'Name for the forked repository (fork main command only)')
@@ -60,9 +62,9 @@ cli
         mainCommand: string,
         subCommands: string,
         repo: string,
-        options?: CompositionOptions,
-      ) => runCompositionCommand(mainCommand, subCommands, repo, config, options ?? {}),
-    ),
+        options?: CompositionOptions
+      ) => runCompositionCommand(mainCommand, subCommands, repo, config, options ?? {})
+    )
   )
 
 cli
@@ -72,8 +74,8 @@ cli
   .option('-n, --name <name>', 'Name for the forked repository')
   .action(
     withConfig((config, repo?: string, options?: ForkOptions) =>
-      runForkCommand(repo, config, options ?? {}),
-    ),
+      runForkCommand(repo, config, options ?? {})
+    )
   )
 
 cli
@@ -99,8 +101,8 @@ cli
   .option('-e, --editor <editor>', 'Editor to use (overrides config)')
   .action(
     withConfig((config, target?: string, options?: { editor?: string }) =>
-      runEditCommand(target, config, options ?? {}),
-    ),
+      runEditCommand(target, config, options ?? {})
+    )
   )
 
 cli
@@ -118,16 +120,16 @@ try {
     cli.outputHelp()
     process.exit(cli.args.length > 0 ? 1 : 0)
   }
-} catch (err) {
-  const message = err instanceof Error ? err.message : String(err)
-  error(message.charAt(0).toUpperCase() + message.slice(1))
+} catch (caughtError) {
+  const message = caughtError instanceof Error ? caughtError.message : String(caughtError)
+  printError(message.charAt(0).toUpperCase() + message.slice(1))
 }
 
 async function syncShellrcForRun(config: GlobalUserConfig): Promise<void> {
   try {
     await syncShellrc(config.shells)
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    error(`Failed to sync shellrc: ${message}`)
+  } catch (caughtError) {
+    const message = caughtError instanceof Error ? caughtError.message : String(caughtError)
+    printError(`Failed to sync shellrc: ${message}`)
   }
 }

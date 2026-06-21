@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
 
-it('No tests for now', () => {
+it('no tests for now', () => {
   expect(1 + 1).toBe(2)
 })

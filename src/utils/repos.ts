@@ -1,14 +1,15 @@
 import { existsSync, readdirSync } from 'node:fs'
 import path from 'node:path'
+
 import { x } from 'tinyexec'
 
-export type RepoEntry = {
+export interface RepoEntry {
   owner: string
   name: string
   path: string
 }
 
-export type RepoGroup = {
+export interface RepoGroup {
   owner: string
   path: string
   repos: RepoEntry[]
@@ -17,9 +18,9 @@ export type RepoGroup = {
 function readDirectoryNames(dir: string): string[] {
   try {
     return readdirSync(dir, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory())
-      .map((entry) => entry.name)
-      .sort()
+      .filter(entry => entry.isDirectory())
+      .map(entry => entry.name)
+      .toSorted()
   } catch {
     return []
   }
@@ -33,7 +34,7 @@ async function hasGitHubRemote(dir: string): Promise<boolean> {
   try {
     const result = await x('git', ['remote', '-v'], {
       throwOnError: false,
-      nodeOptions: { cwd: dir },
+      nodeOptions: { cwd: dir }
     })
     return result.stdout.includes('github.com')
   } catch {
@@ -43,24 +44,20 @@ async function hasGitHubRemote(dir: string): Promise<boolean> {
 
 export async function scanRepos(root: string): Promise<RepoGroup[]> {
   const owners = readDirectoryNames(root)
-  const groups: RepoGroup[] = []
+  const groups = await Promise.all(owners.map(owner => scanOwner(root, owner)))
+  return groups.filter(group => group !== null)
+}
 
-  for (const owner of owners) {
-    const ownerPath = path.join(root, owner)
-    const potentialRepos = readDirectoryNames(ownerPath)
-    const repos: RepoEntry[] = []
-
-    for (const repo of potentialRepos) {
+async function scanOwner(root: string, owner: string): Promise<RepoGroup | null> {
+  const ownerPath = path.join(root, owner)
+  const repos = await Promise.all(
+    readDirectoryNames(ownerPath).map(async repo => {
       const repoPath = path.join(ownerPath, repo)
-      if (isGitRepo(repoPath) && (await hasGitHubRemote(repoPath))) {
-        repos.push({ owner, name: repo, path: repoPath })
-      }
-    }
-
-    if (repos.length) {
-      groups.push({ owner, path: ownerPath, repos })
-    }
-  }
-
-  return groups
+      return isGitRepo(repoPath) && (await hasGitHubRemote(repoPath))
+        ? { owner, name: repo, path: repoPath }
+        : null
+    })
+  )
+  const matchedRepos = repos.filter(repo => repo !== null)
+  return matchedRepos.length > 0 ? { owner, path: ownerPath, repos: matchedRepos } : null
 }

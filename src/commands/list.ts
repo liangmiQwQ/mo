@@ -1,12 +1,13 @@
 import pc from 'picocolors'
-import type { GlobalUserConfig } from '../utils/config'
-import { icons, toTildePath } from '../utils/format'
-import { scanRepos } from '../utils/repos'
+
+import type { GlobalUserConfig } from '../utils/config.ts'
+import { icons, toTildePath } from '../utils/format.ts'
+import { scanRepos } from '../utils/repos.ts'
 
 export async function runListCommand(config: GlobalUserConfig): Promise<void> {
   const groups = await scanRepos(config.root)
 
-  if (!groups.length) {
+  if (groups.length === 0) {
     printNoRepositoriesFound(config.root)
     return
   }
@@ -17,7 +18,7 @@ export async function runListCommand(config: GlobalUserConfig): Promise<void> {
 
   let totalRepos = 0
   for (const group of groups) {
-    const repos = group.repos.map((r) => r.name).sort()
+    const repos = group.repos.map(r => r.name).toSorted()
     totalRepos += repos.length
     console.log(`${pc.bold(group.owner)} ${pc.dim(`(${repos.length})`)}`)
 
@@ -30,7 +31,7 @@ export async function runListCommand(config: GlobalUserConfig): Promise<void> {
 
   const totalOwners = groups.length
   console.log(
-    `${pc.dim('Found')} ${pc.cyan(totalRepos.toString())} ${pc.dim(`repositor${totalRepos === 1 ? 'y' : 'ies'} in`)} ${pc.cyan(totalOwners.toString())} ${pc.dim(`organization${totalOwners === 1 ? '' : 's'}`)}`,
+    `${pc.dim('Found')} ${pc.cyan(totalRepos.toString())} ${pc.dim(`repositor${totalRepos === 1 ? 'y' : 'ies'} in`)} ${pc.cyan(totalOwners.toString())} ${pc.dim(`organization${totalOwners === 1 ? '' : 's'}`)}`
   )
 }
 

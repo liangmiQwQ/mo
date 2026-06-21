@@ -1,22 +1,29 @@
 import { existsSync } from 'node:fs'
 import { mkdir, stat, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import { fileURLToPath, pathToFileURL } from 'node:url'
-import untildify from 'untildify'
-import type { SupportedShell, GlobalUserConfig } from '../utils/config'
-import type { CommandAliasConfig } from '../utils/alias'
-import { aliasCommands, defaultAliases, getAliasPromptLabel, parseAliasInput } from '../utils/alias'
-import { getDefaultConfigPath, loadConfig, supportedShells } from '../utils/config'
-import { syncShellrc } from '../utils/shellrc'
-import { error } from '../utils/error'
+import { pathToFileURL } from 'node:url'
+
 import pc from 'picocolors'
-import { success, toTildePath } from '../utils/format'
-import { ensureToolReady, runCommand } from '../utils/commands'
-import { promptConfirm, promptMultiselect, promptText } from '../utils/prompt'
-import { getRestartFlagPath } from '../utils/runner'
+import untildify from 'untildify'
+
+import type { CommandAliasConfig } from '../utils/alias.ts'
+import {
+  aliasCommands,
+  defaultAliases,
+  getAliasPromptLabel,
+  parseAliasInput
+} from '../utils/alias.ts'
+import { ensureToolReady, runCommand } from '../utils/commands.ts'
+import type { SupportedShell, GlobalUserConfig } from '../utils/config.ts'
+import { getDefaultConfigPath, loadConfig, supportedShells } from '../utils/config.ts'
+import { error } from '../utils/error.ts'
+import { success, toTildePath } from '../utils/format.ts'
+import { promptConfirm, promptMultiselect, promptText } from '../utils/prompt.ts'
+import { getRestartFlagPath } from '../utils/runner.ts'
+import { syncShellrc } from '../utils/shellrc.ts'
 
 const ALIAS_NAME_PATTERN = '[A-Za-z_][A-Za-z0-9_-]*'
-const currentDir = path.dirname(fileURLToPath(import.meta.url))
+const currentDir = import.meta.dirname
 
 export async function runSetupCommand(): Promise<void> {
   const configPath = getDefaultConfigPath()
@@ -26,7 +33,7 @@ export async function runSetupCommand(): Promise<void> {
     const confirmed = await promptConfirm(
       `Config already exists at ${toTildePath(configPath)}. Would you like to reconfigure?`,
       'reconfigure',
-      { default: false },
+      { default: false }
     )
     if (!confirmed) {
       return
@@ -34,7 +41,7 @@ export async function runSetupCommand(): Promise<void> {
     try {
       existingConfig = loadConfig()
     } catch {
-      // proceed without defaults if config is invalid
+      // Proceed without defaults if config is invalid
     }
   }
 
@@ -44,7 +51,7 @@ export async function runSetupCommand(): Promise<void> {
   const rootInput = await promptText(
     'What directory would you like to store all your projects?',
     'root',
-    { initial: existingConfig ? toTildePath(existingConfig.root) : undefined },
+    { initial: existingConfig ? toTildePath(existingConfig.root) : undefined }
   )
   const rootPath = await resolveAndValidateRootPath(rootInput)
 
@@ -56,7 +63,7 @@ export async function runSetupCommand(): Promise<void> {
   const editorInput = await promptText(
     'What editor would you like to use? (optional, e.g. code, vim)',
     'editor',
-    { initial: existingConfig?.editor ?? '' },
+    { initial: existingConfig?.editor ?? '' }
   )
   const editor = editorInput.trim() || undefined
 
@@ -76,7 +83,7 @@ async function createRestartFlag(): Promise<void> {
 export async function promptRunSetupOnMissingConfig(runSetup: () => Promise<void>): Promise<void> {
   const confirmed = await promptConfirm(
     'No config found, would you like to run `mo setup` first?',
-    'runSetup',
+    'runSetup'
   )
 
   if (confirmed) {
@@ -94,7 +101,7 @@ async function ensureGhAuthenticated(): Promise<void> {
       return
     }
   } catch {
-    // fall through to standardized error
+    // Fall through to standardized error
   }
 
   error('GitHub CLI `gh` is missing or not authenticated.', 69)
@@ -108,7 +115,7 @@ async function resolveAndValidateRootPath(input: string): Promise<string> {
 
   const rootPath = path.resolve(untildify(trimmed))
 
-  let isDirectory = false
+  let isDirectory: boolean
   try {
     await mkdir(rootPath, { recursive: true })
     const info = await stat(rootPath)
@@ -131,15 +138,15 @@ async function promptShellSelection(initial?: SupportedShell[]): Promise<Support
     [
       { title: 'zsh (~/.zshrc)', value: 'zsh' },
       { title: 'fish (~/.config/fish/config.fish)', value: 'fish' },
-      { title: 'bash (~/.bashrc)', value: 'bash' },
+      { title: 'bash (~/.bashrc)', value: 'bash' }
     ],
-    initial,
+    initial
   )
 
   const selected = [
-    ...new Set(value.filter((shell): shell is SupportedShell => isSupportedShell(shell))),
+    ...new Set(value.filter((shell): shell is SupportedShell => isSupportedShell(shell)))
   ]
-  if (!selected.length) {
+  if (selected.length === 0) {
     error('At least one shell must be selected.', 78)
   }
 
@@ -148,6 +155,7 @@ async function promptShellSelection(initial?: SupportedShell[]): Promise<Support
 
 async function ensureShellCommandsAvailable(shells: SupportedShell[]): Promise<void> {
   for (const shell of shells) {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- Report unavailable shells in selection order.
     await ensureToolReady(shell)
   }
 }
@@ -158,7 +166,7 @@ async function writeConfigFile(
   shells: SupportedShell[],
   alias?: CommandAliasConfig,
   compositionAlias?: boolean,
-  editor?: string,
+  editor?: string
 ): Promise<void> {
   const content = `${JSON.stringify(
     {
@@ -167,10 +175,10 @@ async function writeConfigFile(
       ...(editor ? { editor } : {}),
       shells,
       ...(alias ? { alias } : {}),
-      ...(compositionAlias ? { compositionAlias } : {}),
+      ...(compositionAlias ? { compositionAlias } : {})
     },
     null,
-    2,
+    2
   )}\n`
   await mkdir(path.dirname(configPath), { recursive: true })
   await writeFile(configPath, content, 'utf8')
@@ -181,10 +189,10 @@ function resolveConfigSchemaUrl(): string {
 }
 
 async function promptAliasConfig(
-  initial?: CommandAliasConfig,
+  initial?: CommandAliasConfig
 ): Promise<CommandAliasConfig | undefined> {
   const withAlias = await promptConfirm('Would you like to add command aliases?', 'withAlias', {
-    default: initial != null ? Object.keys(initial).length > 0 : true,
+    default: initial === undefined ? true : Object.keys(initial).length > 0
   })
   if (!withAlias) {
     return undefined
@@ -192,6 +200,7 @@ async function promptAliasConfig(
 
   const aliases: CommandAliasConfig = {}
   for (const command of aliasCommands) {
+    // oxlint-disable-next-line eslint/no-await-in-loop -- Interactive prompts must run sequentially.
     const parsed = await promptCommandAlias(command, initial?.[command])
     if (parsed.length > 0) {
       aliases[command] = parsed
@@ -203,31 +212,31 @@ async function promptAliasConfig(
 
 async function promptCompositionAlias(
   initial: boolean | undefined,
-  aliases: CommandAliasConfig | undefined,
+  aliases: CommandAliasConfig | undefined
 ): Promise<boolean> {
   return promptConfirm('Would you like to add composition aliases like `ki`?', 'compositionAlias', {
-    default: initial ?? aliases != null,
+    default: initial ?? aliases !== undefined
   })
 }
 
 async function promptCommandAlias(
   command: (typeof aliasCommands)[number],
-  existing?: string[],
+  existing?: string[]
 ): Promise<string[]> {
-  const suggested = existing != null ? existing.join(', ') : defaultAliases[command]
+  const suggested = existing === undefined ? defaultAliases[command] : existing.join(', ')
   const commandLabel = getAliasPromptLabel(command)
   const input = await promptText(`Aliases for "${commandLabel}" (optional)`, `alias_${command}`, {
     initial: suggested,
-    validate: (value) => {
+    validate: value => {
       try {
         parseAliasInput(value)
         return true
       } catch {
         return `Alias must match ${ALIAS_NAME_PATTERN}. Use commas for multiple aliases.`
       }
-    },
+    }
   })
-  return parseAliasInput(input, (aliasName) => {
+  return parseAliasInput(input, aliasName => {
     error(`Invalid alias "${aliasName}". Alias must match ${ALIAS_NAME_PATTERN}.`, 78)
   })
 }

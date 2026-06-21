@@ -1,10 +1,11 @@
-import pc from 'picocolors'
 import os from 'node:os'
+
+import pc from 'picocolors'
 
 export function toTildePath(fullPath: string): string {
   const home = os.homedir()
   if (fullPath.startsWith(home)) {
-    return '~' + fullPath.slice(home.length)
+    return `~${fullPath.slice(home.length)}`
   }
   return fullPath
 }
@@ -12,7 +13,7 @@ export function toTildePath(fullPath: string): string {
 export const icons = {
   success: pc.green('✓'),
   error: pc.red('✗'),
-  warning: pc.yellow('⚠'),
+  warning: pc.yellow('⚠')
 }
 
 const spinnerFrames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
@@ -35,7 +36,7 @@ export function startSpinner(message: string): Spinner {
 
 export function stopSpinner(spinner: Spinner): void {
   clearInterval(spinner.interval)
-  process.stdout.write('\r' + ' '.repeat(spinner.message.length + 2) + '\r')
+  process.stdout.write(`\r${' '.repeat(spinner.message.length + 2)}\r`)
 }
 
 export function success(message: string): void {

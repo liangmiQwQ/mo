@@ -1,13 +1,14 @@
 import { existsSync } from 'node:fs'
-import { ensureToolReady } from './commands'
-import { error } from './error'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
+
+import { ensureToolReady } from './commands.ts'
+import { error } from './error.ts'
 
 export const userBinName = resolveUserBinName()
 export const innerBinName = `${userBinName}-inner`
 
-export async function preventRunning() {
+export async function preventRunning(): Promise<void> {
   if (process.platform === 'win32') {
     error('Windows is not supported. mo currently supports macOS and Linux only.', 69)
   }
@@ -17,18 +18,18 @@ export async function preventRunning() {
     const hasUser = await ensureToolReady(userBinName, false)
 
     if (!hasInner || !hasUser) {
-      throw new Error() // Trigger catch block
+      throw new Error('Required global commands are unavailable.')
     }
   } catch {
     error('Local installation is not supported. Please install mo globally.', 78)
   }
 }
 
-export function getRestartFlagPath() {
+export function getRestartFlagPath(): string {
   return path.join(tmpdir(), `${userBinName}-restart-flag`)
 }
 
-export function getCdTargetPath() {
+export function getCdTargetPath(): string {
   return path.join(tmpdir(), `${userBinName}-cd-target`)
 }
 
@@ -41,12 +42,12 @@ export function checkRestartRequired(): void {
 
 function resolveUserBinName(): string {
   const fallback = 'mo'
-  const binPath = process.argv[1]
+  const [, binPath] = process.argv
   if (!binPath) {
     return fallback
   }
 
-  const binName = path.basename(binPath).replace(/\.mjs$/, '')
+  const binName = path.basename(binPath).replace(/\.mjs$/u, '')
   if (binName.endsWith('-inner')) {
     return binName.slice(0, -'-inner'.length) || fallback
   }

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { getDefaultConfigPath, resolveRootPath } from './utils/root'
+import { getDefaultConfigPath, resolveRootPath } from './utils/root.ts'
 
 const configPath = getDefaultConfigPath()
 const rootPath = resolveRootPath(configPath)
@@ -9,14 +9,14 @@ console.log(
     rootPath
       ? {
           configPath,
-          rootPath,
+          rootPath
         }
       : {
           configPath,
           rootPath: null,
-          error: 'morc.json was not found or does not contain a string root field',
+          error: 'morc.json was not found or does not contain a string root field'
         },
     null,
-    2,
-  ),
+    2
+  )
 )
