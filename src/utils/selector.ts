@@ -4,7 +4,7 @@ import path from 'node:path'
 import { createApp } from '@vue-tui/runtime'
 import pc from 'picocolors'
 
-import Selector from '../components/Selector.vue'
+import Selector from '../components/selector.vue'
 import { startSpinner, stopSpinner, icons, toTildePath } from './format.ts'
 import { scanRepos } from './repos.ts'
 import type { RepoGroup } from './repos.ts'

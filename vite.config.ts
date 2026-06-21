@@ -17,8 +17,7 @@ export default cli({
   lint: {
     rules: {
       'eslint/id-length': 'off',
-      'promise/avoid-new': 'off',
-      'unicorn/filename-case': 'off'
+      'promise/avoid-new': 'off'
     }
   },
   pack: {
@@ -74,16 +73,8 @@ async function writeMoiBin(name: string, entry: string): Promise<void> {
 }
 
 async function writeMoiPackageJson(rootPackage: PackageJson): Promise<void> {
-  const {
-    devDependencies: _devDependencies,
-    inlinedDependencies: _inlinedDependencies,
-    packageManager: _packageManager,
-    pnpm: _pnpm,
-    scripts: _scripts,
-    ...publishPackage
-  } = rootPackage
   const packageJson: PackageJson = {
-    ...publishPackage,
+    ...rootPackage,
     bin: {
       moi: './bin/moi.mjs',
       'moi-get-root': './bin/moi-get-root.mjs',
