@@ -34,6 +34,14 @@ export default cli({
     hooks: {
       'build:done': buildMoiPackage
     }
+  },
+  run: {
+    tasks: {
+      cpack: {
+        command: 'vp pack',
+        input: ['!dist-moi/**']
+      }
+    }
   }
 })
 
