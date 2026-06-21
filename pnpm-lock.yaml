@@ -16,6 +16,70 @@ importers:
         version: 2.4.2
     devDependencies:
       '@liangmi/vp-config':
+        specifier: ^0.1.1
+        version: 0.1.1(@oxlint/plugins@1.61.0)(vite-plus@0.2.1(@types/node@25.9.3)(jiti@2.7.0)(typescript@6.0.3)(vite@8.0.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@25.9.3)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0))
+      '@oxlint/plugins':
+        specifier: 1.61.0
+        version: 1.61.0
+      '@types/node':
+        specifier: ^25.9.3
+        version: 25.9.3
+      '@types/prompts':
+        specifier: ^2.4.9
+        version: 2.4.9
+      '@types/which':
+        specifier: ^3.0.4
+        version: 3.0.4
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260611.2
+        version: 7.0.0-dev.20260611.2
+      '@vitejs/plugin-vue':
+        specifier: ^6.0.7
+        version: 6.0.7(vite@8.0.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@25.9.3)(jiti@2.7.0)(yaml@2.9.0))(vue@3.5.38(typescript@6.0.3))
+      '@vue-tui/runtime':
+        specifier: ^0.0.3
+        version: 0.0.3(vue@3.5.38(typescript@6.0.3))
+      bumpp:
+        specifier: ^11.1.0
+        version: 11.1.0
+      cac:
+        specifier: ^7.0.0
+        version: 7.0.0
+      picocolors:
+        specifier: ^1.1.1
+        version: 1.1.1
+      tinyexec:
+        specifier: ^1.2.4
+        version: 1.2.4
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      untildify:
+        specifier: ^6.0.0
+        version: 6.0.0
+      vite-plus:
+        specifier: ^0.2.1
+        version: 0.2.1(@types/node@25.9.3)(jiti@2.7.0)(typescript@6.0.3)(vite@8.0.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@25.9.3)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0)
+      vitest:
+        specifier: ^4.1.9
+        version: 4.1.9(@types/node@25.9.3)(@vitest/browser-preview@4.1.9)(vite@8.0.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@25.9.3)(jiti@2.7.0)(yaml@2.9.0))
+      vue:
+        specifier: ^3.5.38
+        version: 3.5.38(typescript@6.0.3)
+      which:
+        specifier: ^7.0.0
+        version: 7.0.0
+
+  dist-moi:
+    dependencies:
+      jsonc-parser:
+        specifier: ^3.3.1
+        version: 3.3.1
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@liangmi/vp-config':
         specifier: ^0.1.0
         version: 0.1.0(@oxlint/plugins@1.61.0)(vite-plus@0.2.1(@types/node@25.9.3)(jiti@2.7.0)(typescript@6.0.3)(vite@8.0.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@25.9.3)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0))
       '@oxlint/plugins':
@@ -118,6 +182,12 @@ packages:
 
   '@liangmi/vp-config@0.1.0':
     resolution: {integrity: sha512-ehlqSRd53HUEmdomq5Wl+O3pc141fYXFBFi420LNwGH4JENkfp1bIFP+5ykM4qGqPg3tB6wOzCt/SRf3qb9kvg==}
+    peerDependencies:
+      '@oxlint/plugins': 1.61.0
+      vite-plus: '>=0.2.0'
+
+  '@liangmi/vp-config@0.1.1':
+    resolution: {integrity: sha512-OUhduQUivL+USjdLlvGEz8167Stpl2cJ33ez6lYat0GdiPTD918nI7VCVLvs9leOhImlp60cMdyTwl0B57ql8A==}
     peerDependencies:
       '@oxlint/plugins': 1.61.0
       vite-plus: '>=0.2.0'
@@ -1409,6 +1479,11 @@ snapshots:
   '@jridgewell/sourcemap-codec@1.5.5': {}
 
   '@liangmi/vp-config@0.1.0(@oxlint/plugins@1.61.0)(vite-plus@0.2.1(@types/node@25.9.3)(jiti@2.7.0)(typescript@6.0.3)(vite@8.0.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@25.9.3)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0))':
+    dependencies:
+      '@oxlint/plugins': 1.61.0
+      vite-plus: 0.2.1(@types/node@25.9.3)(jiti@2.7.0)(typescript@6.0.3)(vite@8.0.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@25.9.3)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0)
+
+  '@liangmi/vp-config@0.1.1(@oxlint/plugins@1.61.0)(vite-plus@0.2.1(@types/node@25.9.3)(jiti@2.7.0)(typescript@6.0.3)(vite@8.0.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@25.9.3)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0))':
     dependencies:
       '@oxlint/plugins': 1.61.0
       vite-plus: 0.2.1(@types/node@25.9.3)(jiti@2.7.0)(typescript@6.0.3)(vite@8.0.1(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@25.9.3)(jiti@2.7.0)(yaml@2.9.0))(yaml@2.9.0)

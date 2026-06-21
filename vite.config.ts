@@ -14,22 +14,13 @@ const repoRoot = resolve(import.meta.dirname)
 const moiOutputDir = resolve(repoRoot, 'dist-moi')
 
 export default cli({
-  lint: {
-    rules: {
-      'eslint/id-length': 'off',
-      'promise/avoid-new': 'off'
-    }
-  },
   pack: {
     plugins: [vue()],
-    fixedExtension: true,
     entry: {
       mo: 'src/mo.ts',
       'mo-get-root': 'src/mo-get-root.ts',
       'mo-inner': 'src/mo-inner.ts'
     },
-    dts: false,
-    exports: false,
     hooks: {
       'build:done': buildMoiPackage
     }
