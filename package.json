@@ -31,8 +31,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "vp pack",
-    "check": "vp check",
+    "build": "vpr cpack",
+    "check": "vpr ccheck",
     "dev:mo": "node scripts/install.ts mo",
     "dev:moi": "node scripts/install.ts moi",
     "dev:moiuni": "node scripts/uninstall.ts moi",
@@ -41,7 +41,7 @@
     "prepublishOnly": "vp run build",
     "preview": "node bin/cli.mjs",
     "release": "bumpp",
-    "test": "vp test run"
+    "test": "vpr ctest run"
   },
   "dependencies": {
     "jsonc-parser": "^3.3.1",
