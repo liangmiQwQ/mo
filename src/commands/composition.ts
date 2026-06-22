@@ -1,10 +1,11 @@
-import type { GlobalUserConfig } from '../utils/config'
-import { error } from '../utils/error'
-import { parseGitHubRepo } from '../utils/github'
-import { runCdCommand } from './cd'
-import { runCloneCommand } from './clone'
-import { runEditCommand, runOpenCommand } from './edit'
-import { runForkCommand, type ForkOptions } from './fork'
+import type { GlobalUserConfig } from '../utils/config.ts'
+import { error } from '../utils/error.ts'
+import { parseGitHubRepo } from '../utils/github.ts'
+import { runCdCommand } from './cd.ts'
+import { runCloneCommand } from './clone.ts'
+import { runEditCommand, runOpenCommand } from './edit.ts'
+import { runForkCommand } from './fork.ts'
+import type { ForkOptions } from './fork.ts'
 
 const mainCommands = ['clone', 'fork'] as const
 type CompositionMainCommand = (typeof mainCommands)[number]
@@ -19,7 +20,7 @@ export async function runCompositionCommand(
   subCommandInput: string,
   repo: string,
   config: GlobalUserConfig,
-  options: CompositionOptions,
+  options: CompositionOptions
 ): Promise<void> {
   const parsedMainCommand = parseMainCommand(mainCommand)
   const parsedSubCommands = parseSubCommands(subCommandInput)
@@ -35,7 +36,7 @@ export async function runCompositionCommand(
     await runForkCommand(repo, config, options)
   }
 
-  for (const subCommand of parsedSubCommands.filter((command) => command !== 'cd')) {
+  for (const subCommand of parsedSubCommands.filter(command => command !== 'cd')) {
     await runCompositionSubCommand(subCommand, target, config)
   }
 
@@ -49,32 +50,36 @@ function parseMainCommand(command: string): CompositionMainCommand {
     return command as CompositionMainCommand
   }
 
-  error(`Invalid composition main command "${command}". Supported: ${mainCommands.join(', ')}`)
+  return error(
+    `Invalid composition main command "${command}". Supported: ${mainCommands.join(', ')}`
+  )
 }
 
 function parseSubCommands(input: string): CompositionSubCommand[] {
   const commands = input
     .split(',')
-    .map((command) => command.trim())
+    .map(command => command.trim())
     .filter(Boolean)
 
-  if (!commands.length) {
+  if (commands.length === 0) {
     error('Composition requires at least one sub command.')
   }
 
-  return commands.map((command) => {
+  return commands.map(command => {
     if (subCommands.includes(command as CompositionSubCommand)) {
       return command as CompositionSubCommand
     }
 
-    error(`Invalid composition sub command "${command}". Supported: ${subCommands.join(', ')}`)
+    return error(
+      `Invalid composition sub command "${command}". Supported: ${subCommands.join(', ')}`
+    )
   })
 }
 
 async function runCompositionSubCommand(
   command: CompositionSubCommand,
   target: string,
-  config: GlobalUserConfig,
+  config: GlobalUserConfig
 ): Promise<void> {
   if (command === 'cd') {
     await runCdCommand(target, config)

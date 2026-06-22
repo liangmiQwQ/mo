@@ -1,16 +1,19 @@
-import { createApp } from '@vue-tui/runtime'
 import { existsSync, statSync } from 'node:fs'
 import path from 'node:path'
-import Selector from '../components/Selector.vue'
-import { scanRepos, type RepoGroup } from './repos'
-import { searchOwnerGroupsByName, searchReposByName } from './search'
+
+import { createApp } from '@vue-tui/runtime'
 import pc from 'picocolors'
-import { startSpinner, stopSpinner, icons, toTildePath } from './format'
+
+import Selector from '../components/selector.vue'
+import { startSpinner, stopSpinner, icons, toTildePath } from './format.ts'
+import { scanRepos } from './repos.ts'
+import type { RepoGroup } from './repos.ts'
+import { searchOwnerGroupsByName, searchReposByName } from './search.ts'
 
 export async function withPathSelector<T>(
   root: string,
   target: string | undefined,
-  action: (targetPath: string) => T | Promise<T>,
+  action: (targetPath: string) => T | Promise<T>
 ): Promise<T> {
   const resolvedTarget = target?.trim()
 
@@ -25,7 +28,7 @@ export async function withPathSelector<T>(
     const resolved = resolveTarget(root, resolvedTarget, groups)
     if (!resolved) {
       console.error(
-        `${icons.error} ${pc.red(`No matching directory found for '${resolvedTarget}'`)}`,
+        `${icons.error} ${pc.red(`No matching directory found for '${resolvedTarget}'`)}`
       )
       throw new Error(`No match: ${resolvedTarget}`)
     }
@@ -52,7 +55,7 @@ export async function withPathSelector<T>(
           app.unmount()
           reject(new Error('Canceled.'))
         }, 50)
-      },
+      }
     })
 
     app.mount({ exitOnCtrlC: false })
@@ -60,7 +63,9 @@ export async function withPathSelector<T>(
 }
 
 function resolveTarget(root: string, target: string, groups: RepoGroup[]): string | null {
-  if (target === '.') return root
+  if (target === '.') {
+    return root
+  }
 
   // Try as explicit owner/repo path relative to root
   const segments = target.split('/').filter(Boolean)
@@ -74,10 +79,14 @@ function resolveTarget(root: string, target: string, groups: RepoGroup[]): strin
   // Search by best match score: repos first, then owners.
   // This ensures a repo named "foo" is preferred over an owner directory named "foo".
   const repoMatches = searchReposByName(target, groups)
-  if (repoMatches.length) return repoMatches[0].repo.path
+  if (repoMatches.length > 0) {
+    return repoMatches[0].repo.path
+  }
 
   const ownerMatches = searchOwnerGroupsByName(target, groups)
-  if (ownerMatches.length) return ownerMatches[0].path
+  if (ownerMatches.length > 0) {
+    return ownerMatches[0].path
+  }
 
   return null
 }

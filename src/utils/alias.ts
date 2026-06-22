@@ -1,4 +1,4 @@
-import { userBinName } from './runner'
+import { userBinName } from './runner.ts'
 
 export const aliasCommands = ['clone', 'list', 'cd', 'edit', 'open', 'fork', 'init'] as const
 export type AliasCommand = (typeof aliasCommands)[number]
@@ -13,7 +13,7 @@ export const defaultAliases: Record<AliasCommand, string> = {
   edit: 'e',
   open: 'o',
   fork: 'fr',
-  init: 'in',
+  init: 'in'
 }
 
 const aliasNameRegex = /^[A-Za-z_][A-Za-z0-9_-]*$/
@@ -47,7 +47,7 @@ export function parseAliasInput(input: string, onInvalid?: (aliasName: string) =
 export function buildAliasLines(
   aliases: CommandAliasConfig,
   compositionAlias: boolean,
-  toAliasLine: (name: string, target: string) => string,
+  toAliasLine: (name: string, target: string) => string
 ): string[] {
   const lines: string[] = []
   const used = new Set<string>()
@@ -99,7 +99,7 @@ function getAliasTarget(command: AliasCommand): string {
 function buildCompositionAliasLines(
   aliases: CommandAliasConfig,
   used: Set<string>,
-  toAliasLine: (name: string, target: string) => string,
+  toAliasLine: (name: string, target: string) => string
 ): string[] {
   const lines: string[] = []
   const subCommandGroups = getSubCommandAliasGroups(aliases)
@@ -112,7 +112,7 @@ function buildCompositionAliasLines(
 
     for (const mainAlias of mainAliases) {
       for (const sequence of getSubCommandSequences(subCommandGroups)) {
-        const aliasNames = sequence.map((item) => item.alias)
+        const aliasNames = sequence.map(item => item.alias)
         const aliasName = `${mainAlias}${aliasNames.join('')}`
 
         if (!isValidAliasName(aliasName) || used.has(aliasName)) {
@@ -120,7 +120,7 @@ function buildCompositionAliasLines(
         }
 
         used.add(aliasName)
-        const commands = sequence.map((item) => item.command).join(',')
+        const commands = sequence.map(item => item.command).join(',')
         lines.push(toAliasLine(aliasName, `${userBinName} composition ${mainCommand} ${commands}`))
       }
     }
@@ -130,15 +130,15 @@ function buildCompositionAliasLines(
 }
 
 function getSubCommandAliasGroups(
-  aliases: CommandAliasConfig,
+  aliases: CommandAliasConfig
 ): { command: 'cd' | 'edit' | 'open'; aliases: string[] }[] {
   return (['cd', 'edit', 'open'] as const)
-    .map((command) => ({ command, aliases: aliases[command] ?? [] }))
-    .filter((item) => item.aliases.length > 0)
+    .map(command => ({ command, aliases: aliases[command] ?? [] }))
+    .filter(item => item.aliases.length > 0)
 }
 
 function getSubCommandSequences(
-  groups: { command: 'cd' | 'edit' | 'open'; aliases: string[] }[],
+  groups: { command: 'cd' | 'edit' | 'open'; aliases: string[] }[]
 ): { command: 'cd' | 'edit' | 'open'; alias: string }[][] {
   const sequences: { command: 'cd' | 'edit' | 'open'; alias: string }[][] = []
 
@@ -153,14 +153,14 @@ function appendSubCommandSequences(
   groups: { command: 'cd' | 'edit' | 'open'; aliases: string[] }[],
   length: number,
   current: { command: 'cd' | 'edit' | 'open'; alias: string }[],
-  sequences: { command: 'cd' | 'edit' | 'open'; alias: string }[][],
+  sequences: { command: 'cd' | 'edit' | 'open'; alias: string }[][]
 ): void {
   if (current.length === length) {
     sequences.push(current)
     return
   }
 
-  const usedCommands = new Set(current.map((item) => item.command))
+  const usedCommands = new Set(current.map(item => item.command))
   for (const group of groups) {
     if (usedCommands.has(group.command)) {
       continue
@@ -171,7 +171,7 @@ function appendSubCommandSequences(
         groups,
         length,
         [...current, { command: group.command, alias }],
-        sequences,
+        sequences
       )
     }
   }

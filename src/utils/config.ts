@@ -1,16 +1,16 @@
 import { existsSync, readFileSync, statSync } from 'node:fs'
 
-import type { CommandAliasConfig } from './alias'
-import { aliasCommands, isAliasCommand, isLegacyAliasCommand, isValidAliasName } from './alias'
+import type { CommandAliasConfig } from './alias.ts'
+import { aliasCommands, isAliasCommand, isLegacyAliasCommand, isValidAliasName } from './alias.ts'
+import { error } from './error.ts'
+import { getDefaultConfigPath, parseJsonc, resolveRootFromConfig } from './root.ts'
 
-import { error } from './error'
-import { getDefaultConfigPath, parseJsonc, resolveRootFromConfig } from './root'
-export { getDefaultConfigPath, resolveRootPath } from './root'
+export { getDefaultConfigPath, resolveRootPath } from './root.ts'
 
 export const supportedShells = ['zsh', 'bash', 'fish'] as const
 export type SupportedShell = (typeof supportedShells)[number]
 
-export type GlobalUserConfig = {
+export interface GlobalUserConfig {
   root: string
   // For the future use
   editor?: string
@@ -53,7 +53,7 @@ function parseConfig(jsonc: string, configFilePath: string): GlobalUserConfig {
   const rootPath =
     resolveRootFromConfig(configRecord, configFilePath) ??
     invalidConfigError('"root" must be a non-empty string')
-  const editor = configRecord.editor
+  const { editor } = configRecord
 
   if (!existsSync(rootPath)) {
     invalidConfigError(`"root" directory does not exist`)
@@ -68,15 +68,15 @@ function parseConfig(jsonc: string, configFilePath: string): GlobalUserConfig {
     ...(typeof editor === 'string' && editor ? { editor } : {}),
     shells,
     ...(alias ? { alias } : {}),
-    compositionAlias,
+    compositionAlias
   }
 }
 
 function parseCompositionAlias(
   value: unknown,
-  invalidConfigError: (message: string) => never,
+  invalidConfigError: (message: string) => never
 ): boolean {
-  if (value == null) {
+  if (value === null || value === undefined) {
     return false
   }
 
@@ -89,9 +89,9 @@ function parseCompositionAlias(
 
 function parseShells(
   value: unknown,
-  invalidConfigError: (message: string) => never,
+  invalidConfigError: (message: string) => never
 ): SupportedShell[] {
-  if (value == null) {
+  if (value === null || value === undefined) {
     invalidConfigError('"shells" must be provided with at least one shell')
   }
 
@@ -113,14 +113,14 @@ function parseShells(
 
     if (!supportedShells.includes(normalizedShell as SupportedShell)) {
       invalidConfigError(
-        `"shells" contains unsupported shell "${shell}". Supported: ${supportedShells.join(', ')}`,
+        `"shells" contains unsupported shell "${shell}". Supported: ${supportedShells.join(', ')}`
       )
     }
 
     normalized.add(normalizedShell as SupportedShell)
   }
 
-  if (!normalized.size) {
+  if (normalized.size === 0) {
     invalidConfigError('"shells" must contain at least one shell')
   }
 
@@ -129,9 +129,9 @@ function parseShells(
 
 function parseAliasConfig(
   value: unknown,
-  invalidConfigError: (message: string) => never,
+  invalidConfigError: (message: string) => never
 ): CommandAliasConfig | undefined {
-  if (value == null) {
+  if (value === null || value === undefined) {
     return undefined
   }
 
@@ -145,7 +145,7 @@ function parseAliasConfig(
   for (const [command, aliases] of Object.entries(alias)) {
     if (!isLegacyAliasCommand(command)) {
       invalidConfigError(
-        `"alias" contains unsupported command "${command}". Supported: ${aliasCommands.join(', ')}`,
+        `"alias" contains unsupported command "${command}". Supported: ${aliasCommands.join(', ')}`
       )
     }
 
@@ -153,7 +153,7 @@ function parseAliasConfig(
       invalidConfigError(`"alias.${command}" must be an array`)
     }
 
-    const aliasValues = aliases.map((aliasName) => {
+    const aliasValues = aliases.map(aliasName => {
       if (typeof aliasName !== 'string') {
         invalidConfigError(`"alias.${command}" must contain strings only`)
       }
@@ -177,7 +177,7 @@ function parseAliasConfig(
 function normalizeAliasValues(
   aliases: string[],
   command: string,
-  invalidConfigError: (message: string) => never,
+  invalidConfigError: (message: string) => never
 ): string[] {
   const normalized = new Set<string>()
 
@@ -188,7 +188,7 @@ function normalizeAliasValues(
 
     if (!isValidAliasName(aliasName)) {
       invalidConfigError(
-        `"alias.${command}" contains invalid alias "${aliasName}". Alias must match [A-Za-z_][A-Za-z0-9_-]*`,
+        `"alias.${command}" contains invalid alias "${aliasName}". Alias must match [A-Za-z_][A-Za-z0-9_-]*`
       )
     }
 

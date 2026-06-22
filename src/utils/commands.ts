@@ -1,6 +1,7 @@
 import { x } from 'tinyexec'
 import which from 'which'
-import { error } from './error'
+
+import { error } from './error.ts'
 
 export const runCommand = async (command: string, args: string[]) => {
   const result = await x(command, args, { throwOnError: false })
@@ -14,7 +15,7 @@ export const ensureToolReady = async (command: string, panic = true): Promise<bo
       return true
     }
   } catch {
-    // fall through to standardized error
+    // Fall through to standardized error
   }
 
   if (panic) {

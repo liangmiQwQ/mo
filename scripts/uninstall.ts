@@ -1,25 +1,26 @@
-import { readFile, rm } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
+import { readFile, rm } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { resolve } from 'node:path'
+
 import pc from 'picocolors'
 
 const managedMarker = 'mo-dev-wrapper:managed'
 const binDir = resolve(homedir(), '.local/bin')
 const wrapperGroups = {
   mo: ['mo', 'mo-get-root', 'mo-inner'],
-  moi: ['moi', 'moi-get-root', 'moi-inner'],
+  moi: ['moi', 'moi-get-root', 'moi-inner']
 } as const
 const wrapperNames = wrapperGroups[parseGroupName()]
 
 function parseGroupName(): keyof typeof wrapperGroups {
-  const input = process.argv[2]
+  const input = process.argv.at(2)
   if (input === 'mo' || input === 'moi') {
     return input
   }
 
   console.error(pc.red('Usage: node scripts/uninstall.ts <mo|moi>'))
-  process.exit(1)
+  return process.exit(1)
 }
 
 async function removeIfManaged(name: string): Promise<void> {

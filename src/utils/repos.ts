@@ -1,14 +1,15 @@
 import { existsSync, readdirSync } from 'node:fs'
 import path from 'node:path'
+
 import { x } from 'tinyexec'
 
-export type RepoEntry = {
+export interface RepoEntry {
   owner: string
   name: string
   path: string
 }
 
-export type RepoGroup = {
+export interface RepoGroup {
   owner: string
   path: string
   repos: RepoEntry[]
@@ -17,9 +18,9 @@ export type RepoGroup = {
 function readDirectoryNames(dir: string): string[] {
   try {
     return readdirSync(dir, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory())
-      .map((entry) => entry.name)
-      .sort()
+      .filter(entry => entry.isDirectory())
+      .map(entry => entry.name)
+      .toSorted()
   } catch {
     return []
   }
@@ -33,7 +34,7 @@ async function hasGitHubRemote(dir: string): Promise<boolean> {
   try {
     const result = await x('git', ['remote', '-v'], {
       throwOnError: false,
-      nodeOptions: { cwd: dir },
+      nodeOptions: { cwd: dir }
     })
     return result.stdout.includes('github.com')
   } catch {
@@ -57,7 +58,7 @@ export async function scanRepos(root: string): Promise<RepoGroup[]> {
       }
     }
 
-    if (repos.length) {
+    if (repos.length > 0) {
       groups.push({ owner, path: ownerPath, repos })
     }
   }

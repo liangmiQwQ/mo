@@ -31,23 +31,25 @@
     "access": "public"
   },
   "scripts": {
-    "build": "vp pack",
+    "build": "vpr cpack",
+    "check": "vpr ccheck",
     "dev:mo": "node scripts/install.ts mo",
     "dev:moi": "node scripts/install.ts moi",
-    "dev:mouni": "node scripts/uninstall.ts mo",
     "dev:moiuni": "node scripts/uninstall.ts moi",
-    "preview": "node bin/cli.mjs",
-    "test": "vp test run",
-    "check": "vp check",
-    "prepublishOnly": "vp run build",
+    "dev:mouni": "node scripts/uninstall.ts mo",
     "prepare": "vp config",
-    "release": "bumpp"
+    "prepublishOnly": "vp run build",
+    "preview": "node bin/cli.mjs",
+    "release": "bumpp",
+    "test": "vpr ctest run"
   },
   "dependencies": {
     "jsonc-parser": "^3.3.1",
     "prompts": "^2.4.2"
   },
   "devDependencies": {
+    "@liangmi/vp-config": "^0.1.2",
+    "@oxlint/plugins": "1.61.0",
     "@types/node": "^25.9.3",
     "@types/prompts": "^2.4.9",
     "@types/which": "^3.0.4",
@@ -60,18 +62,12 @@
     "tinyexec": "^1.2.4",
     "typescript": "^6.0.3",
     "untildify": "^6.0.0",
-    "vite-plus": "^0.1.24",
-    "vitest": "npm:@voidzero-dev/vite-plus-test@^0.1.24",
+    "vite-plus": "^0.2.1",
+    "vitest": "^4.1.9",
     "vue": "^3.5.38",
     "which": "^7.0.0"
   },
   "packageManager": "pnpm@11.5.0",
-  "pnpm": {
-    "overrides": {
-      "vite": "npm:@voidzero-dev/vite-plus-core@latest",
-      "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
-    }
-  },
   "inlinedDependencies": {
     "cac": "7.0.0",
     "picocolors": "1.1.1",

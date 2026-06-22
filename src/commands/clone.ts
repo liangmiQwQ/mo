@@ -1,11 +1,13 @@
 import { existsSync, mkdirSync, readdirSync, rmSync, rmdirSync } from 'node:fs'
 import path from 'node:path'
-import { x } from 'tinyexec'
+
 import pc from 'picocolors'
-import type { GlobalUserConfig } from '../utils/config'
-import { error } from '../utils/error'
-import { success, startSpinner, stopSpinner, toTildePath } from '../utils/format'
-import { parseGitHubRepo } from '../utils/github'
+import { x } from 'tinyexec'
+
+import type { GlobalUserConfig } from '../utils/config.ts'
+import { error as printError } from '../utils/error.ts'
+import { success, startSpinner, stopSpinner, toTildePath } from '../utils/format.ts'
+import { parseGitHubRepo } from '../utils/github.ts'
 
 export async function runCloneCommand(repo: string, config: GlobalUserConfig): Promise<void> {
   const parsedRepo = parseGitHubRepo(repo)
@@ -14,7 +16,7 @@ export async function runCloneCommand(repo: string, config: GlobalUserConfig): P
   const ownerExisted = existsSync(ownerDir)
 
   if (existsSync(targetDir)) {
-    error(`Repository already exists at ${pc.cyan(toTildePath(targetDir))}`)
+    printError(`Repository already exists at ${pc.cyan(toTildePath(targetDir))}`)
   }
 
   if (!ownerExisted) {
@@ -29,11 +31,11 @@ export async function runCloneCommand(repo: string, config: GlobalUserConfig): P
     stopSpinner(spinner)
     success(`Cloned ${pc.bold(`${parsedRepo.owner}/${parsedRepo.name}`)}`)
     console.log(`  ${pc.dim('→')} ${pc.cyan(toTildePath(targetDir))}`)
-  } catch (err) {
+  } catch (error) {
     stopSpinner(spinner)
     cleanupFailedClone(targetDir, ownerDir, ownerExisted)
-    const details = err instanceof Error ? `: ${err.message}` : ''
-    error(`Git clone failed for ${parsedRepo.owner}/${parsedRepo.name}${details}`)
+    const details = error instanceof Error ? `: ${error.message}` : ''
+    printError(`Git clone failed for ${parsedRepo.owner}/${parsedRepo.name}${details}`)
   }
 }
 
@@ -53,7 +55,7 @@ function cleanupFailedClone(targetDir: string, ownerDir: string, ownerExisted: b
 
 async function runGitClone(url: string, targetDir: string): Promise<void> {
   const result = await x('git', ['clone', '--progress', url, targetDir], {
-    throwOnError: false,
+    throwOnError: false
   })
 
   if (result.exitCode !== 0) {

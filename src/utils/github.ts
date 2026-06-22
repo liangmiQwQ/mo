@@ -1,6 +1,6 @@
-import { error } from './error'
+import { error } from './error.ts'
 
-export type GitHubRepo = {
+export interface GitHubRepo {
   owner: string
   name: string
 }
@@ -16,16 +16,22 @@ export function parseGitHubRepo(input: string): GitHubRepo {
 }
 
 function parseRepoInput(input: string): GitHubRepo | null {
-  if (!input) return null
+  if (!input) {
+    return null
+  }
 
   const urlRepo = parseGitHubUrl(input)
-  if (urlRepo) return urlRepo
+  if (urlRepo) {
+    return urlRepo
+  }
 
   return parseGitHubPath(input)
 }
 
 function parseGitHubUrl(input: string): GitHubRepo | null {
-  if (!input.includes('://')) return null
+  if (!input.includes('://')) {
+    return null
+  }
 
   let url: URL
 
@@ -35,22 +41,30 @@ function parseGitHubUrl(input: string): GitHubRepo | null {
     return null
   }
 
-  if (url.protocol !== 'https:' && url.protocol !== 'http:') return null
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+    return null
+  }
 
   const host = url.hostname.toLowerCase()
-  if (host !== 'github.com' && host !== 'www.github.com') return null
+  if (host !== 'github.com' && host !== 'www.github.com') {
+    return null
+  }
 
   return parseGitHubPath(url.pathname)
 }
 
 function parseGitHubPath(input: string): GitHubRepo | null {
-  const parts = input.replace(/^\/+|\/+$/g, '').split('/')
-  if (parts.length !== 2) return null
+  const parts = input.replaceAll(/^\/+|\/+$/g, '').split('/')
+  if (parts.length !== 2) {
+    return null
+  }
 
   const [owner, rawName] = parts
   const name = rawName.endsWith('.git') ? rawName.slice(0, -4) : rawName
 
-  if (!isValidOwner(owner) || !isValidRepoName(name)) return null
+  if (!isValidOwner(owner) || !isValidRepoName(name)) {
+    return null
+  }
 
   return { owner, name }
 }

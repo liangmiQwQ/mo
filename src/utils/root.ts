@@ -1,7 +1,9 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import path from 'node:path'
-import { parse, type ParseError } from 'jsonc-parser'
+
+import { parse } from 'jsonc-parser'
+import type { ParseError } from 'jsonc-parser'
 import untildify from 'untildify'
 
 export function getDefaultConfigPath(): string {
@@ -29,7 +31,7 @@ export function parseJsonc(jsonc: string): unknown {
 }
 
 export function resolveRootFromConfig(config: object, configFilePath: string): string | undefined {
-  const root = (config as { root?: unknown }).root
+  const { root } = config as { root?: unknown }
   if (typeof root !== 'string' || !root.trim()) {
     return undefined
   }

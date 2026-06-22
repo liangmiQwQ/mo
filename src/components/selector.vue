@@ -2,13 +2,14 @@
 import { Box, Text, useInput } from '@vue-tui/runtime'
 import pc from 'picocolors'
 import { computed, shallowRef } from 'vue'
-import { toTildePath } from '../utils/format'
-import type { RepoGroup } from '../utils/repos'
-import { getMatchScore, searchReposByName } from '../utils/search'
+
+import { toTildePath } from '../utils/format.ts'
+import type { RepoGroup } from '../utils/repos.ts'
+import { getMatchScore, searchReposByName } from '../utils/search.ts'
 
 type SelectorState = 'list' | 'search' | 'succeed' | 'error'
 
-type ListItem = {
+interface ListItem {
   type: 'root' | 'owner' | 'repo' | 'blank'
   label: string
   path: string
@@ -16,7 +17,7 @@ type ListItem = {
   selectable: boolean
 }
 
-type SearchItem = {
+interface SearchItem {
   type: 'project' | 'owner'
   label: string
   owner?: string
@@ -26,7 +27,7 @@ type SearchItem = {
 
 type SelectorItem = ListItem | SearchItem
 
-type SelectorProps = {
+interface SelectorProps {
   root: string
   groups: RepoGroup[]
   onSelect: (path: string) => void
@@ -34,10 +35,10 @@ type SelectorProps = {
 }
 
 defineOptions({
-  name: 'Selector',
+  name: 'Selector'
 })
 
-const props = defineProps<SelectorProps>()
+const { root, groups, onSelect, onCancel } = defineProps<SelectorProps>()
 
 const LIST_HEIGHT = 15
 const POINTER = '\u276F '
@@ -50,22 +51,22 @@ const cursorIndex = shallowRef(0)
 const selectedPath = shallowRef('')
 const errorMessage = shallowRef('')
 
-const listItems = computed(() => buildListItems(props.root, props.groups))
-const searchResults = computed(() =>
-  query.value ? searchItems(query.value, props.groups, props.root) : [],
-)
+const listItems = computed(() => buildListItems(root, groups))
+const searchResults = computed(() => (query.value ? searchItems(query.value, groups, root) : []))
 const isSearchMode = computed(() => query.value.length > 0)
 const currentItems = computed<SelectorItem[]>(() =>
-  isSearchMode.value ? searchResults.value : listItems.value,
+  isSearchMode.value ? searchResults.value : listItems.value
 )
 const selectableIndices = computed(() =>
-  currentItems.value.map((item, i) => (item.selectable ? i : -1)).filter((i) => i !== -1),
+  currentItems.value.map((item, i) => (item.selectable ? i : -1)).filter(i => i !== -1)
 )
 const scrollOffset = computed(() =>
-  computeScroll(cursorIndex.value, currentItems.value.length, LIST_HEIGHT),
+  computeScroll(cursorIndex.value, currentItems.value.length, LIST_HEIGHT)
 )
 const currentPath = computed(() => {
-  if (!selectableIndices.value.length) return ''
+  if (selectableIndices.value.length === 0) {
+    return ''
+  }
   return currentItems.value[cursorIndex.value]?.path || ''
 })
 const headerText = computed(() =>
@@ -73,8 +74,8 @@ const headerText = computed(() =>
     isSearchMode.value && state.value === 'list' ? 'search' : state.value,
     query.value,
     selectedPath.value,
-    errorMessage.value,
-  ),
+    errorMessage.value
+  )
 )
 const bodyLines = computed(() =>
   isSearchMode.value
@@ -83,19 +84,21 @@ const bodyLines = computed(() =>
         cursorIndex.value,
         scrollOffset.value,
         LIST_HEIGHT,
-        query.value,
+        query.value
       )
-    : renderListLines(listItems.value, cursorIndex.value, scrollOffset.value, LIST_HEIGHT),
+    : renderListLines(listItems.value, cursorIndex.value, scrollOffset.value, LIST_HEIGHT)
 )
 const footerText = computed(() =>
-  !selectableIndices.value.length
+  selectableIndices.value.length === 0
     ? pc.dim(pc.italic('No directory found'))
-    : pc.dim('Path: ') + pc.gray(toTildePath(currentPath.value)),
+    : pc.dim('Path: ') + pc.gray(toTildePath(currentPath.value))
 )
 const showBody = computed(() => state.value === 'list' || state.value === 'search')
 
 useInput((input, key) => {
-  if (state.value === 'succeed' || state.value === 'error') return
+  if (state.value === 'succeed' || state.value === 'error') {
+    return
+  }
 
   if (key.ctrl && input === 'c') {
     cancel()
@@ -116,7 +119,7 @@ useInput((input, key) => {
     if (currentPath.value) {
       state.value = 'succeed'
       selectedPath.value = currentPath.value
-      props.onSelect(currentPath.value)
+      onSelect(currentPath.value)
     }
     return
   }
@@ -131,19 +134,21 @@ useInput((input, key) => {
     return
   }
 
-  if (key.tab) return
+  if (key.tab) {
+    return
+  }
 
   if (key.backspace || key.delete) {
     const newQuery = query.value.slice(0, -1)
     query.value = newQuery
-    resetCursor(newQuery ? searchItems(newQuery, props.groups, props.root) : listItems.value)
+    resetCursor(newQuery ? searchItems(newQuery, groups, root) : listItems.value)
     return
   }
 
   if (input && !key.ctrl && !key.meta) {
     const newQuery = query.value + input
     query.value = newQuery
-    resetCursor(searchItems(newQuery, props.groups, props.root))
+    resetCursor(searchItems(newQuery, groups, root))
   }
 })
 
@@ -153,8 +158,8 @@ function buildListItems(root: string, groups: RepoGroup[]): ListItem[] {
       type: 'root',
       label: '<root>',
       path: root,
-      selectable: true,
-    },
+      selectable: true
+    }
   ]
 
   for (const group of groups) {
@@ -164,7 +169,7 @@ function buildListItems(root: string, groups: RepoGroup[]): ListItem[] {
       label: group.owner,
       path: group.path,
       owner: group.owner,
-      selectable: true,
+      selectable: true
     })
 
     for (const repo of group.repos) {
@@ -173,7 +178,7 @@ function buildListItems(root: string, groups: RepoGroup[]): ListItem[] {
         label: repo.name,
         path: repo.path,
         owner: group.owner,
-        selectable: true,
+        selectable: true
       })
     }
   }
@@ -185,23 +190,26 @@ function searchItems(queryText: string, groups: RepoGroup[], root: string): Sear
   const q = queryText.toLowerCase()
   const items: SearchItem[] = []
   const projectMatches = searchReposByName(queryText, groups)
-  const sortedProjects: SearchItem[] = projectMatches.map((match) => ({
+  const sortedProjects: SearchItem[] = projectMatches.map(match => ({
     type: 'project',
     label: match.repo.name,
     owner: match.repo.owner,
     path: match.repo.path,
-    selectable: true,
+    selectable: true
   }))
-  const matchedOwners = new Set(projectMatches.map((match) => match.repo.owner))
+  const matchedOwners = new Set(projectMatches.map(match => match.repo.owner))
 
   if ('<root>'.includes(q)) {
     const rootScore = getMatchScore('<root>', queryText) ?? 3
     const rootItem: SearchItem = { type: 'project', label: '<root>', path: root, selectable: true }
     const insertIdx = sortedProjects.findIndex(
-      (_, i) => (projectMatches[i]?.score ?? 3) > rootScore,
+      (_, i) => (projectMatches[i]?.score ?? 3) > rootScore
     )
-    if (insertIdx === -1) sortedProjects.push(rootItem)
-    else sortedProjects.splice(insertIdx, 0, rootItem)
+    if (insertIdx === -1) {
+      sortedProjects.push(rootItem)
+    } else {
+      sortedProjects.splice(insertIdx, 0, rootItem)
+    }
   }
 
   items.push(...sortedProjects)
@@ -213,17 +221,17 @@ function searchItems(queryText: string, groups: RepoGroup[], root: string): Sear
         type: 'owner',
         label: group.owner,
         path: group.path,
-        selectable: true,
+        selectable: true
       })
     }
   }
 
-  if (ownerMatches.length && sortedProjects.length) {
+  if (ownerMatches.length > 0 && sortedProjects.length > 0) {
     items.push({
       type: 'owner',
       label: '',
       path: '',
-      selectable: false,
+      selectable: false
     })
   }
 
@@ -232,11 +240,15 @@ function searchItems(queryText: string, groups: RepoGroup[], root: string): Sear
 }
 
 function highlightMatch(text: string, queryText: string, baseColor: (s: string) => string): string {
-  if (!queryText) return baseColor(text)
+  if (!queryText) {
+    return baseColor(text)
+  }
   const lower = text.toLowerCase()
   const qLower = queryText.toLowerCase()
   const idx = lower.indexOf(qLower)
-  if (idx === -1) return baseColor(text)
+  if (idx === -1) {
+    return baseColor(text)
+  }
 
   const before = text.slice(0, idx)
   const match = text.slice(idx, idx + queryText.length)
@@ -245,7 +257,9 @@ function highlightMatch(text: string, queryText: string, baseColor: (s: string) 
 }
 
 function computeScroll(index: number, totalItems: number, height: number): number {
-  if (totalItems <= height) return 0
+  if (totalItems <= height) {
+    return 0
+  }
   let start = index - Math.floor(height / 2)
   start = Math.max(0, start)
   return Math.min(start, totalItems - height)
@@ -255,7 +269,7 @@ function renderHeader(
   currentState: SelectorState,
   queryText: string,
   path: string,
-  error: string,
+  error: string
 ): string {
   if (currentState === 'succeed') {
     return `${pc.green('\u2713')} ${pc.bold(QUESTION)}${pc.cyan(toTildePath(path))}`
@@ -272,9 +286,9 @@ function renderListLines(
   items: ListItem[],
   index: number,
   offset: number,
-  height: number,
+  height: number
 ): string[] {
-  let stickyOwner = getStickyOwner(items, offset, height)
+  const stickyOwner = getStickyOwner(items, offset, height)
   const adjustedHeight = stickyOwner ? height - 1 : height
   const displayStart = stickyOwner ? offset + 1 : offset
   const displayItems = items.slice(displayStart, displayStart + adjustedHeight)
@@ -298,13 +312,12 @@ function renderListLines(
 
     const prefix = isSelected ? POINTER : POINTER_BLANK
 
-    if (item.type === 'owner') {
-      const text = isSelected ? pc.underline(pc.green(item.label)) : pc.bold(pc.cyan(item.label))
-      lines.push(prefix + text)
-    } else {
-      const text = isSelected ? pc.underline(pc.green(item.label)) : item.label
-      lines.push(prefix + text)
-    }
+    const text = isSelected
+      ? pc.underline(pc.green(item.label))
+      : item.type === 'owner'
+        ? pc.bold(pc.cyan(item.label))
+        : item.label
+    lines.push(prefix + text)
   }
 
   return lines
@@ -318,7 +331,9 @@ function getStickyOwner(items: ListItem[], offset: number, height: number): List
         stickyOwner = items[i]
         break
       }
-      if (items[i].type === 'blank' && i < offset) break
+      if (items[i].type === 'blank' && i < offset) {
+        break
+      }
     }
 
     if (stickyOwner) {
@@ -326,13 +341,17 @@ function getStickyOwner(items: ListItem[], offset: number, height: number): List
       while (groupEnd < items.length && items[groupEnd].type !== 'blank') {
         groupEnd++
       }
-      if (groupEnd <= offset) stickyOwner = null
+      if (groupEnd <= offset) {
+        stickyOwner = null
+      }
     }
   }
 
   if (stickyOwner) {
     const ownerIdx = items.indexOf(stickyOwner)
-    if (ownerIdx >= offset && ownerIdx < offset + height) return null
+    if (ownerIdx >= offset && ownerIdx < offset + height) {
+      return null
+    }
   }
 
   return stickyOwner
@@ -343,7 +362,7 @@ function renderSearchLines(
   index: number,
   offset: number,
   height: number,
-  queryText: string,
+  queryText: string
 ): string[] {
   const visibleItems = items.slice(offset, offset + height)
   const lines: string[] = []
@@ -363,7 +382,7 @@ function renderSearchLines(
     if (item.type === 'project') {
       const name = isSelected
         ? pc.underline(pc.green(item.label))
-        : highlightMatch(item.label, queryText, (s) => s)
+        : highlightMatch(item.label, queryText, s => s)
       const suffix = item.owner ? pc.dim(` (${item.owner})`) : ''
       lines.push(prefix + name + suffix)
     } else {
@@ -378,23 +397,29 @@ function renderSearchLines(
 }
 
 function moveCursor(direction: 1 | -1): void {
-  if (!selectableIndices.value.length) return
+  if (selectableIndices.value.length === 0) {
+    return
+  }
   const currentSelIdx = selectableIndices.value.indexOf(cursorIndex.value)
   let nextSelIdx = currentSelIdx + direction
-  if (nextSelIdx < 0) nextSelIdx = selectableIndices.value.length - 1
-  if (nextSelIdx >= selectableIndices.value.length) nextSelIdx = 0
+  if (nextSelIdx < 0) {
+    nextSelIdx = selectableIndices.value.length - 1
+  }
+  if (nextSelIdx >= selectableIndices.value.length) {
+    nextSelIdx = 0
+  }
   cursorIndex.value = selectableIndices.value[nextSelIdx]
 }
 
-function resetCursor(items: Array<{ selectable: boolean }>): void {
-  const firstSelectable = items.findIndex((item) => item.selectable)
-  cursorIndex.value = firstSelectable >= 0 ? firstSelectable : 0
+function resetCursor(items: { selectable: boolean }[]): void {
+  const firstSelectable = items.findIndex(item => item.selectable)
+  cursorIndex.value = Math.max(firstSelectable, 0)
 }
 
 function cancel(): void {
   state.value = 'error'
   errorMessage.value = 'Canceled.'
-  props.onCancel()
+  onCancel()
 }
 </script>
 

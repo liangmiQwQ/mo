@@ -1,10 +1,11 @@
 import { existsSync } from 'node:fs'
-import type { SupportedShell } from '../utils/config'
-import type { CommandAliasConfig } from '../utils/alias'
-import { buildAliasLines } from '../utils/alias'
-import { getDefaultConfigPath, loadConfig, supportedShells } from '../utils/config'
-import { error } from '../utils/error'
-import { innerBinName, userBinName, getRestartFlagPath } from '../utils/runner'
+
+import type { CommandAliasConfig } from '../utils/alias.ts'
+import { buildAliasLines } from '../utils/alias.ts'
+import type { SupportedShell } from '../utils/config.ts'
+import { getDefaultConfigPath, loadConfig, supportedShells } from '../utils/config.ts'
+import { error } from '../utils/error.ts'
+import { innerBinName, userBinName, getRestartFlagPath } from '../utils/runner.ts'
 
 export function generateShellIntegration(shell: string): string {
   if (!isValidShell(shell)) {
@@ -14,19 +15,18 @@ export function generateShellIntegration(shell: string): string {
   const config = loadShellConfig()
   if (shell === 'bash' || shell === 'zsh') {
     return generateBashZshIntegration(config.alias, config.compositionAlias)
-  } else {
-    return generateFishIntegration(config.alias, config.compositionAlias)
   }
+  return generateFishIntegration(config.alias, config.compositionAlias)
 }
 
 function generateBashZshIntegration(
   aliases: CommandAliasConfig,
-  compositionAlias: boolean,
+  compositionAlias: boolean
 ): string {
   const lines = buildAliasLines(
     aliases,
     compositionAlias,
-    (name, target) => `alias ${name}='${target}'`,
+    (name, target) => `alias ${name}='${target}'`
   )
   const flagPath = getRestartFlagPath()
   return [
@@ -42,7 +42,7 @@ function generateBashZshIntegration(
     '  fi',
     '}',
     ...lines,
-    '',
+    ''
   ].join('\n')
 }
 
@@ -50,7 +50,7 @@ function generateFishIntegration(aliases: CommandAliasConfig, compositionAlias: 
   const lines = buildAliasLines(
     aliases,
     compositionAlias,
-    (name, target) => `alias ${name} '${target}'`,
+    (name, target) => `alias ${name} '${target}'`
   )
   const flagPath = getRestartFlagPath()
   return [
@@ -68,7 +68,7 @@ function generateFishIntegration(aliases: CommandAliasConfig, compositionAlias: 
     '  end',
     'end',
     ...lines,
-    '',
+    ''
   ].join('\n')
 }
 
@@ -84,7 +84,7 @@ function loadShellConfig(): { alias: CommandAliasConfig; compositionAlias: boole
 
   try {
     const config = loadConfig()
-    return { alias: config.alias ?? {}, compositionAlias: config.compositionAlias ?? false }
+    return { alias: config.alias ?? {}, compositionAlias: config.compositionAlias }
   } catch {
     return { alias: {}, compositionAlias: false }
   }
