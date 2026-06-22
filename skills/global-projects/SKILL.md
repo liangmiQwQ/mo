@@ -1,6 +1,6 @@
 ---
 name: global-projects
-description: "Load this skill when you need to locate, enter, clone, open, or coordinate work across the user's local projects. Use it when the current directory is not the target project, when another local project is needed, or when multiple projects are involved. The user's standard is rootPath/github-owner/repo, managed by mo."
+description: Load this skill when you are required to check source code outside of this codebase, or users give you a GitHub repo spec follows <owner-name>/<repo-name> spec. Use it when the current directory is not the target project, when another local project is needed, or when multiple projects are involved.
 ---
 
 # Global Projects
@@ -55,6 +55,8 @@ For a bare project name or fuzzy query:
 3. Prefer exact `owner/repo` matches when the user gave an owner.
 4. If multiple owners match, ask the user to choose.
 5. Use the resolved path directly for file operations.
+
+Pay attention, the codebase may be not up to dated or even not in the main branch so please take care and use tricks to check.
 
 ## `mo` Command Usage
 
