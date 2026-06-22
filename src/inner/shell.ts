@@ -13,9 +13,10 @@ export function generateShellIntegration(shell: string): string {
   }
 
   const config = loadShellConfig()
-  return shell === 'bash' || shell === 'zsh'
-    ? generateBashZshIntegration(config.alias, config.compositionAlias)
-    : generateFishIntegration(config.alias, config.compositionAlias)
+  if (shell === 'bash' || shell === 'zsh') {
+    return generateBashZshIntegration(config.alias, config.compositionAlias)
+  }
+  return generateFishIntegration(config.alias, config.compositionAlias)
 }
 
 function generateBashZshIntegration(

@@ -264,7 +264,7 @@ async function configureRemotes(
   forkOrg: string,
   forkName: string
 ): Promise<void> {
-  const run = (cmd: string, args: string[]): ReturnType<typeof x> =>
+  const run = (cmd: string, args: string[]) =>
     x(cmd, args, { throwOnError: false, nodeOptions: { cwd: dir } })
 
   await run('git', ['remote', 'rename', 'origin', 'upstream'])

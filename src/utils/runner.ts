@@ -8,7 +8,7 @@ import { error } from './error.ts'
 export const userBinName = resolveUserBinName()
 export const innerBinName = `${userBinName}-inner`
 
-export async function preventRunning(): Promise<void> {
+export async function preventRunning() {
   if (process.platform === 'win32') {
     error('Windows is not supported. mo currently supports macOS and Linux only.', 69)
   }
@@ -25,11 +25,11 @@ export async function preventRunning(): Promise<void> {
   }
 }
 
-export function getRestartFlagPath(): string {
+export function getRestartFlagPath() {
   return path.join(tmpdir(), `${userBinName}-restart-flag`)
 }
 
-export function getCdTargetPath(): string {
+export function getCdTargetPath() {
   return path.join(tmpdir(), `${userBinName}-cd-target`)
 }
 
@@ -47,7 +47,7 @@ function resolveUserBinName(): string {
     return fallback
   }
 
-  const binName = path.basename(binPath).replace(/\.mjs$/u, '')
+  const binName = path.basename(binPath).replace(/\.mjs$/, '')
   if (binName.endsWith('-inner')) {
     return binName.slice(0, -'-inner'.length) || fallback
   }

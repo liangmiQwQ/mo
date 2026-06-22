@@ -40,8 +40,10 @@ async function removeIfManaged(name: string): Promise<void> {
   console.log(pc.green(`Removed ${name} wrapper at ${target}`))
 }
 
-async function main(): Promise<void> {
-  await Promise.all(wrapperNames.map(removeIfManaged))
+async function main() {
+  for (const name of wrapperNames) {
+    await removeIfManaged(name)
+  }
 }
 
 await main()

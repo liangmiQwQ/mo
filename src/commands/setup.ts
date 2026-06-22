@@ -155,7 +155,6 @@ async function promptShellSelection(initial?: SupportedShell[]): Promise<Support
 
 async function ensureShellCommandsAvailable(shells: SupportedShell[]): Promise<void> {
   for (const shell of shells) {
-    // oxlint-disable-next-line eslint/no-await-in-loop -- Report unavailable shells in selection order.
     await ensureToolReady(shell)
   }
 }
@@ -200,7 +199,6 @@ async function promptAliasConfig(
 
   const aliases: CommandAliasConfig = {}
   for (const command of aliasCommands) {
-    // oxlint-disable-next-line eslint/no-await-in-loop -- Interactive prompts must run sequentially.
     const parsed = await promptCommandAlias(command, initial?.[command])
     if (parsed.length > 0) {
       aliases[command] = parsed

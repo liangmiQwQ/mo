@@ -5,7 +5,7 @@ import pc from 'picocolors'
 import { x } from 'tinyexec'
 
 import type { GlobalUserConfig } from '../utils/config.ts'
-import { error } from '../utils/error.ts'
+import { error as printError } from '../utils/error.ts'
 import { success, startSpinner, stopSpinner, toTildePath } from '../utils/format.ts'
 import { parseGitHubRepo } from '../utils/github.ts'
 
@@ -16,7 +16,7 @@ export async function runCloneCommand(repo: string, config: GlobalUserConfig): P
   const ownerExisted = existsSync(ownerDir)
 
   if (existsSync(targetDir)) {
-    error(`Repository already exists at ${pc.cyan(toTildePath(targetDir))}`)
+    printError(`Repository already exists at ${pc.cyan(toTildePath(targetDir))}`)
   }
 
   if (!ownerExisted) {
@@ -31,11 +31,11 @@ export async function runCloneCommand(repo: string, config: GlobalUserConfig): P
     stopSpinner(spinner)
     success(`Cloned ${pc.bold(`${parsedRepo.owner}/${parsedRepo.name}`)}`)
     console.log(`  ${pc.dim('→')} ${pc.cyan(toTildePath(targetDir))}`)
-  } catch (caughtError) {
+  } catch (error) {
     stopSpinner(spinner)
     cleanupFailedClone(targetDir, ownerDir, ownerExisted)
-    const details = caughtError instanceof Error ? `: ${caughtError.message}` : ''
-    error(`Git clone failed for ${parsedRepo.owner}/${parsedRepo.name}${details}`)
+    const details = error instanceof Error ? `: ${error.message}` : ''
+    printError(`Git clone failed for ${parsedRepo.owner}/${parsedRepo.name}${details}`)
   }
 }
 

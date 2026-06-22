@@ -26,7 +26,7 @@ checkRestartRequired()
 
 function withConfig<T extends unknown[]>(
   handler: (config: GlobalUserConfig, ...args: T) => Promise<void> | void
-): (...args: T) => Promise<void> {
+) {
   return async (...args: T): Promise<void> => {
     const configPath = getDefaultConfigPath()
 
@@ -120,16 +120,16 @@ try {
     cli.outputHelp()
     process.exit(cli.args.length > 0 ? 1 : 0)
   }
-} catch (caughtError) {
-  const message = caughtError instanceof Error ? caughtError.message : String(caughtError)
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error)
   printError(message.charAt(0).toUpperCase() + message.slice(1))
 }
 
 async function syncShellrcForRun(config: GlobalUserConfig): Promise<void> {
   try {
     await syncShellrc(config.shells)
-  } catch (caughtError) {
-    const message = caughtError instanceof Error ? caughtError.message : String(caughtError)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
     printError(`Failed to sync shellrc: ${message}`)
   }
 }

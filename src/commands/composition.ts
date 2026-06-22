@@ -37,7 +37,6 @@ export async function runCompositionCommand(
   }
 
   for (const subCommand of parsedSubCommands.filter(command => command !== 'cd')) {
-    // oxlint-disable-next-line eslint/no-await-in-loop -- Composition commands run in user-specified order.
     await runCompositionSubCommand(subCommand, target, config)
   }
 

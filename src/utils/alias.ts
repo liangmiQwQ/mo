@@ -16,7 +16,7 @@ export const defaultAliases: Record<AliasCommand, string> = {
   init: 'in'
 }
 
-const aliasNameRegex = /^[A-Za-z_][A-Za-z0-9_-]*$/u
+const aliasNameRegex = /^[A-Za-z_][A-Za-z0-9_-]*$/
 
 export function parseAliasInput(input: string, onInvalid?: (aliasName: string) => never): string[] {
   const trimmed = input.trim()

@@ -54,7 +54,7 @@ function parseGitHubUrl(input: string): GitHubRepo | null {
 }
 
 function parseGitHubPath(input: string): GitHubRepo | null {
-  const parts = input.replaceAll(/^\/+|\/+$/gu, '').split('/')
+  const parts = input.replaceAll(/^\/+|\/+$/g, '').split('/')
   if (parts.length !== 2) {
     return null
   }
@@ -70,9 +70,9 @@ function parseGitHubPath(input: string): GitHubRepo | null {
 }
 
 function isValidOwner(owner: string): boolean {
-  return /^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/u.test(owner)
+  return /^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/.test(owner)
 }
 
 function isValidRepoName(name: string): boolean {
-  return /^[A-Za-z0-9._-]+$/u.test(name)
+  return /^[A-Za-z0-9._-]+$/.test(name)
 }

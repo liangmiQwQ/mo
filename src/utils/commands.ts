@@ -3,10 +3,7 @@ import which from 'which'
 
 import { error } from './error.ts'
 
-export const runCommand = async (
-  command: string,
-  args: string[]
-): Promise<{ exitCode: number }> => {
+export const runCommand = async (command: string, args: string[]) => {
   const result = await x(command, args, { throwOnError: false })
   return { exitCode: result.exitCode ?? 1 }
 }

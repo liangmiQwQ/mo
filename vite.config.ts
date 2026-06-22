@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 
 import { cli } from '@liangmi/vp-config'
 import vue from '@vitejs/plugin-vue'
+import type { PackUserConfig } from 'vite-plus/pack'
 
 interface PackageJson {
   [key: string]: unknown
@@ -13,9 +14,11 @@ interface PackageJson {
 const repoRoot = resolve(import.meta.dirname)
 const moiOutputDir = resolve(repoRoot, 'dist-moi')
 
+const vuePlugins = [vue()] as unknown as PackUserConfig['plugins']
+
 export default cli({
   pack: {
-    plugins: [vue()],
+    plugins: vuePlugins,
     entry: {
       mo: 'src/mo.ts',
       'mo-get-root': 'src/mo-get-root.ts',
@@ -58,7 +61,7 @@ async function readRootPackage(): Promise<PackageJson> {
 }
 
 async function writeMoiBin(name: string, entry: string): Promise<void> {
-  const content = ['#!/usr/bin/env node', `await import('../dist/${entry}.mjs')`, ''].join('\n')
+  const content = ['#!/usr/bin/env node', `import '../dist/${entry}.mjs'`, ''].join('\n')
 
   await writeFile(resolve(moiOutputDir, 'bin', `${name}.mjs`), content, { mode: 0o755 })
 }

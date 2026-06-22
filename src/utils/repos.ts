@@ -44,20 +44,24 @@ async function hasGitHubRemote(dir: string): Promise<boolean> {
 
 export async function scanRepos(root: string): Promise<RepoGroup[]> {
   const owners = readDirectoryNames(root)
-  const groups = await Promise.all(owners.map(owner => scanOwner(root, owner)))
-  return groups.filter(group => group !== null)
-}
+  const groups: RepoGroup[] = []
 
-async function scanOwner(root: string, owner: string): Promise<RepoGroup | null> {
-  const ownerPath = path.join(root, owner)
-  const repos = await Promise.all(
-    readDirectoryNames(ownerPath).map(async repo => {
+  for (const owner of owners) {
+    const ownerPath = path.join(root, owner)
+    const potentialRepos = readDirectoryNames(ownerPath)
+    const repos: RepoEntry[] = []
+
+    for (const repo of potentialRepos) {
       const repoPath = path.join(ownerPath, repo)
-      return isGitRepo(repoPath) && (await hasGitHubRemote(repoPath))
-        ? { owner, name: repo, path: repoPath }
-        : null
-    })
-  )
-  const matchedRepos = repos.filter(repo => repo !== null)
-  return matchedRepos.length > 0 ? { owner, path: ownerPath, repos: matchedRepos } : null
+      if (isGitRepo(repoPath) && (await hasGitHubRemote(repoPath))) {
+        repos.push({ owner, name: repo, path: repoPath })
+      }
+    }
+
+    if (repos.length > 0) {
+      groups.push({ owner, path: ownerPath, repos })
+    }
+  }
+
+  return groups
 }

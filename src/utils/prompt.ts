@@ -12,7 +12,7 @@ interface AutocompleteChoice<T> {
   value: T
 }
 
-const onSetupCancel = (): never => {
+const onSetupCancel = () => {
   error('Canceled.', 78)
 }
 
@@ -68,10 +68,10 @@ export async function promptMultiselect<T extends string>(
     type: 'multiselect',
     name,
     message,
-    choices: choices.map(choice => ({
-      title: choice.title,
-      value: choice.value,
-      selected: initial ? initial.includes(choice.value) : false
+    choices: choices.map(c => ({
+      title: c.title,
+      value: c.value,
+      selected: initial ? initial.includes(c.value) : false
     }))
   })
   const answer = await catchCancel<T[]>(Promise.resolve(response[name]))
@@ -89,7 +89,7 @@ export async function promptAutocomplete<T>(
       type: 'autocomplete',
       name,
       message,
-      choices: choices.map(choice => ({ title: choice.title, value: choice.value })),
+      choices: choices.map(c => ({ title: c.title, value: c.value })),
       suggest: (input, choicesList) => {
         const query = input.trim().toLowerCase()
         if (!query) {
@@ -99,7 +99,7 @@ export async function promptAutocomplete<T>(
           choicesList.filter(choice => choice.title.toLowerCase().includes(query))
         )
       }
-    }).then((response: Record<string, unknown>) => response[name] as T | undefined),
+    }).then((r: Record<string, unknown>) => r[name] as T | undefined),
     () => {
       error(onCancelMessage, 78)
     }

@@ -6,18 +6,16 @@ import untildify from 'untildify'
 import type { SupportedShell } from './config.ts'
 import { innerBinName } from './runner.ts'
 
-export async function syncShellrc(shells: SupportedShell[]): Promise<void> {
-  await Promise.all(shells.map(syncShell))
-}
+export async function syncShellrc(shells: SupportedShell[]) {
+  for (const shell of shells) {
+    const managedBlock = buildManagedShellrcBlock(shell)
+    const shellRcPath = resolveShellRcPath(shell)
+    const existing = await readFileIfExists(shellRcPath)
+    const updated = upsertManagedShellrcBlock(existing, managedBlock)
 
-async function syncShell(shell: SupportedShell): Promise<void> {
-  const managedBlock = buildManagedShellrcBlock(shell)
-  const shellRcPath = resolveShellRcPath(shell)
-  const existing = await readFileIfExists(shellRcPath)
-  const updated = upsertManagedShellrcBlock(existing, managedBlock)
-
-  await mkdir(path.dirname(shellRcPath), { recursive: true })
-  await writeFile(shellRcPath, updated, 'utf8')
+    await mkdir(path.dirname(shellRcPath), { recursive: true })
+    await writeFile(shellRcPath, updated, 'utf8')
+  }
 }
 
 const MO_START_MARKER = '#_MO_START_'
@@ -70,7 +68,7 @@ function buildManagedShellrcBlock(shell: SupportedShell): string {
 function upsertManagedShellrcBlock(content: string, managedBlock: string): string {
   const escapedStart = escapeRegex(MO_START_MARKER)
   const escapedEnd = escapeRegex(MO_END_MARKER)
-  const pattern = new RegExp(`^${escapedStart}$[\\s\\S]*?^${escapedEnd}$\\n?`, 'gmu')
+  const pattern = new RegExp(`^${escapedStart}$[\\s\\S]*?^${escapedEnd}$\\n?`, 'gm')
   const matches = content.match(pattern)
 
   if (matches) {
@@ -98,5 +96,5 @@ function isMissingFileError(err: unknown): err is NodeJS.ErrnoException {
 }
 
 function escapeRegex(value: string): string {
-  return value.replaceAll(/[.*+?^${}()|[\]\\]/gu, String.raw`\$&`)
+  return value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)
 }

@@ -66,14 +66,16 @@ async function installWrapper(name: string, binPath: string): Promise<void> {
   console.log(pc.green(`Installed ${name} -> ${target}`))
 }
 
-async function main(): Promise<void> {
+async function main() {
   if (!existsSync(vpBin)) {
     console.error(pc.red(`Missing ${basename(vpBin)} at ${vpBin}. Run "vp install" first.`))
     process.exit(1)
   }
 
   await mkdir(binDir, { recursive: true })
-  await Promise.all(entries.map(item => installWrapper(item.name, item.bin)))
+  for (const item of entries) {
+    await installWrapper(item.name, item.bin)
+  }
 
   if (!isPathContains(binDir)) {
     console.log(

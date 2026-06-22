@@ -379,19 +379,18 @@ function renderSearchLines(
 
     const prefix = isSelected ? POINTER : POINTER_BLANK
 
-    let name: string
     if (item.type === 'project') {
-      name = isSelected
+      const name = isSelected
         ? pc.underline(pc.green(item.label))
-        : highlightMatch(item.label, queryText, text => text)
+        : highlightMatch(item.label, queryText, s => s)
       const suffix = item.owner ? pc.dim(` (${item.owner})`) : ''
-      name += suffix
+      lines.push(prefix + name + suffix)
     } else {
-      name = isSelected
+      const name = isSelected
         ? pc.underline(pc.green(item.label))
         : highlightMatch(item.label, queryText, pc.gray)
+      lines.push(prefix + name)
     }
-    lines.push(prefix + name)
   }
 
   return lines
