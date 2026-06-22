@@ -79,6 +79,9 @@ async function writeMoiPackageJson(rootPackage: PackageJson): Promise<void> {
     name: '@liangmi/moi',
     type: 'module'
   }
+  for (const key of ['devDependencies', 'inlinedDependencies', 'packageManager', 'scripts']) {
+    delete packageJson[key]
+  }
 
   await writeFile(
     resolve(moiOutputDir, 'package.json'),
