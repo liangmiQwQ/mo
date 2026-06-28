@@ -106,17 +106,7 @@ function renderShellAction(action: ShellAction, shell: SupportedActionShell): st
 }
 
 function renderEditAction(action: EditAction, shell: SupportedActionShell): string {
-  const envParts = [
-    ...nodeEnvironmentNames.flatMap(name => ['-u', name]),
-    `PATH=${getCleanPath()}`
-  ].map(value => quoteShellValue(value, shell))
-
-  return [
-    'env',
-    ...envParts,
-    quoteShellValue(action.editor, shell),
-    quoteShellValue(action.path, shell)
-  ].join(' ')
+  return `${quoteShellValue(action.editor, shell)} ${quoteShellValue(action.path, shell)}`
 }
 
 function buildCleanEditorEnv(source: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
@@ -126,10 +116,6 @@ function buildCleanEditorEnv(source: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   }
   env.PATH = cleanPath(source.PATH)
   return env
-}
-
-function getCleanPath(): string {
-  return cleanPath(process.env.PATH)
 }
 
 function cleanPath(value: string | undefined): string {
