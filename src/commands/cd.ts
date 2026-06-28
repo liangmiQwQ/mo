@@ -1,7 +1,5 @@
-import { writeFileSync } from 'node:fs'
-
+import { appendCdAction } from '../inner/actions.ts'
 import type { GlobalUserConfig } from '../utils/config.ts'
-import { getCdTargetPath } from '../utils/runner.ts'
 import { withPathSelector } from '../utils/selector.ts'
 
 export async function runCdCommand(
@@ -10,7 +8,7 @@ export async function runCdCommand(
 ): Promise<void> {
   try {
     await withPathSelector(config.root, target, nextPath => {
-      writeFileSync(getCdTargetPath(), nextPath, 'utf8')
+      appendCdAction(nextPath)
     })
   } catch {
     // Canceled by user - exit silently

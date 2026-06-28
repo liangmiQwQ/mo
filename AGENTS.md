@@ -23,7 +23,7 @@ Shell integration is managed through `morc.json` `shells` (`zsh`/`bash`/`fish`) 
 `mo composition <main-command> <sub-commands> <repo>` runs `clone`/`fork` first, then runs `cd`/`edit`/`open` subcommands against the same repo without spawning nested `mo` commands.
 If users run config-required commands without default config, mo should prompt to run `mo setup` first.
 `preinstall` blocks unsupported Windows installs and rejects non-global package installs (except contributor installs in the source repo).
-`mo cd` should be handled through shell functions: resolve path via `mo cd`, run `mo-inner cd` to print pending target from `MO_CD_TARGET` (or `.` when empty), and execute shell `cd` immediately.
+`mo cd`, `mo edit`, and `mo open` should be handled through shell functions: main `mo` commands write pending shell actions, then `mo-inner actions <shell>` prints shell code for `cd`/editor/file-manager actions and the shell wrapper executes it in the parent shell.
 Interactive selector UI is built as Vue SFCs rendered by `@vue-tui/runtime`; keep the Vue plugin under `pack.plugins` so `vp pack` can compile `.vue` files.
 Vite+ configuration inherits the `cli` preset from `@liangmi/vp-config`; keep local overrides limited to project-specific behavior.
 `vp pack` generates the ignored `dist-moi` alias package for `@liangmi/moi` through the pack `build:done` hook; the alias package exposes `moi`, `moi-get-root`, and `moi-inner` with the same version as `@liangmi/mo`, without root-only scripts, dev dependencies, or package-manager metadata.
