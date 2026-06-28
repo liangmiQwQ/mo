@@ -7,6 +7,7 @@ import { error } from './error.ts'
 
 export const userBinName = resolveUserBinName()
 export const innerBinName = `${userBinName}-inner`
+export const shellIntegrationEnvName = 'MO_SHELL_INTEGRATION'
 
 export async function preventRunning() {
   if (process.platform === 'win32') {
@@ -29,8 +30,8 @@ export function getRestartFlagPath() {
   return path.join(tmpdir(), `${userBinName}-restart-flag`)
 }
 
-export function getCdTargetPath() {
-  return path.join(tmpdir(), `${userBinName}-cd-target`)
+export function getShellActionsPath() {
+  return path.join(tmpdir(), `${userBinName}-shell-actions`)
 }
 
 export function checkRestartRequired(): void {

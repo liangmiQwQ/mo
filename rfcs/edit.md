@@ -16,7 +16,8 @@ mo e [<user>/<repo>] [-e <editor>]     # alias
 
 1. Resolve the target path through the selector or the provided argument.
 2. Determine the editor: flag > `morc.json` `editor` > `$EDITOR`.
-3. Run `<editor> <path>`.
+3. When shell integration is active, write a pending editor action and let `mo-inner actions <shell>` print the shell command that starts the editor.
+4. Editor actions run with Node and package-manager environment variables removed, and `node_modules/.bin` entries removed from `PATH`.
 
 ## Aliases
 

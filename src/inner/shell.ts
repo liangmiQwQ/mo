@@ -5,7 +5,12 @@ import { buildAliasLines } from '../utils/alias.ts'
 import type { SupportedShell } from '../utils/config.ts'
 import { getDefaultConfigPath, loadConfig, supportedShells } from '../utils/config.ts'
 import { error } from '../utils/error.ts'
-import { innerBinName, userBinName, getRestartFlagPath } from '../utils/runner.ts'
+import {
+  getRestartFlagPath,
+  innerBinName,
+  shellIntegrationEnvName,
+  userBinName
+} from '../utils/runner.ts'
 
 export function generateShellIntegration(shell: string): string {
   if (!isValidShell(shell)) {
@@ -14,12 +19,13 @@ export function generateShellIntegration(shell: string): string {
 
   const config = loadShellConfig()
   if (shell === 'bash' || shell === 'zsh') {
-    return generateBashZshIntegration(config.alias, config.compositionAlias)
+    return generateBashZshIntegration(shell, config.alias, config.compositionAlias)
   }
   return generateFishIntegration(config.alias, config.compositionAlias)
 }
 
 function generateBashZshIntegration(
+  shell: 'bash' | 'zsh',
   aliases: CommandAliasConfig,
   compositionAlias: boolean
 ): string {
@@ -34,11 +40,12 @@ function generateBashZshIntegration(
     `# Clear restart flag if present (setup completed in previous shell)`,
     `rm -f "${flagPath}" 2>/dev/null || true`,
     `${userBinName}() {`,
-    `  command ${userBinName} "$@" || return $?`,
-    `  local ${userBinName}_cd_result`,
-    `  ${userBinName}_cd_result="$(${innerBinName} cd)" || return $?`,
-    `  if [ -n "$${userBinName}_cd_result" ] && [ "$${userBinName}_cd_result" != "." ]; then`,
-    `    cd "$${userBinName}_cd_result" || return $?`,
+    `  ${innerBinName} actions-clear >/dev/null 2>&1 || true`,
+    `  ${shellIntegrationEnvName}=1 command ${userBinName} "$@" || return $?`,
+    `  local ${userBinName}_actions`,
+    `  ${userBinName}_actions="$(${innerBinName} actions ${shell})" || return $?`,
+    `  if [ -n "$${userBinName}_actions" ]; then`,
+    `    eval "$${userBinName}_actions" || return $?`,
     '  fi',
     '}',
     ...lines,
@@ -58,14 +65,11 @@ function generateFishIntegration(aliases: CommandAliasConfig, compositionAlias: 
     '# Clear restart flag if present (setup completed in previous shell)',
     `rm -f "${flagPath}" 2>/dev/null; or true`,
     `function ${userBinName}`,
-    `  command ${userBinName} $argv`,
+    `  ${innerBinName} actions-clear >/dev/null 2>&1; or true`,
+    `  env ${shellIntegrationEnvName}=1 command ${userBinName} $argv`,
     '  or return $status',
-    `  set -l ${userBinName}_cd_result (${innerBinName} cd)`,
+    `  ${innerBinName} actions fish | source`,
     '  or return $status',
-    `  if test -n "$${userBinName}_cd_result"; and test "$${userBinName}_cd_result" != "."`,
-    `    cd "$${userBinName}_cd_result"`,
-    '    or return $status',
-    '  end',
     'end',
     ...lines,
     ''

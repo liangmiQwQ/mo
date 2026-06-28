@@ -36,12 +36,8 @@ export async function runCompositionCommand(
     await runForkCommand(repo, config, options)
   }
 
-  for (const subCommand of parsedSubCommands.filter(command => command !== 'cd')) {
+  for (const subCommand of parsedSubCommands) {
     await runCompositionSubCommand(subCommand, target, config)
-  }
-
-  if (parsedSubCommands.includes('cd')) {
-    await runCdCommand(target, config)
   }
 }
 
