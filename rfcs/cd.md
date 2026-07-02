@@ -5,7 +5,10 @@
 ## Usage
 
 ```bash
-mo cd
+mo cd [<target>]
+mo cd <owner>/<repo>
+mo cd https://github.com/<owner>/<repo>
+mo cd https://github.com/<owner>/<repo>.git
 ```
 
 ## Shell Integration
@@ -33,3 +36,6 @@ The interactive selector is specified in [selector.md](./selector.md). Key point
 | `<root>`         | `~/code`                |
 | `<owner>`        | `~/code/<owner>`        |
 | `<owner>/<repo>` | `~/code/<owner>/<repo>` |
+| GitHub repo URL  | `~/code/<owner>/<repo>` |
+
+GitHub repository URLs are resolved from `https://github.com/<owner>/<repo>` or `https://github.com/<owner>/<repo>.git`. The command only resolves an existing local directory; it does not clone missing repositories.
