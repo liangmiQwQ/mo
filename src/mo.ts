@@ -92,11 +92,11 @@ cli
   .action(withConfig(runListCommand))
 
 cli
-  .command('cd [target]', 'Resolve a repository path for shell navigation')
+  .command('cd [target]', 'Resolve a root, owner, repo, or GitHub URL for shell navigation')
   .action(withConfig((config, target?: string) => runCdCommand(target, config)))
 
 cli
-  .command('edit [target]', 'Open a repository in your editor')
+  .command('edit [target]', 'Open a root, owner, repo, or GitHub URL in your editor')
   .alias('e')
   .option('-e, --editor <editor>', 'Editor to use (overrides config)')
   .action(
@@ -106,7 +106,7 @@ cli
   )
 
 cli
-  .command('open [target]', 'Open a repository in system file explorer')
+  .command('open [target]', 'Open a root, owner, repo, or GitHub URL in system file explorer')
   .alias('o')
   .action(withConfig((config, target?: string) => runOpenCommand(target, config)))
 

@@ -6,13 +6,17 @@ export interface GitHubRepo {
 }
 
 export function parseGitHubRepo(input: string): GitHubRepo {
-  const repo = parseRepoInput(input.trim())
+  const repo = parseGitHubRepoInput(input)
 
   if (!repo) {
     error('Invalid repository format. Use <owner>/<repo> or a GitHub repository URL.')
   }
 
   return repo
+}
+
+export function parseGitHubRepoInput(input: string): GitHubRepo | null {
+  return parseRepoInput(input.trim())
 }
 
 function parseRepoInput(input: string): GitHubRepo | null {

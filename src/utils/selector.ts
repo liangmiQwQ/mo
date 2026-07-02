@@ -6,6 +6,7 @@ import pc from 'picocolors'
 
 import Selector from '../components/selector.vue'
 import { startSpinner, stopSpinner, icons, toTildePath } from './format.ts'
+import { parseGitHubRepoInput } from './github.ts'
 import { scanRepos } from './repos.ts'
 import type { RepoGroup } from './repos.ts'
 import { searchOwnerGroupsByName, searchReposByName } from './search.ts'
@@ -68,9 +69,9 @@ function resolveTarget(root: string, target: string, groups: RepoGroup[]): strin
   }
 
   // Try as explicit owner/repo path relative to root
-  const segments = target.split('/').filter(Boolean)
-  if (segments.length === 2) {
-    const candidate = path.join(root, ...segments)
+  const repo = parseGitHubRepoInput(target)
+  if (repo) {
+    const candidate = path.join(root, repo.owner, repo.name)
     if (existsSync(candidate) && statSync(candidate).isDirectory()) {
       return candidate
     }
