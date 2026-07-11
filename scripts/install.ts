@@ -1,5 +1,4 @@
-import { existsSync } from 'node:fs'
-import { chmod, mkdir, writeFile } from 'node:fs/promises'
+import { access, chmod, mkdir, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { basename, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -67,7 +66,9 @@ async function installWrapper(name: string, binPath: string): Promise<void> {
 }
 
 async function main() {
-  if (!existsSync(vpBin)) {
+  try {
+    await access(vpBin)
+  } catch {
     console.error(pc.red(`Missing ${basename(vpBin)} at ${vpBin}. Run "vp install" first.`))
     process.exit(1)
   }

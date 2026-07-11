@@ -1,4 +1,4 @@
-import { existsSync, statSync } from 'node:fs'
+import { stat } from 'node:fs/promises'
 import path from 'node:path'
 
 import { createApp } from '@vue-tui/runtime'
@@ -6,6 +6,7 @@ import pc from 'picocolors'
 
 import Selector from '../components/selector.vue'
 import { startSpinner, stopSpinner, icons, toTildePath } from './format.ts'
+import { pathExists } from './fs.ts'
 import { parseGitHubRepoInput } from './github.ts'
 import { scanRepos } from './repos.ts'
 import type { RepoGroup } from './repos.ts'
@@ -26,7 +27,7 @@ export async function withPathSelector<T>(
       stopSpinner(spinner)
     }
 
-    const resolved = resolveTarget(root, resolvedTarget, groups)
+    const resolved = await resolveTarget(root, resolvedTarget, groups)
     if (!resolved) {
       console.error(
         `${icons.error} ${pc.red(`No matching directory found for '${resolvedTarget}'`)}`
@@ -63,7 +64,11 @@ export async function withPathSelector<T>(
   })
 }
 
-function resolveTarget(root: string, target: string, groups: RepoGroup[]): string | null {
+async function resolveTarget(
+  root: string,
+  target: string,
+  groups: RepoGroup[]
+): Promise<string | null> {
   if (target === '.') {
     return root
   }
@@ -72,7 +77,7 @@ function resolveTarget(root: string, target: string, groups: RepoGroup[]): strin
   const repo = parseGitHubRepoInput(target)
   if (repo) {
     const candidate = path.join(root, repo.owner, repo.name)
-    if (existsSync(candidate) && statSync(candidate).isDirectory()) {
+    if ((await pathExists(candidate)) && (await stat(candidate)).isDirectory()) {
       return candidate
     }
   }

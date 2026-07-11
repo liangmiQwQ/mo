@@ -1,5 +1,4 @@
-import { existsSync } from 'node:fs'
-import { readFile, rm } from 'node:fs/promises'
+import { access, readFile, rm } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { resolve } from 'node:path'
 
@@ -25,7 +24,9 @@ function parseGroupName(): keyof typeof wrapperGroups {
 
 async function removeIfManaged(name: string): Promise<void> {
   const target = resolve(binDir, name)
-  if (!existsSync(target)) {
+  try {
+    await access(target)
+  } catch {
     console.log(pc.gray(`Skipped ${name}: not found at ${target}`))
     return
   }

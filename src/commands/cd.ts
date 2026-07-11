@@ -7,9 +7,7 @@ export async function runCdCommand(
   config: GlobalUserConfig
 ): Promise<void> {
   try {
-    await withPathSelector(config.root, target, nextPath => {
-      appendCdAction(nextPath)
-    })
+    await withPathSelector(config.root, target, appendCdAction)
   } catch {
     // Canceled by user - exit silently
     process.exit(130)
