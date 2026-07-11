@@ -27,16 +27,16 @@
 
 ## Shell RC Block
 
-When shells are configured, mo owns a fenced block in the corresponding rc file (`~/.zshrc`, `~/.bashrc`, `~/.config/fish/config.fish`). The block must not be edited by the user.
+When shells are configured, `free-shellrc` owns a fenced block for the installed package in the corresponding rc file (`~/.zshrc`, `~/.bashrc`, `~/.config/fish/config.fish`). The block must not be edited by the user.
 
 ```bash
-#_MO_START_
-# Please do not edit the comments `#_MO_START_` or `#_MO_END_`, which probably makes mo feature broken.
+# >>> _@liangmi/mo_START >>>
+# Please do not edit this managed block.
 ... generated code
-#_MO_END_
+# <<< _@liangmi/mo_END <<<
 ```
 
-mo regenerates the content inside the block on every config change. The `preuninstall` script removes the block on `npm uninstall`.
+mo syncs the block before config-required commands. If the installed package disappears, the block removes itself the next time the shell profile loads.
 
 ## Error Handling
 

@@ -4,12 +4,7 @@ import type { SupportedShell } from '../utils/config.ts'
 import { getDefaultConfigPath, loadConfig, supportedShells } from '../utils/config.ts'
 import { error } from '../utils/error.ts'
 import { pathExists } from '../utils/fs.ts'
-import {
-  getRestartFlagPath,
-  innerBinName,
-  shellIntegrationEnvName,
-  userBinName
-} from '../utils/runner.ts'
+import { innerBinName, shellIntegrationEnvName, userBinName } from '../utils/runner.ts'
 
 export async function generateShellIntegration(shell: string): Promise<string> {
   if (!isValidShell(shell)) {
@@ -33,11 +28,8 @@ function generateBashZshIntegration(
     compositionAlias,
     (name, target) => `alias ${name}='${target}'`
   )
-  const flagPath = getRestartFlagPath()
   return [
     '# mo shell integration script',
-    `# Clear restart flag if present (setup completed in previous shell)`,
-    `rm -f "${flagPath}" 2>/dev/null || true`,
     `${userBinName}() {`,
     `  ${innerBinName} actions-clear >/dev/null 2>&1 || true`,
     `  ${shellIntegrationEnvName}=1 command ${userBinName} "$@" || return $?`,
@@ -58,11 +50,8 @@ function generateFishIntegration(aliases: CommandAliasConfig, compositionAlias: 
     compositionAlias,
     (name, target) => `alias ${name} '${target}'`
   )
-  const flagPath = getRestartFlagPath()
   return [
     '# mo shell integration script',
-    '# Clear restart flag if present (setup completed in previous shell)',
-    `rm -f "${flagPath}" 2>/dev/null; or true`,
     `function ${userBinName}`,
     `  ${innerBinName} actions-clear >/dev/null 2>&1; or true`,
     `  env ${shellIntegrationEnvName}=1 command ${userBinName} $argv`,

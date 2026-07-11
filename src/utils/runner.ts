@@ -3,7 +3,6 @@ import path from 'node:path'
 
 import { ensureToolReady } from './commands.ts'
 import { error } from './error.ts'
-import { pathExists } from './fs.ts'
 
 export const userBinName = resolveUserBinName()
 export const innerBinName = `${userBinName}-inner`
@@ -26,19 +25,8 @@ export async function preventRunning() {
   }
 }
 
-export function getRestartFlagPath() {
-  return path.join(tmpdir(), `${userBinName}-restart-flag`)
-}
-
 export function getShellActionsPath() {
   return path.join(tmpdir(), `${userBinName}-shell-actions`)
-}
-
-export async function checkRestartRequired(): Promise<void> {
-  const flagPath = getRestartFlagPath()
-  if (await pathExists(flagPath)) {
-    error('Please restart your shell to apply the recent setup changes.')
-  }
 }
 
 function resolveUserBinName(): string {
