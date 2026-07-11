@@ -1,4 +1,3 @@
-import { existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
@@ -26,19 +25,8 @@ export async function preventRunning() {
   }
 }
 
-export function getRestartFlagPath() {
-  return path.join(tmpdir(), `${userBinName}-restart-flag`)
-}
-
 export function getShellActionsPath() {
   return path.join(tmpdir(), `${userBinName}-shell-actions`)
-}
-
-export function checkRestartRequired(): void {
-  const flagPath = getRestartFlagPath()
-  if (existsSync(flagPath)) {
-    error('Please restart your shell to apply the recent setup changes.')
-  }
 }
 
 function resolveUserBinName(): string {

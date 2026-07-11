@@ -26,7 +26,7 @@ mo setup
 6. **Composition Alias**: prompt for whether to use commands like `ki` to compose commands.
 7. **Editor**: prompt for the editor binary to use with `mo edit`. Default to `$EDITOR` or `code` if unset.
 8. **Write config**: save all collected values to `~/.config/morc.json`.
-9. **Sync rc blocks**: write or update the `#_MO_START_` ... `#_MO_END_` block in each selected shell's rc file.
+9. **Sync rc blocks**: use `free-shellrc` to write or update the package-owned block in each selected shell's rc file.
 
 ## Setup Guard
 

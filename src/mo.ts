@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs'
 
 import { cac } from 'cac'
+import { shellrcGuard } from 'free-shellrc'
 
 import { version } from '../package.json'
 import { runCdCommand } from './commands/cd.ts'
@@ -17,12 +18,13 @@ import { promptRunSetupOnMissingConfig, runSetupCommand } from './commands/setup
 import { getDefaultConfigPath, loadConfig } from './utils/config.ts'
 import type { GlobalUserConfig } from './utils/config.ts'
 import { error as printError } from './utils/error.ts'
-import { checkRestartRequired, preventRunning, userBinName } from './utils/runner.ts'
+import { preventRunning, userBinName } from './utils/runner.ts'
 import { syncShellrc } from './utils/shellrc.ts'
+
+shellrcGuard(import.meta.url)
 
 const cli = cac(userBinName)
 await preventRunning()
-checkRestartRequired()
 
 function withConfig<T extends unknown[]>(
   handler: (config: GlobalUserConfig, ...args: T) => Promise<void> | void
