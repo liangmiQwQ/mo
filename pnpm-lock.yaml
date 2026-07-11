@@ -76,8 +76,8 @@ importers:
   dist-moi:
     dependencies:
       free-shellrc:
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.2.0
+        version: 0.2.0
       jsonc-parser:
         specifier: ^3.3.1
         version: 3.3.1
@@ -1049,9 +1049,6 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
-
-  free-shellrc@0.1.0:
-    resolution: {integrity: sha512-lG1B52X7gl/2j8BaQ+G8JIG9I9v/ppSSuc6RhwfZ7uzS9E9dbQ5BrOMtzNLohrD6zCx5ZcriMdZMJVv9pgunmw==}
 
   free-shellrc@0.2.0:
     resolution: {integrity: sha512-2ATsb88O/NwxlVmnXgfI8dHLY5A9/L0m1yZFxLIjflcSpUo3hyzFxQgTS6klAazhWVWF77djX1V94YM2amPr6g==}
@@ -2155,8 +2152,6 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.5):
     optionalDependencies:
       picomatch: 4.0.5
-
-  free-shellrc@0.1.0: {}
 
   free-shellrc@0.2.0: {}
 
