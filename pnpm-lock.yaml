@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       free-shellrc:
-        specifier: ^0.1.1
-        version: 0.1.1
+        specifier: ^0.2.0
+        version: 0.2.0
       jsonc-parser:
         specifier: ^3.3.1
         version: 3.3.1
@@ -1053,8 +1053,8 @@ packages:
   free-shellrc@0.1.0:
     resolution: {integrity: sha512-lG1B52X7gl/2j8BaQ+G8JIG9I9v/ppSSuc6RhwfZ7uzS9E9dbQ5BrOMtzNLohrD6zCx5ZcriMdZMJVv9pgunmw==}
 
-  free-shellrc@0.1.1:
-    resolution: {integrity: sha512-NbCXqFdrjjxh7+kiqo4+4a4lNN2VREQGv5QZJ1oNwbThyk0Ik0x69Gjpfy6X+TKZLNEx6LviZejnTDGyNY6qqw==}
+  free-shellrc@0.2.0:
+    resolution: {integrity: sha512-2ATsb88O/NwxlVmnXgfI8dHLY5A9/L0m1yZFxLIjflcSpUo3hyzFxQgTS6klAazhWVWF77djX1V94YM2amPr6g==}
 
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
@@ -2158,7 +2158,7 @@ snapshots:
 
   free-shellrc@0.1.0: {}
 
-  free-shellrc@0.1.1: {}
+  free-shellrc@0.2.0: {}
 
   fsevents@2.3.3:
     optional: true

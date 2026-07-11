@@ -20,7 +20,10 @@ import { pathExists } from './utils/fs.ts'
 import { preventRunning, userBinName } from './utils/runner.ts'
 import { syncShellrc } from './utils/shellrc.ts'
 
-shellrcGuard(import.meta.url)
+const shellrcDiagnostic = shellrcGuard(import.meta.url)
+if (shellrcDiagnostic) {
+  printError(shellrcDiagnostic.message)
+}
 
 const cli = cac(userBinName)
 await preventRunning()
