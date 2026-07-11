@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import path from 'node:path'
 
@@ -6,16 +6,20 @@ import { parse } from 'jsonc-parser'
 import type { ParseError } from 'jsonc-parser'
 import untildify from 'untildify'
 
+import { pathExists } from './fs.ts'
+
 export function getDefaultConfigPath(): string {
   return path.join(homedir(), '.config', 'morc.json')
 }
 
-export function resolveRootPath(configFilePath = getDefaultConfigPath()): string | undefined {
-  if (!existsSync(configFilePath)) {
+export async function resolveRootPath(
+  configFilePath = getDefaultConfigPath()
+): Promise<string | undefined> {
+  if (!(await pathExists(configFilePath))) {
     return undefined
   }
 
-  const config = parseJsonc(readFileSync(configFilePath, 'utf8'))
+  const config = parseJsonc(await readFile(configFilePath, 'utf8'))
   if (!config || typeof config !== 'object' || Array.isArray(config)) {
     return undefined
   }

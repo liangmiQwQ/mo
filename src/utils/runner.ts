@@ -1,9 +1,9 @@
-import { existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
 import { ensureToolReady } from './commands.ts'
 import { error } from './error.ts'
+import { pathExists } from './fs.ts'
 
 export const userBinName = resolveUserBinName()
 export const innerBinName = `${userBinName}-inner`
@@ -34,9 +34,9 @@ export function getShellActionsPath() {
   return path.join(tmpdir(), `${userBinName}-shell-actions`)
 }
 
-export function checkRestartRequired(): void {
+export async function checkRestartRequired(): Promise<void> {
   const flagPath = getRestartFlagPath()
-  if (existsSync(flagPath)) {
+  if (await pathExists(flagPath)) {
     error('Please restart your shell to apply the recent setup changes.')
   }
 }

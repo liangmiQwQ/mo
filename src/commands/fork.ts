@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, rmSync, rmdirSync } from 'node:fs'
+import { mkdir, readdir, rm, rmdir } from 'node:fs/promises'
 import path from 'node:path'
 
 import pc from 'picocolors'
@@ -7,6 +7,7 @@ import { x } from 'tinyexec'
 import type { GlobalUserConfig } from '../utils/config.ts'
 import { error } from '../utils/error.ts'
 import { icons, startSpinner, stopSpinner, success, toTildePath } from '../utils/format.ts'
+import { pathExists } from '../utils/fs.ts'
 import { parseGitHubRepo } from '../utils/github.ts'
 import { promptConfirm, promptText } from '../utils/prompt.ts'
 
@@ -57,14 +58,14 @@ export async function runForkCommand(
 
   const ownerDir = path.join(config.root, parsed.owner)
   const targetDir = path.join(ownerDir, parsed.name)
-  const ownerExisted = existsSync(ownerDir)
+  const ownerExisted = await pathExists(ownerDir)
 
-  if (existsSync(targetDir)) {
+  if (await pathExists(targetDir)) {
     error(`Repository already exists at ${pc.cyan(toTildePath(targetDir))}`)
   }
 
   if (!ownerExisted) {
-    mkdirSync(ownerDir, { recursive: true })
+    await mkdir(ownerDir, { recursive: true })
   }
 
   const cloneUrl = `https://github.com/${parsed.owner}/${parsed.name}.git`
@@ -96,7 +97,7 @@ export async function runForkCommand(
   const cloneFailed = cloneSettled.status === 'rejected' || (cloneResult?.exitCode ?? 1) !== 0
 
   if (forkFailed) {
-    cleanupClone(targetDir, ownerDir, ownerExisted)
+    await cleanupClone(targetDir, ownerDir, ownerExisted)
     const details =
       forkSettled.status === 'rejected'
         ? String(forkSettled.reason)
@@ -105,7 +106,7 @@ export async function runForkCommand(
   }
 
   if (cloneFailed) {
-    cleanupClone(targetDir, ownerDir, ownerExisted)
+    await cleanupClone(targetDir, ownerDir, ownerExisted)
     console.log(
       `${icons.warning} ${pc.yellow(`Fork created at ${pc.bold(forkLabel)} but clone failed.`)}`
     )
@@ -283,13 +284,17 @@ async function configureRemotes(
   )
 }
 
-function cleanupClone(targetDir: string, ownerDir: string, ownerExisted: boolean): void {
+async function cleanupClone(
+  targetDir: string,
+  ownerDir: string,
+  ownerExisted: boolean
+): Promise<void> {
   try {
-    if (existsSync(targetDir)) {
-      rmSync(targetDir, { recursive: true, force: true })
+    if (await pathExists(targetDir)) {
+      await rm(targetDir, { recursive: true, force: true })
     }
-    if (!ownerExisted && existsSync(ownerDir) && readdirSync(ownerDir).length === 0) {
-      rmdirSync(ownerDir)
+    if (!ownerExisted && (await pathExists(ownerDir)) && (await readdir(ownerDir)).length === 0) {
+      await rmdir(ownerDir)
     }
   } catch {
     // Best-effort cleanup

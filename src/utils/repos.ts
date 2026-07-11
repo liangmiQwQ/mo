@@ -1,7 +1,9 @@
-import { existsSync, readdirSync } from 'node:fs'
+import { readdir } from 'node:fs/promises'
 import path from 'node:path'
 
 import { x } from 'tinyexec'
+
+import { pathExists } from './fs.ts'
 
 export interface RepoEntry {
   owner: string
@@ -15,9 +17,9 @@ export interface RepoGroup {
   repos: RepoEntry[]
 }
 
-function readDirectoryNames(dir: string): string[] {
+async function readDirectoryNames(dir: string): Promise<string[]> {
   try {
-    return readdirSync(dir, { withFileTypes: true })
+    return (await readdir(dir, { withFileTypes: true }))
       .filter(entry => entry.isDirectory())
       .map(entry => entry.name)
       .toSorted()
@@ -26,8 +28,8 @@ function readDirectoryNames(dir: string): string[] {
   }
 }
 
-function isGitRepo(dir: string): boolean {
-  return existsSync(path.join(dir, '.git'))
+async function isGitRepo(dir: string): Promise<boolean> {
+  return pathExists(path.join(dir, '.git'))
 }
 
 async function hasGitHubRemote(dir: string): Promise<boolean> {
@@ -43,17 +45,17 @@ async function hasGitHubRemote(dir: string): Promise<boolean> {
 }
 
 export async function scanRepos(root: string): Promise<RepoGroup[]> {
-  const owners = readDirectoryNames(root)
+  const owners = await readDirectoryNames(root)
   const groups: RepoGroup[] = []
 
   for (const owner of owners) {
     const ownerPath = path.join(root, owner)
-    const potentialRepos = readDirectoryNames(ownerPath)
+    const potentialRepos = await readDirectoryNames(ownerPath)
     const repos: RepoEntry[] = []
 
     for (const repo of potentialRepos) {
       const repoPath = path.join(ownerPath, repo)
-      if (isGitRepo(repoPath) && (await hasGitHubRemote(repoPath))) {
+      if ((await isGitRepo(repoPath)) && (await hasGitHubRemote(repoPath))) {
         repos.push({ owner, name: repo, path: repoPath })
       }
     }

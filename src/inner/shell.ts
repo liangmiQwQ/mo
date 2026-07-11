@@ -1,10 +1,9 @@
-import { existsSync } from 'node:fs'
-
 import type { CommandAliasConfig } from '../utils/alias.ts'
 import { buildAliasLines } from '../utils/alias.ts'
 import type { SupportedShell } from '../utils/config.ts'
 import { getDefaultConfigPath, loadConfig, supportedShells } from '../utils/config.ts'
 import { error } from '../utils/error.ts'
+import { pathExists } from '../utils/fs.ts'
 import {
   getRestartFlagPath,
   innerBinName,
@@ -12,12 +11,12 @@ import {
   userBinName
 } from '../utils/runner.ts'
 
-export function generateShellIntegration(shell: string): string {
+export async function generateShellIntegration(shell: string): Promise<string> {
   if (!isValidShell(shell)) {
     error(`Invalid shell "${shell}". Supported: ${supportedShells.join(', ')}`)
   }
 
-  const config = loadShellConfig()
+  const config = await loadShellConfig()
   if (shell === 'bash' || shell === 'zsh') {
     return generateBashZshIntegration(shell, config.alias, config.compositionAlias)
   }
@@ -80,14 +79,17 @@ function isValidShell(shell: string): shell is SupportedShell {
   return supportedShells.includes(shell as SupportedShell)
 }
 
-function loadShellConfig(): { alias: CommandAliasConfig; compositionAlias: boolean } {
+async function loadShellConfig(): Promise<{
+  alias: CommandAliasConfig
+  compositionAlias: boolean
+}> {
   const configPath = getDefaultConfigPath()
-  if (!existsSync(configPath)) {
+  if (!(await pathExists(configPath))) {
     return { alias: {}, compositionAlias: false }
   }
 
   try {
-    const config = loadConfig()
+    const config = await loadConfig()
     return { alias: config.alias ?? {}, compositionAlias: config.compositionAlias }
   } catch {
     return { alias: {}, compositionAlias: false }
