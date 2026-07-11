@@ -20,12 +20,15 @@ export async function withPathSelector<T>(
   const resolvedTarget = target?.trim()
 
   if (resolvedTarget) {
-    let groups: RepoGroup[] = []
-    if (resolvedTarget !== '.') {
-      const spinner = startSpinner('Scanning repositories...')
-      groups = await scanRepos(root)
-      stopSpinner(spinner)
+    const explicitTarget = await resolveTarget(root, resolvedTarget, [])
+    if (explicitTarget) {
+      console.log(`${icons.success} ${pc.cyan(toTildePath(explicitTarget))}`)
+      return action(explicitTarget)
     }
+
+    const spinner = startSpinner('Scanning repositories...')
+    const groups = await scanRepos(root)
+    stopSpinner(spinner)
 
     const resolved = await resolveTarget(root, resolvedTarget, groups)
     if (!resolved) {

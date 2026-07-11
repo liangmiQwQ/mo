@@ -1,8 +1,6 @@
 import { readdir } from 'node:fs/promises'
 import path from 'node:path'
 
-import { x } from 'tinyexec'
-
 import { pathExists } from './fs.ts'
 
 export interface RepoEntry {
@@ -32,18 +30,6 @@ async function isGitRepo(dir: string): Promise<boolean> {
   return pathExists(path.join(dir, '.git'))
 }
 
-async function hasGitHubRemote(dir: string): Promise<boolean> {
-  try {
-    const result = await x('git', ['remote', '-v'], {
-      throwOnError: false,
-      nodeOptions: { cwd: dir }
-    })
-    return result.stdout.includes('github.com')
-  } catch {
-    return false
-  }
-}
-
 export async function scanRepos(root: string): Promise<RepoGroup[]> {
   const owners = await readDirectoryNames(root)
   const groups: RepoGroup[] = []
@@ -55,7 +41,7 @@ export async function scanRepos(root: string): Promise<RepoGroup[]> {
 
     for (const repo of potentialRepos) {
       const repoPath = path.join(ownerPath, repo)
-      if ((await isGitRepo(repoPath)) && (await hasGitHubRemote(repoPath))) {
+      if (await isGitRepo(repoPath)) {
         repos.push({ owner, name: repo, path: repoPath })
       }
     }
