@@ -4,3 +4,4 @@ packages:
 minimumReleaseAgeExclude:
   - '@liangmi/vp-config@0.1.2'
   - free-shellrc@0.1.0
+  - free-shellrc@0.1.1

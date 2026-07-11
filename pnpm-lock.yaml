@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       free-shellrc:
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.1.1
+        version: 0.1.1
       jsonc-parser:
         specifier: ^3.3.1
         version: 3.3.1
@@ -75,6 +75,9 @@ importers:
 
   dist-moi:
     dependencies:
+      free-shellrc:
+        specifier: ^0.1.0
+        version: 0.1.0
       jsonc-parser:
         specifier: ^3.3.1
         version: 3.3.1
@@ -981,8 +984,8 @@ packages:
     resolution: {integrity: sha512-/lzGpEWL/8PfI0BmBOPRwp0c/wFNX1RdUML3jK/RcSBA9T8mZDdQpqYBKtCFTOfQbwPqWEOpjqW+Fnayc0969g==}
     engines: {node: '>=10'}
 
-  cli-truncate@6.1.0:
-    resolution: {integrity: sha512-ofWtXdvPO1WepoE9Gn4dPdZw+ADud1Yz9K+xm9FjK5vvrs/D60vrlKIQeSw1wJX4cphW2bnWi8GZSKvf9T6shw==}
+  cli-truncate@6.1.1:
+    resolution: {integrity: sha512-06p9vyLahLa4zkGcgsGxU6iEkSOiuI4fhCH6Emhe2lPAcoUv73n72DnODsnHA+5wwXGnV0n9M9/qOQJSjYhFhw==}
     engines: {node: '>=22'}
 
   code-excerpt@4.0.0:
@@ -1049,6 +1052,9 @@ packages:
 
   free-shellrc@0.1.0:
     resolution: {integrity: sha512-lG1B52X7gl/2j8BaQ+G8JIG9I9v/ppSSuc6RhwfZ7uzS9E9dbQ5BrOMtzNLohrD6zCx5ZcriMdZMJVv9pgunmw==}
+
+  free-shellrc@0.1.1:
+    resolution: {integrity: sha512-NbCXqFdrjjxh7+kiqo4+4a4lNN2VREQGv5QZJ1oNwbThyk0Ik0x69Gjpfy6X+TKZLNEx6LviZejnTDGyNY6qqw==}
 
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
@@ -2000,7 +2006,7 @@ snapshots:
       ansi-escapes: 7.3.0
       chalk: 5.6.2
       cli-boxes: 3.0.0
-      cli-truncate: 6.1.0
+      cli-truncate: 6.1.1
       code-excerpt: 4.0.0
       is-in-ci: 2.0.0
       patch-console: 2.0.0
@@ -2107,7 +2113,7 @@ snapshots:
 
   cli-boxes@3.0.0: {}
 
-  cli-truncate@6.1.0:
+  cli-truncate@6.1.1:
     dependencies:
       slice-ansi: 9.0.0
       string-width: 8.2.2
@@ -2151,6 +2157,8 @@ snapshots:
       picomatch: 4.0.5
 
   free-shellrc@0.1.0: {}
+
+  free-shellrc@0.1.1: {}
 
   fsevents@2.3.3:
     optional: true
