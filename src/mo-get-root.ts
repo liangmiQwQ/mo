@@ -2,7 +2,7 @@
 import { getDefaultConfigPath, resolveRootPath } from './utils/root.ts'
 
 const configPath = getDefaultConfigPath()
-const rootPath = resolveRootPath(configPath)
+const rootPath = await resolveRootPath(configPath)
 
 console.log(
   JSON.stringify(

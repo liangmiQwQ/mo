@@ -1,6 +1,7 @@
-import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
+import { pathExists } from '../utils/fs.ts'
 import { getShellActionsPath, shellIntegrationEnvName } from '../utils/runner.ts'
 
 type ShellAction = CdAction | EditAction
@@ -41,28 +42,28 @@ export function hasShellIntegration(): boolean {
   return process.env[shellIntegrationEnvName] === '1'
 }
 
-export function appendCdAction(path: string): void {
-  appendShellAction({ type: 'cd', path })
+export async function appendCdAction(path: string): Promise<void> {
+  await appendShellAction({ type: 'cd', path })
 }
 
-export function appendEditAction(editor: string, path: string): void {
-  appendShellAction({ type: 'edit', editor, path })
+export async function appendEditAction(editor: string, path: string): Promise<void> {
+  await appendShellAction({ type: 'edit', editor, path })
 }
 
-export function clearShellActions(): void {
+export async function clearShellActions(): Promise<void> {
   const actionsPath = getShellActionsPath()
-  if (existsSync(actionsPath)) {
-    rmSync(actionsPath)
+  if (await pathExists(actionsPath)) {
+    await rm(actionsPath)
   }
 }
 
-export function generateShellActions(shell: string): string {
+export async function generateShellActions(shell: string): Promise<string> {
   if (!isSupportedActionShell(shell)) {
     return ''
   }
 
-  const actions = readShellActions()
-  clearShellActions()
+  const actions = await readShellActions()
+  await clearShellActions()
 
   return actions
     .map(action => renderShellAction(action, shell))
@@ -74,19 +75,19 @@ export function buildDirectEditorEnv(): NodeJS.ProcessEnv {
   return buildCleanEditorEnv(process.env)
 }
 
-function appendShellAction(action: ShellAction): void {
-  const actions = readShellActions()
-  writeFileSync(getShellActionsPath(), JSON.stringify([...actions, action]), 'utf8')
+async function appendShellAction(action: ShellAction): Promise<void> {
+  const actions = await readShellActions()
+  await writeFile(getShellActionsPath(), JSON.stringify([...actions, action]), 'utf8')
 }
 
-function readShellActions(): ShellAction[] {
+async function readShellActions(): Promise<ShellAction[]> {
   const actionsPath = getShellActionsPath()
-  if (!existsSync(actionsPath)) {
+  if (!(await pathExists(actionsPath))) {
     return []
   }
 
   try {
-    const parsed = JSON.parse(readFileSync(actionsPath, 'utf8'))
+    const parsed = JSON.parse(await readFile(actionsPath, 'utf8'))
     if (!Array.isArray(parsed)) {
       return []
     }

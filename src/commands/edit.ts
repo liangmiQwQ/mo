@@ -1,4 +1,5 @@
-import { spawnSync } from 'node:child_process'
+import { spawn } from 'node:child_process'
+import { once } from 'node:events'
 
 import { appendEditAction, buildDirectEditorEnv, hasShellIntegration } from '../inner/actions.ts'
 import type { GlobalUserConfig } from '../utils/config.ts'
@@ -16,16 +17,27 @@ export async function runEditCommand(
   }
 
   try {
-    await withPathSelector(config.root, target, selectedPath => {
+    await withPathSelector(config.root, target, async selectedPath => {
       if (hasShellIntegration()) {
-        appendEditAction(editorCommand, selectedPath)
+        await appendEditAction(editorCommand, selectedPath)
         return
       }
 
-      spawnSync(editorCommand, [selectedPath], { env: buildDirectEditorEnv(), stdio: 'inherit' })
+      await runEditor(editorCommand, selectedPath)
     })
   } catch {
     process.exit(130)
+  }
+}
+
+async function runEditor(editorCommand: string, selectedPath: string): Promise<void> {
+  const child = spawn(editorCommand, [selectedPath], {
+    env: buildDirectEditorEnv(),
+    stdio: 'inherit'
+  })
+  const [code] = await once(child, 'exit')
+  if (code !== 0) {
+    throw new Error(`Exit code ${code}`)
   }
 }
 

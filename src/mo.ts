@@ -1,5 +1,3 @@
-import { existsSync } from 'node:fs'
-
 import { cac } from 'cac'
 import { shellrcGuard } from 'free-shellrc'
 
@@ -18,6 +16,7 @@ import { promptRunSetupOnMissingConfig, runSetupCommand } from './commands/setup
 import { getDefaultConfigPath, loadConfig } from './utils/config.ts'
 import type { GlobalUserConfig } from './utils/config.ts'
 import { error as printError } from './utils/error.ts'
+import { pathExists } from './utils/fs.ts'
 import { preventRunning, userBinName } from './utils/runner.ts'
 import { syncShellrc } from './utils/shellrc.ts'
 
@@ -32,12 +31,12 @@ function withConfig<T extends unknown[]>(
   return async (...args: T): Promise<void> => {
     const configPath = getDefaultConfigPath()
 
-    if (!existsSync(configPath)) {
+    if (!(await pathExists(configPath))) {
       await promptRunSetupOnMissingConfig(runSetupCommand)
       return
     }
 
-    const config = loadConfig()
+    const config = await loadConfig()
     await syncShellrcForRun(config)
     return handler(config, ...args)
   }

@@ -1,4 +1,3 @@
-import { existsSync } from 'node:fs'
 import { mkdir, stat, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -18,6 +17,7 @@ import type { SupportedShell, GlobalUserConfig } from '../utils/config.ts'
 import { getDefaultConfigPath, loadConfig, supportedShells } from '../utils/config.ts'
 import { error } from '../utils/error.ts'
 import { success, toTildePath } from '../utils/format.ts'
+import { pathExists } from '../utils/fs.ts'
 import { promptConfirm, promptMultiselect, promptText } from '../utils/prompt.ts'
 import { syncShellrc } from '../utils/shellrc.ts'
 
@@ -28,7 +28,7 @@ export async function runSetupCommand(): Promise<void> {
   const configPath = getDefaultConfigPath()
 
   let existingConfig: GlobalUserConfig | undefined
-  if (existsSync(configPath)) {
+  if (await pathExists(configPath)) {
     const confirmed = await promptConfirm(
       `Config already exists at ${toTildePath(configPath)}. Would you like to reconfigure?`,
       'reconfigure',
@@ -38,7 +38,7 @@ export async function runSetupCommand(): Promise<void> {
       return
     }
     try {
-      existingConfig = loadConfig()
+      existingConfig = await loadConfig()
     } catch {
       // Proceed without defaults if config is invalid
     }

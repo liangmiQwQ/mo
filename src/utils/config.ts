@@ -1,8 +1,9 @@
-import { existsSync, readFileSync, statSync } from 'node:fs'
+import { readFile, stat } from 'node:fs/promises'
 
 import type { CommandAliasConfig } from './alias.ts'
 import { aliasCommands, isAliasCommand, isLegacyAliasCommand, isValidAliasName } from './alias.ts'
 import { error } from './error.ts'
+import { pathExists } from './fs.ts'
 import { getDefaultConfigPath, parseJsonc, resolveRootFromConfig } from './root.ts'
 
 export { getDefaultConfigPath, resolveRootPath } from './root.ts'
@@ -19,19 +20,19 @@ export interface GlobalUserConfig {
   compositionAlias: boolean
 }
 
-export function loadConfig(): GlobalUserConfig {
+export async function loadConfig(): Promise<GlobalUserConfig> {
   const configFilePath = getDefaultConfigPath()
 
-  if (!existsSync(configFilePath)) {
+  if (!(await pathExists(configFilePath))) {
     error(`Couldn't find config file at ${configFilePath}`)
   }
 
-  const content = readFileSync(configFilePath, 'utf8').trim()
+  const content = (await readFile(configFilePath, 'utf8')).trim()
 
   return parseConfig(content, configFilePath)
 }
 
-function parseConfig(jsonc: string, configFilePath: string): GlobalUserConfig {
+async function parseConfig(jsonc: string, configFilePath: string): Promise<GlobalUserConfig> {
   const invalidConfigError = (message: string): never =>
     error(`Invalid config: ${message} at ${configFilePath}`)
 
@@ -55,11 +56,11 @@ function parseConfig(jsonc: string, configFilePath: string): GlobalUserConfig {
     invalidConfigError('"root" must be a non-empty string')
   const { editor } = configRecord
 
-  if (!existsSync(rootPath)) {
+  if (!(await pathExists(rootPath))) {
     invalidConfigError(`"root" directory does not exist`)
   }
 
-  if (!statSync(rootPath).isDirectory()) {
+  if (!(await stat(rootPath)).isDirectory()) {
     invalidConfigError(`"root" path is not a directory`)
   }
 

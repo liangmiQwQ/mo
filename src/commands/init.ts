@@ -1,4 +1,3 @@
-import { existsSync } from 'node:fs'
 import path from 'node:path'
 
 import pc from 'picocolors'
@@ -7,6 +6,7 @@ import { x } from 'tinyexec'
 import type { GlobalUserConfig } from '../utils/config.ts'
 import { error } from '../utils/error.ts'
 import { icons, startSpinner, stopSpinner, success, toTildePath } from '../utils/format.ts'
+import { pathExists } from '../utils/fs.ts'
 import { promptConfirm } from '../utils/prompt.ts'
 
 export interface InitOptions {
@@ -26,7 +26,7 @@ export async function runInitCommand(
 
   // Check existing state
   const gitDir = path.join(cwd, '.git')
-  const hasGit = existsSync(gitDir)
+  const hasGit = await pathExists(gitDir)
 
   if (hasGit) {
     const hasOrigin = await checkRemoteExists(cwd, 'origin')
