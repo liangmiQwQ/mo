@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       free-shellrc:
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: ^0.3.0
+        version: 0.3.0
       jsonc-parser:
         specifier: ^3.3.1
         version: 3.3.1
@@ -76,8 +76,8 @@ importers:
   dist-moi:
     dependencies:
       free-shellrc:
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: ^0.3.0
+        version: 0.3.0
       jsonc-parser:
         specifier: ^3.3.1
         version: 3.3.1
@@ -1050,8 +1050,8 @@ packages:
       picomatch:
         optional: true
 
-  free-shellrc@0.2.0:
-    resolution: {integrity: sha512-2ATsb88O/NwxlVmnXgfI8dHLY5A9/L0m1yZFxLIjflcSpUo3hyzFxQgTS6klAazhWVWF77djX1V94YM2amPr6g==}
+  free-shellrc@0.3.0:
+    resolution: {integrity: sha512-3jgHvLv0GfbscRnv1XZPPlehOt+RJcao4UaBgudlWZEcq0iuHJK5ZPz/+wl3pwj5F9J1mY2ZE/QKSKaDQgbSaw==}
 
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
@@ -1454,6 +1454,11 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  which-command@0.1.0:
+    resolution: {integrity: sha512-XZyoF5/5hZtXitIwzrU4NKK+Wtbb9aB9CezUEw2Q0wlYK8NUYQxC1rRXgNueYLtBAJwXIb+/tFVk4dozciNJMA==}
+    engines: {node: '>=22'}
+    hasBin: true
 
   which@7.0.0:
     resolution: {integrity: sha512-RancgH2dmbLdHl6LRhEqvklWMgl/Hdnun0Y90KhBOLkMefg8Qa7/Zel8Sm+8HEcP6DEjzsWzpkuBQEZok58isA==}
@@ -2153,7 +2158,9 @@ snapshots:
     optionalDependencies:
       picomatch: 4.0.5
 
-  free-shellrc@0.2.0: {}
+  free-shellrc@0.3.0:
+    dependencies:
+      which-command: 0.1.0
 
   fsevents@2.3.3:
     optional: true
@@ -2555,6 +2562,8 @@ snapshots:
       '@vue/shared': 3.5.39
     optionalDependencies:
       typescript: 7.0.2
+
+  which-command@0.1.0: {}
 
   which@7.0.0:
     dependencies:

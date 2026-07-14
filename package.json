@@ -44,7 +44,7 @@
     "test": "vp run ctest run"
   },
   "dependencies": {
-    "free-shellrc": "^0.2.0",
+    "free-shellrc": "^0.3.0",
     "jsonc-parser": "^3.3.1",
     "prompts": "^2.4.2"
   },

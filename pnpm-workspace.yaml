@@ -2,4 +2,4 @@ packages:
   - .
   - dist-moi
 minimumReleaseAgeExclude:
-  - free-shellrc@0.2.0
+  - free-shellrc@0.3.0

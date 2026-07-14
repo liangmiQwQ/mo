@@ -20,7 +20,7 @@ import { pathExists } from './utils/fs.ts'
 import { preventRunning, userBinName } from './utils/runner.ts'
 import { syncShellrc } from './utils/shellrc.ts'
 
-const shellrcDiagnostic = shellrcGuard(import.meta.url)
+const shellrcDiagnostic = shellrcGuard(import.meta.url, userBinName)
 if (shellrcDiagnostic) {
   printError(shellrcDiagnostic.message)
 }
