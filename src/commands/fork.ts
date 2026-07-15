@@ -6,7 +6,7 @@ import { x } from 'tinyexec'
 
 import type { GlobalUserConfig } from '../utils/config.ts'
 import { error } from '../utils/error.ts'
-import { icons, startSpinner, stopSpinner, success, toTildePath } from '../utils/format.ts'
+import { icons, startSpinner, stopSpinner, toTildePath } from '../utils/format.ts'
 import { pathExists } from '../utils/fs.ts'
 import { parseGitHubRepo } from '../utils/github.ts'
 import { promptConfirm, promptText } from '../utils/prompt.ts'
@@ -88,8 +88,6 @@ export async function runForkCommand(
 
   const [cloneSettled, forkSettled] = await Promise.allSettled([cloneExec, forkExec])
 
-  stopSpinner(spinner)
-
   const forkResult = forkSettled.status === 'fulfilled' ? forkSettled.value : null
   const cloneResult = cloneSettled.status === 'fulfilled' ? cloneSettled.value : null
 
@@ -97,6 +95,7 @@ export async function runForkCommand(
   const cloneFailed = cloneSettled.status === 'rejected' || (cloneResult?.exitCode ?? 1) !== 0
 
   if (forkFailed) {
+    stopSpinner(spinner)
     await cleanupClone(targetDir, ownerDir, ownerExisted)
     const details =
       forkSettled.status === 'rejected'
@@ -106,6 +105,7 @@ export async function runForkCommand(
   }
 
   if (cloneFailed) {
+    stopSpinner(spinner)
     await cleanupClone(targetDir, ownerDir, ownerExisted)
     console.log(
       `${icons.warning} ${pc.yellow(`Fork created at ${pc.bold(forkLabel)} but clone failed.`)}`
@@ -120,11 +120,11 @@ export async function runForkCommand(
     error(`Clone failed for ${parsed.owner}/${parsed.name}: ${details}`)
   }
 
-  success(`Forked ${pc.bold(`${parsed.owner}/${parsed.name}`)} to ${pc.bold(forkLabel)}`)
-
   const effectiveOrg = forkOrg ?? (await getGhAuthUser())
   await configureRemotes(targetDir, parsed.owner, parsed.name, effectiveOrg, forkName)
+  stopSpinner(spinner)
 
+  printRemotes(parsed.owner, parsed.name, effectiveOrg, forkName)
   console.log(`  ${pc.dim('→')} ${pc.cyan(toTildePath(targetDir))}`)
 }
 
@@ -174,16 +174,16 @@ async function runForkInPlace(config: GlobalUserConfig, options: ForkOptions): P
   const spinner = startSpinner(`Forking to ${pc.bold(forkLabel)}...`)
   const ghArgs = buildGhForkArgs(detected.owner, detected.name, forkOrg, forkName)
   const result = await x('gh', ghArgs, { throwOnError: false })
-  stopSpinner(spinner)
 
   if (result.exitCode !== 0) {
+    stopSpinner(spinner)
     error(`Fork failed: ${result.stderr || `gh fork exited with code ${result.exitCode}`}`)
   }
 
-  success(`Forked ${pc.bold(`${detected.owner}/${detected.name}`)} to ${pc.bold(forkLabel)}`)
-
   const effectiveOrg = forkOrg ?? (await getGhAuthUser())
   await configureRemotes(cwd, detected.owner, detected.name, effectiveOrg, forkName)
+  stopSpinner(spinner)
+  printRemotes(detected.owner, detected.name, effectiveOrg, forkName)
 }
 
 async function resolveForkName(
@@ -275,7 +275,14 @@ async function configureRemotes(
   const defaultBranch = branchResult.stdout.trim() || 'main'
 
   await run('git', ['branch', '--set-upstream-to', `upstream/${defaultBranch}`])
+}
 
+function printRemotes(
+  originalOwner: string,
+  originalName: string,
+  forkOrg: string,
+  forkName: string
+): void {
   console.log(
     `  ${pc.dim('upstream')} → ${pc.cyan(`https://github.com/${originalOwner}/${originalName}.git`)}`
   )
