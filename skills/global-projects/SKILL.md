@@ -5,7 +5,7 @@ description: Load this skill when you are required to check source code outside 
 
 # Global Projects
 
-Use this skill to follow the user's project organization standard. `mo` is the user's CLI for managing global projects; the skill is mainly about the directory standard and when to use `mo`.
+Use this skill to follow the user's project organization standard. The project CLI is installed as either `mo` or `moi`; the skill is mainly about the directory standard and when to use the selected command.
 
 Standard layout:
 
@@ -23,13 +23,22 @@ Examples:
 
 ## First Step
 
-Skill loading does not automatically execute commands. When a task needs the project root, run the resolver first:
+Skill loading does not automatically execute commands. When a task needs the project root, select the CLI and run its paired resolver first:
 
 ```bash
-mo-get-root
+if command -v moi-get-root >/dev/null 2>&1; then
+  moi-get-root
+elif command -v mo-get-root >/dev/null 2>&1; then
+  mo-get-root
+else
+  echo "Install @liangmi/moi or @liangmi/mo before resolving global projects." >&2
+  exit 1
+fi
 ```
 
-It only reads `~/.config/morc.json` and prints JSON with `rootPath`. If `rootPath` is missing, ask the user before creating or cloning anything; they may need to run `mo setup`.
+Prefer `moi` when both resolver commands exist. The resolver only reads `~/.config/morc.json` and prints JSON with `rootPath`. If `rootPath` is missing, ask the user before creating or cloning anything; they may need to run `moi setup` or `mo setup` for the selected CLI.
+
+Use the command paired with the resolver for the rest of the task: `moi-get-root` selects `moi`, while `mo-get-root` selects `mo`. Never identify the project CLI from the `mo` command alone because another tool may own that name. The examples below use `mo`; substitute `moi` when `moi-get-root` was selected.
 
 ## Project Path Rules
 
@@ -50,7 +59,7 @@ git@github.com:vuejs/core.git -> <rootPath>/vuejs/core
 
 For a bare project name or fuzzy query:
 
-1. Run `mo list` or inspect one level under `rootPath`.
+1. Run the selected CLI's `list` command or inspect one level under `rootPath`.
 2. Prefer exact repo-name matches.
 3. Prefer exact `owner/repo` matches when the user gave an owner.
 4. If multiple owners match, ask the user to choose.
@@ -58,9 +67,9 @@ For a bare project name or fuzzy query:
 
 Pay attention, the codebase may be not up to dated or even not in the main branch so please take care and use tricks to check.
 
-## `mo` Command Usage
+## Project CLI Command Usage
 
-Use `mo` when you need to clone/fork/create a project. Once you know the local path, use normal shell and editor tooling for ordinary file reads, edits, builds, and tests.
+Use the selected project CLI when you need to clone/fork/create a project. Once you know the local path, use normal shell and editor tooling for ordinary file reads, edits, builds, and tests.
 
 Use `mo list` to discover existing managed repositories:
 
@@ -102,4 +111,4 @@ Forking also changes remote GitHub state. Treat it as a dangerous command. Do no
 - Preserve the `<owner>/<repo>` organization when cloning projects.
 - Avoid creating project directories outside `rootPath` unless the user asks.
 - Name both owner and repo in status updates for cross-project work.
-- Use `mo` for repository discovery and placement; use normal shell and editor tooling once the local path is known.
+- Use the selected project CLI for repository discovery and placement; use normal shell and editor tooling once the local path is known.

@@ -34,10 +34,10 @@ mo setup
 > Install it with:
 >
 > ```bash
-> skills add liangimQwQ/mo -g
+> skills add liangmiQwQ/mo --skill global-projects -g
 > ```
 >
-> It is not completely a `mo`'s usage skill, it is mainly about project organization standard, including how to get access the right project or how to place a cloned project correctly.
+> The skill detects whether `mo` or `moi` is installed. It is mainly about the project organization standard, including how to access the right project or place a cloned project correctly.
 
 ## Commands
 

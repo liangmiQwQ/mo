@@ -29,7 +29,7 @@ Interactive selector UI is built as Vue SFCs rendered by `@vue-tui/runtime`; kee
 Vite+ configuration inherits the `cli` preset from `@liangmi/vp-config`; keep local overrides limited to project-specific behavior.
 `vp pack` generates the ignored `dist-moi` alias package for `@liangmi/moi` through the pack `build:done` hook; the alias package exposes `moi`, `moi-get-root`, and `moi-inner` with the same version as `@liangmi/mo`, without root-only scripts, dev dependencies, or package-manager metadata.
 Local development wrappers are managed by `vp run dev:mo`, `vp run dev:moi`, `vp run dev:mouni`, and `vp run dev:moiuni`, targeting the matching `~/.local/bin/mo*` or `~/.local/bin/moi*` commands; each wrapper runs Vite+ pack quietly before executing the bundled `bin` entry with `node`.
-The `global-projects` skill resolves the configured root by calling the `mo-get-root` bin, authored in `src/mo-get-root.ts`.
+The GitHub-installed `global-projects` skill selects `moi` or `mo` through the matching `*-get-root` bin before running project commands, so an unrelated `mo` executable is never mistaken for this CLI.
 
 ## Rule
 
