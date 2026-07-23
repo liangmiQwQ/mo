@@ -40,6 +40,8 @@ Core state: `"list" | "search" | "succeed" | "error"`
 - Footer: The footer is a line of text, and it has only two status
   If the user's pointer is on a valid path, it should display the path of the project. (dim the prefix and gray style the path)
   If the user's pointer is on nothing, it should display the message that no directory found with dim and italic format
+  If user enter a spec that includes a `/` in the search bar, it should display one more message (after the `notfound` message, the same format), allow users to press ctrl+r to fork, press ctrl+e to clone.
+  Once users press one of the hotkey, change the status to succeed, and use `mo composition` command.
 
   It should be hidden in succeed and error mode.
 
