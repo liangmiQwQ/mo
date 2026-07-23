@@ -27,10 +27,12 @@ export function getMatchScore(text: string, query: string): number | null {
 
 export function searchReposByName(query: string, groups: RepoGroup[]): RepoNameMatch[] {
   const matches: RepoNameMatch[] = []
+  const searchByPath = query.trim().includes('/')
 
   for (const group of groups) {
     for (const repo of group.repos) {
-      const score = getMatchScore(repo.name, query)
+      const matchText = searchByPath ? `${repo.owner}/${repo.name}` : repo.name
+      const score = getMatchScore(matchText, query)
       if (score === null) {
         continue
       }
@@ -43,11 +45,14 @@ export function searchReposByName(query: string, groups: RepoGroup[]): RepoNameM
     if (a.score !== b.score) {
       return a.score - b.score
     }
-    if (a.repo.name.length !== b.repo.name.length) {
-      return a.repo.name.length - b.repo.name.length
+
+    const aMatchText = searchByPath ? `${a.repo.owner}/${a.repo.name}` : a.repo.name
+    const bMatchText = searchByPath ? `${b.repo.owner}/${b.repo.name}` : b.repo.name
+    if (aMatchText.length !== bMatchText.length) {
+      return aMatchText.length - bMatchText.length
     }
 
-    const byName = a.repo.name.localeCompare(b.repo.name)
+    const byName = aMatchText.localeCompare(bMatchText)
     if (byName !== 0) {
       return byName
     }
