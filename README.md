@@ -29,15 +29,19 @@ mo setup
 ```
 
 > [!TIP]
-> If you are an agent user, we provide [`global-projects` skill](./skills/global-projects).
+> If you are an agent user, we provide two skills:
 >
-> Install it with:
+> - [`global-projects`](./skills/global-projects) organizes repositories and resolves their local paths.
+> - [`contribute-to-open-source`](./skills/contribute-to-open-source) prepares forks with `mo fork` and follows the upstream contribution workflow.
+>
+> Install either skill with:
 >
 > ```bash
 > skills add liangmiQwQ/mo --skill global-projects -g
+> skills add liangmiQwQ/mo --skill contribute-to-open-source -g
 > ```
 >
-> The skill detects whether `mo` or `moi` is installed. It is mainly about the project organization standard, including how to access the right project or place a cloned project correctly.
+> Both skills detect whether `mo` or `moi` is installed and use the matching command.
 
 ## Commands
 
