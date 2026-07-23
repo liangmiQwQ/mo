@@ -5,7 +5,7 @@ description: Load this skill when you are required to check source code outside 
 
 # Global Projects
 
-Use this skill to follow the user's project organization standard. The project CLI is installed as either `mo` or `moi`; the skill is mainly about the directory standard and when to use the selected command.
+Use this skill to follow the user's project organization standard. The project CLI is installed as either `moi`(try first) or `mo`; the skill is mainly about the directory standard and when to use the selected command. The document will use `mo` as an example.
 
 Standard layout:
 
