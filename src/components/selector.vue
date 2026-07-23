@@ -26,11 +26,13 @@ interface SearchItem {
 }
 
 type SelectorItem = ListItem | SearchItem
+type CompositionCommand = 'clone' | 'fork'
 
 interface SelectorProps {
   root: string
   groups: RepoGroup[]
   onSelect: (path: string) => void
+  onCompose: (command: CompositionCommand, repo: string) => void
   onCancel: () => void
 }
 
@@ -38,7 +40,7 @@ defineOptions({
   name: 'Selector'
 })
 
-const { root, groups, onSelect, onCancel } = defineProps<SelectorProps>()
+const { root, groups, onSelect, onCompose, onCancel } = defineProps<SelectorProps>()
 
 const LIST_HEIGHT = 15
 const POINTER = '\u276F '
@@ -69,6 +71,7 @@ const currentPath = computed(() => {
   }
   return currentItems.value[cursorIndex.value]?.path || ''
 })
+const canCompose = computed(() => !currentPath.value && query.value.includes('/'))
 const headerText = computed(() =>
   renderHeader(
     isSearchMode.value && state.value === 'list' ? 'search' : state.value,
@@ -88,11 +91,18 @@ const bodyLines = computed(() =>
       )
     : renderListLines(listItems.value, cursorIndex.value, scrollOffset.value, LIST_HEIGHT)
 )
-const footerText = computed(() =>
-  selectableIndices.value.length === 0
-    ? pc.dim(pc.italic('No directory found'))
-    : pc.dim('Path: ') + pc.gray(toTildePath(currentPath.value))
-)
+const footerText = computed(() => {
+  const status =
+    selectableIndices.value.length === 0
+      ? pc.dim(pc.italic('No directory found'))
+      : pc.dim('Path: ') + pc.gray(toTildePath(currentPath.value))
+
+  if (!canCompose.value) {
+    return status
+  }
+
+  return `${status}\n${pc.dim(pc.italic('Ctrl+R to fork, Ctrl+E to clone'))}`
+})
 const showBody = computed(() => state.value === 'list' || state.value === 'search')
 
 useInput((input, key) => {
@@ -102,6 +112,11 @@ useInput((input, key) => {
 
   if (key.ctrl && input === 'c') {
     cancel()
+    return
+  }
+
+  if (canCompose.value && key.ctrl && (input === 'r' || input === 'e')) {
+    compose(input === 'r' ? 'fork' : 'clone')
     return
   }
 
@@ -416,6 +431,12 @@ function moveCursor(direction: 1 | -1): void {
 function resetCursor(items: { selectable: boolean }[]): void {
   const firstSelectable = items.findIndex(item => item.selectable)
   cursorIndex.value = Math.max(firstSelectable, 0)
+}
+
+function compose(command: CompositionCommand): void {
+  state.value = 'succeed'
+  selectedPath.value = query.value
+  onCompose(command, query.value)
 }
 
 function cancel(): void {
