@@ -1,19 +1,14 @@
 import type { GlobalUserConfig } from '../utils/config.ts'
 import { error } from '../utils/error.ts'
-import { parseGitHubRepo } from '../utils/github.ts'
 import { runCdCommand } from './cd.ts'
-import { runCloneCommand } from './clone.ts'
+import { parseCompositionMainCommand, runCompositionMainCommand } from './composition-main.ts'
+import type { CompositionOptions } from './composition-main.ts'
 import { runEditCommand, runOpenCommand } from './edit.ts'
-import { runForkCommand } from './fork.ts'
-import type { ForkOptions } from './fork.ts'
 
-const mainCommands = ['clone', 'fork'] as const
-type CompositionMainCommand = (typeof mainCommands)[number]
+export type { CompositionOptions } from './composition-main.ts'
 
 const subCommands = ['cd', 'edit', 'open'] as const
 type CompositionSubCommand = (typeof subCommands)[number]
-
-export type CompositionOptions = ForkOptions
 
 export async function runCompositionCommand(
   mainCommand: string,
@@ -22,33 +17,13 @@ export async function runCompositionCommand(
   config: GlobalUserConfig,
   options: CompositionOptions
 ): Promise<void> {
-  const parsedMainCommand = parseMainCommand(mainCommand)
+  const parsedMainCommand = parseCompositionMainCommand(mainCommand)
   const parsedSubCommands = parseSubCommands(subCommandInput)
-  const parsedRepo = parseGitHubRepo(repo)
-  const target = `${parsedRepo.owner}/${parsedRepo.name}`
-
-  if (parsedMainCommand === 'clone') {
-    if (options.org || options.name) {
-      error('`mo composition clone` does not support fork options.')
-    }
-    await runCloneCommand(repo, config)
-  } else {
-    await runForkCommand(repo, config, options)
-  }
+  const target = await runCompositionMainCommand(parsedMainCommand, repo, config, options)
 
   for (const subCommand of parsedSubCommands) {
-    await runCompositionSubCommand(subCommand, target, config)
+    await runCompositionSubCommand(subCommand, target.spec, config)
   }
-}
-
-function parseMainCommand(command: string): CompositionMainCommand {
-  if (mainCommands.includes(command as CompositionMainCommand)) {
-    return command as CompositionMainCommand
-  }
-
-  return error(
-    `Invalid composition main command "${command}". Supported: ${mainCommands.join(', ')}`
-  )
 }
 
 function parseSubCommands(input: string): CompositionSubCommand[] {

@@ -5,6 +5,7 @@ import { appendEditAction, buildDirectEditorEnv, hasShellIntegration } from '../
 import type { GlobalUserConfig } from '../utils/config.ts'
 import { error } from '../utils/error.ts'
 import { withPathSelector } from '../utils/selector.ts'
+import { runCompositionMainCommand } from './composition-main.ts'
 
 export async function runEditCommand(
   target: string | undefined,
@@ -17,13 +18,18 @@ export async function runEditCommand(
   }
 
   try {
-    await withPathSelector(config.root, target, async selectedPath => {
+    const action = async (selectedPath: string): Promise<void> => {
       if (hasShellIntegration()) {
         await appendEditAction(editorCommand, selectedPath)
         return
       }
 
       await runEditor(editorCommand, selectedPath)
+    }
+
+    await withPathSelector(config.root, target, action, async (mainCommand, repo) => {
+      const compositionTarget = await runCompositionMainCommand(mainCommand, repo, config, {})
+      await action(compositionTarget.path)
     })
   } catch {
     process.exit(130)

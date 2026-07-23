@@ -12,10 +12,13 @@ import { scanRepos } from './repos.ts'
 import type { RepoGroup } from './repos.ts'
 import { searchOwnerGroupsByName, searchReposByName } from './search.ts'
 
+export type SelectorCompositionCommand = 'clone' | 'fork'
+
 export async function withPathSelector<T>(
   root: string,
   target: string | undefined,
-  action: (targetPath: string) => T | Promise<T>
+  action: (targetPath: string) => T | Promise<T>,
+  compositionAction: (command: SelectorCompositionCommand, repo: string) => T | Promise<T>
 ): Promise<T> {
   const resolvedTarget = target?.trim()
 
@@ -53,6 +56,12 @@ export async function withPathSelector<T>(
         setTimeout(() => {
           app.unmount()
           resolve(action(selectedPath))
+        }, 50)
+      },
+      onCompose: (command: SelectorCompositionCommand, repo: string) => {
+        setTimeout(() => {
+          app.unmount()
+          resolve(compositionAction(command, repo))
         }, 50)
       },
       onCancel: () => {
