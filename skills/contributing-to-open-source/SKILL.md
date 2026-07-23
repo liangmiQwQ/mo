@@ -1,11 +1,11 @@
 ---
-name: contribute-to-open-source
+name: contributing-to-open-source
 description: Standardize GitHub open-source contribution work by using mo or moi to create or reuse a fork, preserve upstream and origin remotes, work on a dedicated branch, validate changes, and prepare a pull request. Use when Codex is asked to modify a GitHub repository the user does not maintain, fix an upstream issue, contribute a patch, or submit a pull request from a fork.
 ---
 
 # Contribute to Open Source
 
-Follow the target repository's contribution instructions first. Use `mo` or `moi` to prepare the repository, then use normal development tools inside its local directory.
+Follow the target repository's contribution instructions first. Use `moi`(try first) or `mo` to prepare the repository, then use normal development tools inside its local directory.
 
 ## Respect the Contribution Boundary
 
