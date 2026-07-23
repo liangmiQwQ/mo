@@ -380,10 +380,12 @@ function renderSearchLines(
     const prefix = isSelected ? POINTER : POINTER_BLANK
 
     if (item.type === 'project') {
+      const isPathSearch = queryText.includes('/') && item.owner
+      const label = isPathSearch ? `${item.owner}/${item.label}` : item.label
       const name = isSelected
-        ? pc.underline(pc.green(item.label))
-        : highlightMatch(item.label, queryText, s => s)
-      const suffix = item.owner ? pc.dim(` (${item.owner})`) : ''
+        ? pc.underline(pc.green(label))
+        : highlightMatch(label, queryText, s => s)
+      const suffix = item.owner && !isPathSearch ? pc.dim(` (${item.owner})`) : ''
       lines.push(prefix + name + suffix)
     } else {
       const name = isSelected
