@@ -1,4 +1,0 @@
-interface:
-  display_name: 'Contribute to Open Source'
-  short_description: 'Use mo to prepare open-source contributions'
-  default_prompt: 'Use $contribute-to-open-source to prepare this repository for an upstream contribution.'

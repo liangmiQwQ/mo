@@ -1,6 +1,6 @@
 ---
 name: contributing-to-open-source
-description: Standardize GitHub open-source contribution work by using mo or moi to create or reuse a fork, preserve upstream and origin remotes, work on a dedicated branch, validate changes, and prepare a pull request. Use when Codex is asked to modify a GitHub repository the user does not maintain, fix an upstream issue, contribute a patch, or submit a pull request from a fork.
+description: Load this skill when you are contributing to an opensource project without write access for the first time (no remote set). Do not load this skill when Git remote is set. Do not load this skill when the user have write access to this repo.
 ---
 
 # Contribute to Open Source
