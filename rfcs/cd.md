@@ -9,6 +9,7 @@ mo cd [<target>]
 mo cd <owner>/<repo>
 mo cd https://github.com/<owner>/<repo>
 mo cd https://github.com/<owner>/<repo>.git
+mo cd . # Just cd to the current project, error if not in a project
 ```
 
 ## Shell Integration
@@ -39,3 +40,5 @@ The interactive selector is specified in [selector.md](./selector.md). Key point
 | GitHub repo URL  | `~/code/<owner>/<repo>` |
 
 GitHub repository URLs are resolved from `https://github.com/<owner>/<repo>` or `https://github.com/<owner>/<repo>.git`. The command only resolves an existing local directory; it does not clone missing repositories.
+
+`mo edit`, `mo cd`, and `mo open` share the same selector and path-resolution logic. Differences are only in the final action performed on the resolved path.

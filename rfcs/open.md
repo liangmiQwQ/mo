@@ -1,6 +1,6 @@
 # RFC: `open` command
 
-`mo open` opens a repository in the system default browser.
+`mo open` opens a repository in the system default browser. It shares the same interactive selector and <target> resolver as `mo cd`.
 
 ## Usage
 

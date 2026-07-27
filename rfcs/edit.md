@@ -1,6 +1,6 @@
 # RFC: `edit` command
 
-`mo edit` opens a repository in the configured editor. It shares the same interactive selector as `mo cd`.
+`mo edit` opens a repository in the configured editor. It shares the same interactive selector and <target> resolver as `mo cd`.
 
 ## Usage
 
@@ -27,5 +27,3 @@ mo e [<target>] [-e <editor>]     # alias
 | Alias | Command   |
 | ----- | --------- |
 | `e`   | `mo edit` |
-
-`mo edit`, `mo cd`, and `mo open` share the same selector and path-resolution logic. Differences are only in the final action performed on the resolved path.
