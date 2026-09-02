@@ -5,10 +5,11 @@ import { createApp } from '@vue-tui/runtime'
 import pc from 'picocolors'
 
 import Selector from '../components/selector.vue'
+import { error } from './error.ts'
 import { startSpinner, stopSpinner, icons, toTildePath } from './format.ts'
 import { pathExists } from './fs.ts'
 import { parseGitHubRepoInput } from './github.ts'
-import { scanRepos } from './repos.ts'
+import { resolveCurrentRepo, scanRepos } from './repos.ts'
 import type { RepoGroup } from './repos.ts'
 import { searchOwnerGroupsByName, searchReposByName } from './search.ts'
 
@@ -23,6 +24,16 @@ export async function withPathSelector<T>(
   const resolvedTarget = target?.trim()
 
   if (resolvedTarget) {
+    if (resolvedTarget === '.') {
+      const currentRepo = await resolveCurrentRepo(root, process.cwd())
+      if (!currentRepo) {
+        error(`Current directory is not inside a mo-managed repository under ${toTildePath(root)}.`)
+      }
+
+      console.log(`${icons.success} ${pc.cyan(toTildePath(currentRepo))}`)
+      return action(currentRepo)
+    }
+
     const explicitTarget = await resolveTarget(root, resolvedTarget, [])
     if (explicitTarget) {
       console.log(`${icons.success} ${pc.cyan(toTildePath(explicitTarget))}`)
@@ -81,10 +92,6 @@ async function resolveTarget(
   target: string,
   groups: RepoGroup[]
 ): Promise<string | null> {
-  if (target === '.') {
-    return root
-  }
-
   // Try as explicit owner/repo path relative to root
   const repo = parseGitHubRepoInput(target)
   if (repo) {

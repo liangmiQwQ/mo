@@ -14,6 +14,8 @@ mo c <owner>/<repo>      # alias
 Example: `mo clone vitejs/vite` clones to `<root>/vitejs/vite`.
 Example: `mo clone https://github.com/vuejs/core.git` clones to `<root>/vuejs/core`.
 
+`.` is not accepted because `mo clone` requires an explicit remote repository.
+
 ## Behavior
 
 1. Parse `<owner>/<repo>` from the argument or GitHub repository URL.

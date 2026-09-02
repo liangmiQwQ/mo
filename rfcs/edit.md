@@ -6,13 +6,15 @@
 
 ```bash
 mo edit [<target>] [-e <editor>]
+mo edit . [-e <editor>]
 mo edit https://github.com/<owner>/<repo> [-e <editor>]
 mo edit https://github.com/<owner>/<repo>.git [-e <editor>]
 mo e [<target>] [-e <editor>]     # alias
 ```
 
 - If `<target>` is omitted, the selector opens.
-- `<target>` can be a search query, `<owner>/<repo>`, or a GitHub repository URL.
+- `<target>` can be `.`, a search query, `<owner>/<repo>`, or a GitHub repository URL.
+- `.` opens the managed project containing the current directory, including from a nested directory.
 - `-e` / `--editor` overrides the editor set in `morc.json`.
 
 ## Behavior

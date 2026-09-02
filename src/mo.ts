@@ -73,7 +73,7 @@ cli
   )
 
 cli
-  .command('fork [repo]', 'Fork a GitHub repo or URL, or fork the current repo in place')
+  .command('fork [repo]', 'Fork a GitHub repo or URL, or fork the current project in place')
   .alias('f')
   .option('-o, --org <org>', 'GitHub org to fork into (overrides config)')
   .option('-n, --name <name>', 'Name for the forked repository')
@@ -101,7 +101,7 @@ cli
   .action(withConfig((config, target?: string) => runCdCommand(target, config)))
 
 cli
-  .command('edit [target]', 'Open a root, owner, repo, or GitHub URL in your editor')
+  .command('edit [target]', 'Open the current project, root, owner, repo, or URL in your editor')
   .alias('e')
   .option('-e, --editor <editor>', 'Editor to use (overrides config)')
   .action(
@@ -111,7 +111,7 @@ cli
   )
 
 cli
-  .command('open [target]', 'Open a root, owner, repo, or GitHub URL on GitHub')
+  .command('open [target]', 'Open the current project, root, owner, repo, or URL on GitHub')
   .alias('o')
   .action(withConfig((config, target?: string) => runOpenCommand(target, config)))
 

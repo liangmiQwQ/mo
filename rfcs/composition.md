@@ -30,6 +30,8 @@ mo composition <main-command> <sub-commands> <repo>
 
 Main command is the first command to run. It can be `fork` or `clone`. If this command receive any option or flag, it should be passed to the main command.
 
+`<repo>` must be an explicit remote repository. `.` is not accepted, including when the main command is `fork`.
+
 Sub commands are a set of commands split with `,`, it will be run one by one. It can include `edit`, `open`, `cd` commands. The command's received option and flag should not influence these command. (For example, `mo composition clone cd,edit vuejs/core`)
 
 If the main command failed, the sub commands should not be executed.

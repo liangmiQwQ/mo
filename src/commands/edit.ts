@@ -7,18 +7,26 @@ import { error } from '../utils/error.ts'
 import { withPathSelector } from '../utils/selector.ts'
 import { runCompositionMainCommand } from './composition-main.ts'
 
+const missingEditorMessage =
+  'No editor configured. Set "editor" in config via `mo setup` or use `-e <editor>`.'
+
 export async function runEditCommand(
   target: string | undefined,
   config: GlobalUserConfig,
   options: { editor?: string } = {}
 ): Promise<void> {
   const editorCommand = options.editor ?? config.editor
-  if (!editorCommand) {
-    error('No editor configured. Set "editor" in config via `mo setup` or use `-e <editor>`.', 78)
+  const isCurrentProjectTarget = target?.trim() === '.'
+  if (!editorCommand && !isCurrentProjectTarget) {
+    error(missingEditorMessage, 78)
   }
 
   try {
     const action = async (selectedPath: string): Promise<void> => {
+      if (!editorCommand) {
+        error(missingEditorMessage, 78)
+      }
+
       if (hasShellIntegration()) {
         await appendEditAction(editorCommand, selectedPath)
         return
