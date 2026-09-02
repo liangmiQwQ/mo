@@ -6,12 +6,13 @@ import { runCdCommand } from './commands/cd.ts'
 import { runCloneCommand } from './commands/clone.ts'
 import { runCompositionCommand } from './commands/composition.ts'
 import type { CompositionOptions } from './commands/composition.ts'
-import { runEditCommand, runOpenCommand } from './commands/edit.ts'
+import { runEditCommand } from './commands/edit.ts'
 import { runForkCommand } from './commands/fork.ts'
 import type { ForkOptions } from './commands/fork.ts'
 import { runInitCommand } from './commands/init.ts'
 import type { InitOptions } from './commands/init.ts'
 import { runListCommand } from './commands/list.ts'
+import { runOpenCommand } from './commands/open.ts'
 import { promptRunSetupOnMissingConfig, runSetupCommand } from './commands/setup.ts'
 import { getDefaultConfigPath, loadConfig } from './utils/config.ts'
 import type { GlobalUserConfig } from './utils/config.ts'
@@ -110,7 +111,7 @@ cli
   )
 
 cli
-  .command('open [target]', 'Open a root, owner, repo, or GitHub URL in system file explorer')
+  .command('open [target]', 'Open a root, owner, repo, or GitHub URL on GitHub')
   .alias('o')
   .action(withConfig((config, target?: string) => runOpenCommand(target, config)))
 
