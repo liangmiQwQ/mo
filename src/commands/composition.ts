@@ -3,7 +3,8 @@ import { error } from '../utils/error.ts'
 import { runCdCommand } from './cd.ts'
 import { parseCompositionMainCommand, runCompositionMainCommand } from './composition-main.ts'
 import type { CompositionOptions } from './composition-main.ts'
-import { runEditCommand, runOpenCommand } from './edit.ts'
+import { runEditCommand } from './edit.ts'
+import { runOpenCommand } from './open.ts'
 
 export type { CompositionOptions } from './composition-main.ts'
 

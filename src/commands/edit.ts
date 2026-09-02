@@ -46,10 +46,3 @@ async function runEditor(editorCommand: string, selectedPath: string): Promise<v
     throw new Error(`Exit code ${code}`)
   }
 }
-
-export async function runOpenCommand(
-  target: string | undefined,
-  config: GlobalUserConfig
-): Promise<void> {
-  return runEditCommand(target, config, { editor: 'open' })
-}

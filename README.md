@@ -54,9 +54,9 @@ mo setup
 | `mo list`                             | `mo ls` | List all managed repos                      |
 | `mo cd [target]`                      |         | Jump to root, owner, repo, or GitHub URL    |
 | `mo edit [target]`                    | `mo e`  | Open a directory in your editor             |
-| `mo open [target]`                    | `mo o`  | Open a directory in Finder/Explorer         |
+| `mo open [target]`                    | `mo o`  | Open a root, owner, or repo on GitHub       |
 
-`mo cd`, `mo edit`, and `mo open` have similar behavior and open an interactive selector when called without arguments. When a target is provided, it can be a search query, `<owner>/<repo>`, or a GitHub repository URL for an existing local repo.
+`mo cd`, `mo edit`, and `mo open` share the same target resolution and open an interactive selector when called without arguments. When a target is provided, it can be a search query, `<owner>/<repo>`, or a GitHub repository URL for an existing local repo. `mo open` opens the resolved GitHub destination in the system default browser.
 
 > [!TIP]
 > If you are using `mo` with VS Code based editors, you can add this line to your editor config to prevent `mo edit` popping up a new separated window.
