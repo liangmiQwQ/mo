@@ -96,7 +96,7 @@ cli
   .action(withConfig(runListCommand))
 
 cli
-  .command('cd [target]', 'Resolve a root, owner, repo, or GitHub URL for shell navigation')
+  .command('cd [target]', 'Resolve the current project, root, owner, repo, or GitHub URL')
   .action(withConfig((config, target?: string) => runCdCommand(target, config)))
 
 cli

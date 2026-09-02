@@ -15,6 +15,22 @@ export interface RepoGroup {
   repos: RepoEntry[]
 }
 
+export async function resolveCurrentRepo(root: string, cwd: string): Promise<string | null> {
+  const relative = path.relative(root, cwd)
+  const parts = relative.split(path.sep).filter(Boolean)
+
+  if (relative === '' || relative === '..' || relative.startsWith(`..${path.sep}`)) {
+    return null
+  }
+
+  if (path.isAbsolute(relative) || parts.length < 2) {
+    return null
+  }
+
+  const repoPath = path.join(root, parts[0], parts[1])
+  return (await isGitRepo(repoPath)) ? repoPath : null
+}
+
 async function readDirectoryNames(dir: string): Promise<string[]> {
   try {
     return (await readdir(dir, { withFileTypes: true }))
