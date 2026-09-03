@@ -9,7 +9,7 @@ mo cd [<target>]
 mo cd <owner>/<repo>
 mo cd https://github.com/<owner>/<repo>
 mo cd https://github.com/<owner>/<repo>.git
-mo cd . # Just cd to the current project, error if not in a project
+mo cd . # Jump to the managed project containing the current directory
 ```
 
 ## Shell Integration
@@ -38,7 +38,10 @@ The interactive selector is specified in [selector.md](./selector.md). Key point
 | `<owner>`        | `~/code/<owner>`        |
 | `<owner>/<repo>` | `~/code/<owner>/<repo>` |
 | GitHub repo URL  | `~/code/<owner>/<repo>` |
+| `.`              | Current managed project |
 
 GitHub repository URLs are resolved from `https://github.com/<owner>/<repo>` or `https://github.com/<owner>/<repo>.git`. The command only resolves an existing local directory; it does not clone missing repositories.
+
+`.` is syntax sugar for the managed project containing the current working directory. It resolves to `<root>/<owner>/<repo>` from the project root or any nested directory. It fails when used outside a managed Git repository, from `<root>` or `<root>/<owner>`, or from a matching directory that is not a Git repository.
 
 `mo edit`, `mo cd`, and `mo open` share the same selector and path-resolution logic. Differences are only in the final action performed on the resolved path.

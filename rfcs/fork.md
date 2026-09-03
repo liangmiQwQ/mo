@@ -18,6 +18,7 @@ Open source contributors frequently need to:
 mo fork <owner>/<repo>
 mo fork https://github.com/<owner>/<repo>
 mo fork https://github.com/<owner>/<repo>.git
+mo fork .
 ```
 
 Alias: `mo f` or global default `fr`
@@ -28,7 +29,7 @@ The cloning and forking should be done in parallel to save the time. After cloni
 
 If the `gh repo fork` failed to run while `clone` running or finished successfully, the `clone` should be interrupted and the cloned repo should be deleted. If the `clone` failed to run while `gh repo fork` running or finished successfully, the `gh repo fork` should be kept but showing user a warning that the fork is created.
 
-The fork command can be called without any arguments. In that case, it transform the current repo in the current dir into a fork (skip cloning). Exit with errors if the current dir is not a mo's managed repo or the user tries fork the repo to the same repo (allow the same owner even but add a prompt to confirm, just prevent the same name with the same owner). Also exit if there are already `upstream` remote.
+The fork command can be called without any arguments. In that case, it transform the current repo in the current dir into a fork (skip cloning). `mo fork .` has the same in-place behavior, with `.` resolving the managed project containing the current directory. Exit with errors if the current dir is not a mo's managed repo or the user tries fork the repo to the same repo (allow the same owner even but add a prompt to confirm, just prevent the same name with the same owner). Also exit if there are already `upstream` remote.
 
 For example, `mo f -o liangmiQwQ -n mo liangmiQwQ/mo` should be failed, but `mo f liangmiQwQ/mo -o liangmiQwQ -n wa` should be allowed but with a prmopt (before other prmopt).
 

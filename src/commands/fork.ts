@@ -10,6 +10,7 @@ import { icons, startSpinner, stopSpinner, toTildePath } from '../utils/format.t
 import { pathExists } from '../utils/fs.ts'
 import { parseGitHubRepo } from '../utils/github.ts'
 import { promptConfirm, promptText } from '../utils/prompt.ts'
+import { resolveCurrentRepo } from '../utils/repos.ts'
 
 export interface ForkOptions {
   org?: string
@@ -22,6 +23,18 @@ export async function runForkCommand(
   options: ForkOptions
 ): Promise<void> {
   if (repo === undefined) {
+    await runForkInPlace(config, options)
+    return
+  }
+
+  if (repo.trim() === '.') {
+    const currentRepo = await resolveCurrentRepo(config.root, process.cwd())
+    if (!currentRepo) {
+      error(
+        `Current directory is not inside a mo-managed repository under ${toTildePath(config.root)}.`
+      )
+    }
+
     await runForkInPlace(config, options)
     return
   }
