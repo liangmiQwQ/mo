@@ -31,7 +31,7 @@ export default cli({
   run: {
     tasks: {
       cpack: {
-        command: 'vp pack',
+        command: 'vp pack --root .',
         input: [{ auto: true }, '!dist-moi/**']
       }
     }
