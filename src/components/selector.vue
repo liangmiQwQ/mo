@@ -105,22 +105,32 @@ const footerText = computed(() => {
 })
 const showBody = computed(() => state.value === 'list' || state.value === 'search')
 
-useInput((input, key) => {
+useInput(event => {
   if (state.value === 'succeed' || state.value === 'error') {
     return
   }
 
-  if (key.ctrl && input === 'c') {
+  // Text and paste events carry insertion text; only key events guarantee a key.
+  if (event.type !== 'key') {
+    const newQuery = query.value + event.text
+    query.value = newQuery
+    resetCursor(newQuery ? searchItems(newQuery, groups, root) : listItems.value)
+    return
+  }
+
+  const { key } = event
+
+  if (key.ctrl && key.character === 'c') {
     cancel()
     return
   }
 
-  if (canCompose.value && key.ctrl && (input === 'r' || input === 'e')) {
-    compose(input === 'r' ? 'fork' : 'clone')
+  if (canCompose.value && key.ctrl && (key.character === 'r' || key.character === 'e')) {
+    compose(key.character === 'r' ? 'fork' : 'clone')
     return
   }
 
-  if (key.escape) {
+  if (key.name === 'escape') {
     if (query.value) {
       query.value = ''
       resetCursor(listItems.value)
@@ -130,7 +140,7 @@ useInput((input, key) => {
     return
   }
 
-  if (key.return) {
+  if (key.name === 'enter') {
     if (currentPath.value) {
       state.value = 'succeed'
       selectedPath.value = currentPath.value
@@ -139,31 +149,20 @@ useInput((input, key) => {
     return
   }
 
-  if (key.upArrow) {
+  if (key.name === 'up') {
     moveCursor(-1)
     return
   }
 
-  if (key.downArrow) {
+  if (key.name === 'down') {
     moveCursor(1)
     return
   }
 
-  if (key.tab) {
-    return
-  }
-
-  if (key.backspace || key.delete) {
+  if (key.name === 'backspace' || key.name === 'delete') {
     const newQuery = query.value.slice(0, -1)
     query.value = newQuery
     resetCursor(newQuery ? searchItems(newQuery, groups, root) : listItems.value)
-    return
-  }
-
-  if (input && !key.ctrl && !key.meta) {
-    const newQuery = query.value + input
-    query.value = newQuery
-    resetCursor(searchItems(newQuery, groups, root))
   }
 })
 
