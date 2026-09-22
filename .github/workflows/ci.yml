@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: voidzero-dev/setup-vp@v1
+      - uses: voidzero-dev/setup-vp@v1.20.0
         with:
           node-version: '22'
           cache: true
@@ -33,7 +33,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-      - uses: voidzero-dev/setup-vp@v1
+      - uses: voidzero-dev/setup-vp@v1.20.0
         with:
           node-version: ${{ matrix.node-version }}
           cache: true
