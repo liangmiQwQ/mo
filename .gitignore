@@ -4,3 +4,4 @@ dist-moi
 *.log
 .DS_Store
 tests/fixtures/.temp
+.vitest/

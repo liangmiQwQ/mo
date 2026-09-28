@@ -49,8 +49,7 @@
     "prompts": "^2.4.2"
   },
   "devDependencies": {
-    "@liangmi/vp-config": "^0.5.1",
-    "@oxlint/plugins": "1.84.0",
+    "@liangmi/vp-config": "^0.6.0",
     "@types/node": "^26.6.2",
     "@types/prompts": "^2.4.9",
     "@types/which": "^3.0.4",
