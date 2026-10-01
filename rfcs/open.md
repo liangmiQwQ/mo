@@ -18,6 +18,8 @@ It shares the same select and command argument logic as `mo edit`, `mo cd`
 
 `<target>` can be `.`, a search query, `<owner>/<repo>`, or a GitHub repository URL (see [repository spec resolver](./repo-spec.md)). `.` opens the managed project containing the current directory, including from a nested directory.
 
+If `<target>` has no match, the selector opens with a prefilled search, as described in [`cd`](./cd.md#fallback-to-selector).
+
 It opens the default browser with the GitHub page of the repo. For example, runs `mo o vite` will open https://github.com/vitejs/vite
 
 ## Aliases

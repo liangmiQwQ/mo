@@ -24,11 +24,33 @@ This means `mo cd` itself must never be called directly as a plain binary invoca
 
 ## Selector UI
 
-The interactive selector is specified in [selector.md](./selector.md). Key points:
+The interactive selector is specified in [SELECTOR.md](./SELECTOR.md). Key points:
 
 - Displays `<root>`, owner directories, and individual repos in grouped list mode.
 - Supports incremental search across repo names and owner names.
 - Arrow keys navigate; Enter confirms; Esc / Ctrl-C cancels.
+
+## Fallback to Selector
+
+When `<target>` is given but nothing matches, the command opens the selector instead of failing. The search input is prefilled, so users can refine the query, pick another repo, or clone the missing one.
+
+- If the [repository spec resolver](./repo-spec.md) finds a spec in `<target>`, the input is prefilled with `<owner>/<repo>`. Because the query contains a `/`, the footer shows the Ctrl-R (fork) and Ctrl-E (clone) hotkeys right away.
+- Otherwise, the input is prefilled with the trimmed `<target>`.
+
+```bash
+$ mo cd https://github.com/vuejs/core/pull/123   # vuejs/core is not cloned yet
+
+? Where would you like to go? vuejs/core
+
+No directory found
+Ctrl+R to fork, Ctrl+E to clone
+```
+
+The fallback only happens when both stdin and stdout are a TTY. In scripts and agent sessions, the command fails with `No matching directory found for '<target>'` as before, so it never waits for input that cannot come.
+
+`.` never falls back. When the current directory is not inside a managed project, the command fails as before.
+
+Canceling the fallback selector behaves the same as canceling `mo cd` without a target.
 
 ## Selectable Targets
 

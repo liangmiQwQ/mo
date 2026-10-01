@@ -15,6 +15,7 @@ mo e [<target>] [-e <editor>]     # alias
 - If `<target>` is omitted, the selector opens.
 - `<target>` can be `.`, a search query, `<owner>/<repo>`, or a GitHub repository URL (see [repository spec resolver](./repo-spec.md)).
 - `.` opens the managed project containing the current directory, including from a nested directory.
+- If `<target>` has no match, the selector opens with a prefilled search, as described in [`cd`](./cd.md#fallback-to-selector).
 - `-e` / `--editor` overrides the editor set in `morc.json`.
 
 ## Behavior
