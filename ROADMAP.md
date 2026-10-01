@@ -20,3 +20,7 @@
 
 - [x] [`fork` command](/rfcs/fork.md)
 - [x] [`init` command](/rfcs/init.md)
+
+## Stage Five: Smarter Targets
+
+- [x] [Repository spec resolver](/rfcs/repo-spec.md)

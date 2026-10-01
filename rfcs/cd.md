@@ -40,7 +40,7 @@ The interactive selector is specified in [selector.md](./selector.md). Key point
 | GitHub repo URL  | `~/code/<owner>/<repo>` |
 | `.`              | Current managed project |
 
-GitHub repository URLs are resolved from `https://github.com/<owner>/<repo>` or `https://github.com/<owner>/<repo>.git`. The command only resolves an existing local directory; it does not clone missing repositories.
+GitHub repository URLs and other inputs containing a repository are resolved with the [repository spec resolver](./repo-spec.md), after the local search fails. The command only resolves an existing local directory; it does not clone missing repositories.
 
 `.` is syntax sugar for the managed project containing the current working directory. It resolves to `<root>/<owner>/<repo>` from the project root or any nested directory. It fails when used outside a managed Git repository, from `<root>` or `<root>/<owner>`, or from a matching directory that is not a Git repository.
 
