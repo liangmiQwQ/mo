@@ -76,14 +76,7 @@ Owner and repo names are validated with GitHub's rules: the owner is alphanumeri
 
 ### `clone`, `fork`, `composition`
 
-These commands need a remote repository, so the resolved spec is the target.
-
-If the input is not an exact spec, the command prints the resolved spec before doing anything else, so users can see what was picked:
-
-```bash
-$ mo clone "https://github.com/vuejs/core/pull/123"
-Resolved vuejs/core
-```
+These commands need a remote repository, so the resolved spec is the target. No extra message is printed for the resolution, because the existing success and failure messages already include `<owner>/<repo>`.
 
 If no spec is found, the command fails with the current error:
 
