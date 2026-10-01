@@ -23,7 +23,7 @@ mo fork .
 
 Alias: `mo f` or global default `fr`
 
-Basically it is a wrapper around `mo clone` and `gh repo fork`. It should clone the repo to the local and create fork remotely with `gh` command. The repo argument accepts `<owner>/<repo>` or a GitHub repository URL.
+Basically it is a wrapper around `mo clone` and `gh repo fork`. It should clone the repo to the local and create fork remotely with `gh` command. The repo argument accepts anything the [repository spec resolver](./repo-spec.md) accepts, such as `<owner>/<repo>` or a GitHub repository URL.
 
 The cloning and forking should be done in parallel to save the time. After cloning, the original repo should be set as `upstream` remote and the fork should be set as `origin` remote. `git branch --set-upstream-to=upstream/${defaultBranch}` should be run as well.
 
