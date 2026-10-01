@@ -31,6 +31,7 @@ type CompositionCommand = 'clone' | 'fork'
 interface SelectorProps {
   root: string
   groups: RepoGroup[]
+  initialQuery?: string
   onSelect: (path: string) => void
   onCompose: (command: CompositionCommand, repo: string) => void
   onCancel: () => void
@@ -40,7 +41,14 @@ defineOptions({
   name: 'Selector'
 })
 
-const { root, groups, onSelect, onCompose, onCancel } = defineProps<SelectorProps>()
+const {
+  root,
+  groups,
+  initialQuery = '',
+  onSelect,
+  onCompose,
+  onCancel
+} = defineProps<SelectorProps>()
 
 const LIST_HEIGHT = 15
 const POINTER = '\u276F '
@@ -48,7 +56,7 @@ const POINTER_BLANK = '  '
 const QUESTION = 'Where would you like to go? '
 
 const state = shallowRef<SelectorState>('list')
-const query = shallowRef('')
+const query = shallowRef(initialQuery)
 const cursorIndex = shallowRef(0)
 const selectedPath = shallowRef('')
 const errorMessage = shallowRef('')

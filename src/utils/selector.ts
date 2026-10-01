@@ -46,14 +46,18 @@ export async function withPathSelector<T>(
     stopSpinner(spinner)
 
     // Search runs before free-text resolution so prefix queries like `vue/co` keep working.
-    const resolved =
-      searchTarget(resolvedTarget, groups) ??
-      (await resolveRepoPath(root, resolveGitHubRepo(resolvedTarget)))
+    const repo = resolveGitHubRepo(resolvedTarget)
+    const resolved = searchTarget(resolvedTarget, groups) ?? (await resolveRepoPath(root, repo))
     if (!resolved) {
-      console.error(
-        `${icons.error} ${pc.red(`No matching directory found for '${resolvedTarget}'`)}`
-      )
-      throw new Error(`No match: ${resolvedTarget}`)
+      if (!isInteractive()) {
+        console.error(
+          `${icons.error} ${pc.red(`No matching directory found for '${resolvedTarget}'`)}`
+        )
+        throw new Error(`No match: ${resolvedTarget}`)
+      }
+
+      const initialQuery = repo ? `${repo.owner}/${repo.name}` : resolvedTarget
+      return openSelector(root, groups, initialQuery, action, compositionAction)
     }
     console.log(`${icons.success} ${pc.cyan(toTildePath(resolved))}`)
     return action(resolved)
@@ -63,10 +67,21 @@ export async function withPathSelector<T>(
   const groups = await scanRepos(root)
   stopSpinner(spinner)
 
+  return openSelector(root, groups, '', action, compositionAction)
+}
+
+function openSelector<T>(
+  root: string,
+  groups: RepoGroup[],
+  initialQuery: string,
+  action: (targetPath: string) => T | Promise<T>,
+  compositionAction: (command: SelectorCompositionCommand, repo: string) => T | Promise<T>
+): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const app = createApp(Selector, {
       root,
       groups,
+      initialQuery,
       onSelect: (selectedPath: string) => {
         setTimeout(() => {
           app.unmount()
@@ -89,6 +104,11 @@ export async function withPathSelector<T>(
 
     app.mount({ exitOnCtrlC: false })
   })
+}
+
+// Without a terminal on both ends, the selector would wait for input that never comes.
+function isInteractive(): boolean {
+  return process.stdin.isTTY && process.stdout.isTTY
 }
 
 async function resolveRepoPath(root: string, repo: GitHubRepo | null): Promise<string | null> {
