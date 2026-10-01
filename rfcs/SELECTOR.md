@@ -37,6 +37,8 @@ Core state: `"list" | "search" | "succeed" | "error"`
 
   It should be hidden in succeed and error mode.
 
+- Initial query: The selector can be opened with a prefilled search input (used by the fallback in [`cd`](./cd.md#fallback-to-selector)). It starts in search mode with the query shown in the header, exactly as if users had typed it. Backspace and Esc work on it like typed text.
+
 - Footer: The footer is a line of text, and it has only two status
   If the user's pointer is on a valid path, it should display the path of the project. (dim the prefix and gray style the path)
   If the user's pointer is on nothing, it should display the message that no directory found with dim and italic format

@@ -24,3 +24,4 @@
 ## Stage Five: Smarter Targets
 
 - [x] [Repository spec resolver](/rfcs/repo-spec.md)
+- [ ] [Fallback to selector](/rfcs/cd.md#fallback-to-selector)
