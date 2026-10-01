@@ -58,6 +58,8 @@ mo setup
 
 `mo cd`, `mo edit`, and `mo open` share the same target resolution and open an interactive selector when called without arguments. When a target is provided, it can be `.`, a search query, `<owner>/<repo>`, or a GitHub repository URL for an existing local repo. `.` means the managed project containing the current directory, even from a nested directory. `mo fork .` forks that current project in place, like `mo fork` with no argument. Commands that require a remote repository, including `mo clone` and `mo composition`, do not accept `.`. `mo open` opens the resolved GitHub destination in the system default browser.
 
+Repository arguments do not need to be clean. Pull request and file links, SSH remotes, URLs without `https://`, and copied text containing a GitHub URL or `<owner>/<repo>` all resolve to the repository. For `mo cd`, `mo edit`, and `mo open`, free text is only read after the local search finds nothing.
+
 > [!TIP]
 > If you are using `mo` with VS Code based editors, you can add this line to your editor config to prevent `mo edit` popping up a new separated window.
 >

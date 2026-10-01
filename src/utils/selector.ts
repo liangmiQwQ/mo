@@ -8,7 +8,8 @@ import Selector from '../components/selector.vue'
 import { error } from './error.ts'
 import { startSpinner, stopSpinner, icons, toTildePath } from './format.ts'
 import { pathExists } from './fs.ts'
-import { parseGitHubRepoInput } from './github.ts'
+import { parseGitHubRepoInput, resolveGitHubRepo } from './github.ts'
+import type { GitHubRepo } from './github.ts'
 import { resolveCurrentRepo, scanRepos } from './repos.ts'
 import type { RepoGroup } from './repos.ts'
 import { searchOwnerGroupsByName, searchReposByName } from './search.ts'
@@ -34,7 +35,7 @@ export async function withPathSelector<T>(
       return action(currentRepo)
     }
 
-    const explicitTarget = await resolveTarget(root, resolvedTarget, [])
+    const explicitTarget = await resolveRepoPath(root, parseGitHubRepoInput(resolvedTarget))
     if (explicitTarget) {
       console.log(`${icons.success} ${pc.cyan(toTildePath(explicitTarget))}`)
       return action(explicitTarget)
@@ -44,7 +45,10 @@ export async function withPathSelector<T>(
     const groups = await scanRepos(root)
     stopSpinner(spinner)
 
-    const resolved = await resolveTarget(root, resolvedTarget, groups)
+    // Search runs before free-text resolution so prefix queries like `vue/co` keep working.
+    const resolved =
+      searchTarget(resolvedTarget, groups) ??
+      (await resolveRepoPath(root, resolveGitHubRepo(resolvedTarget)))
     if (!resolved) {
       console.error(
         `${icons.error} ${pc.red(`No matching directory found for '${resolvedTarget}'`)}`
@@ -87,20 +91,20 @@ export async function withPathSelector<T>(
   })
 }
 
-async function resolveTarget(
-  root: string,
-  target: string,
-  groups: RepoGroup[]
-): Promise<string | null> {
-  // Try as explicit owner/repo path relative to root
-  const repo = parseGitHubRepoInput(target)
-  if (repo) {
-    const candidate = path.join(root, repo.owner, repo.name)
-    if ((await pathExists(candidate)) && (await stat(candidate)).isDirectory()) {
-      return candidate
-    }
+async function resolveRepoPath(root: string, repo: GitHubRepo | null): Promise<string | null> {
+  if (!repo) {
+    return null
   }
 
+  const candidate = path.join(root, repo.owner, repo.name)
+  if ((await pathExists(candidate)) && (await stat(candidate)).isDirectory()) {
+    return candidate
+  }
+
+  return null
+}
+
+function searchTarget(target: string, groups: RepoGroup[]): string | null {
   // Search by best match score: repos first, then owners.
   // This ensures a repo named "foo" is preferred over an owner directory named "foo".
   const repoMatches = searchReposByName(target, groups)

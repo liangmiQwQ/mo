@@ -23,4 +23,4 @@
 
 ## Stage Five: Smarter Targets
 
-- [ ] [Repository spec resolver](/rfcs/repo-spec.md)
+- [x] [Repository spec resolver](/rfcs/repo-spec.md)
