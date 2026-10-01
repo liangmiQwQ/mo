@@ -32,7 +32,9 @@ export default cli({
     tasks: {
       cpack: {
         command: 'vp pack --root .',
-        input: [{ auto: true }, '!dist-moi/**']
+        cache: {
+          input: [{ auto: true }, '!dist-moi/**']
+        }
       }
     }
   }

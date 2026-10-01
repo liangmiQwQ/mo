@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@liangmi/vp-config": "^0.6.0",
-    "@types/node": "^26.6.2",
+    "@types/node": "^26.6.3",
     "@types/prompts": "^2.4.9",
     "@types/which": "^3.0.4",
     "@typescript/native-preview": "7.0.0-dev.20260707.2",
