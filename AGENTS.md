@@ -16,7 +16,7 @@ Run `vp check` (lint and format) after you make changes.
 
 Tests are disabled for now.
 
-Keep AGENTS.md updated with the project codebase. Consider if there is need to modify AGENTS.md after your changes. Only record non-obvious rules and gotchas in AGENTS.md. Feature behavior belongs in RFCs; update the matching RFC instead.
+If you find AGENTS.md is outdated, please notice users to change in response.
 
 Never use emoji no matter where.
 
