@@ -13,9 +13,10 @@ minimumReleaseAgeExclude:
   - '@voidzero-dev/vite-plus-win32-arm64-msvc@1.0.0'
   - '@voidzero-dev/vite-plus-win32-x64-msvc@1.0.0'
   - vite-plus@1.0.0
+  - '@liangmi/vp-config@1.0.0'
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@1.0.0
-  vite-plus: 1.0.0
+  vite: npm:@voidzero-dev/vite-plus-core@1.3.0
+  vite-plus: 1.3.0
 overrides:
   vite@*: 'catalog:'
 peerDependencyRules:
