@@ -1,7 +1,7 @@
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
-import { cli } from '@liangmi/vp-config'
+import { liangmi } from '@liangmi/vp-config'
 import vue from '@vitejs/plugin-vue'
 import type { PackUserConfig } from 'vite-plus/pack'
 
@@ -16,7 +16,7 @@ const moiOutputDir = resolve(repoRoot, 'dist-moi')
 
 const vuePlugins = [vue()] as unknown as PackUserConfig['plugins']
 
-export default cli({
+export default await liangmi({
   pack: {
     plugins: vuePlugins,
     entry: {
